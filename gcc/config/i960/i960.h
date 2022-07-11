@@ -106,7 +106,7 @@ Boston, MA 02111-1307, USA.  */
    (offsets except for 0-4095 require one more word).  Therefore we've
    not defined the macro.  */
 /*#define CAN_DEBUG_WITHOUT_FP*/
-
+#if 0
 /* Do leaf procedure and tail call optimizations for -O2 and higher.  */
 #define OPTIMIZATION_OPTIONS(LEVEL,SIZE)	\
 {						\
@@ -116,17 +116,20 @@ Boston, MA 02111-1307, USA.  */
       target_flags |= TARGET_FLAG_TAILCALL;	\
     }						\
 }
-
+#endif
+#if 0
 /* Print subsidiary information on the compiler version in use.  */
 #define TARGET_VERSION fprintf (stderr," (intel 80960)");
+#endif
 
 /* Generate DBX debugging information.  */
 #define DBX_DEBUGGING_INFO 1
 
 /* Generate SDB style debugging information.  */
+#if 0
 #define SDB_DEBUGGING_INFO 1
 #define EXTENDED_SDB_BASIC_TYPES
-
+#endif
 /* Generate DBX_DEBUGGING_INFO by default.  */
 #define PREFERRED_DEBUGGING_TYPE DBX_DEBUG
 
@@ -235,7 +238,7 @@ extern int i960_last_maxbitalignment;
 #define TARGET_LONG_DOUBLE_64	(target_flags & TARGET_FLAG_LONG_DOUBLE_64)
 
 extern int target_flags;
-
+#if 0
 /* Macro to define tables used to set the flags.
    This is a list in braces of pairs in braces,
    each pair being { "NAME", VALUE }
@@ -338,7 +341,6 @@ extern int target_flags;
     SUBTARGET_SWITCHES                                                  \
     { "", TARGET_DEFAULT,						\
 	NULL}}
-
 /* This are meant to be redefined in the host dependent files */
 #define SUBTARGET_SWITCHES
 
@@ -347,6 +349,7 @@ extern int target_flags;
    does handle the case of two blatantly conflicting -mARCH options.  */
 #define OVERRIDE_OPTIONS  i960_initialize ()
 
+#endif
 /* Don't enable anything by default.  The user is expected to supply a -mARCH
    option.  If none is given, then -mka is added by CC1_SPEC.  */
 #define TARGET_DEFAULT 0
@@ -518,7 +521,7 @@ extern int target_flags;
    On 80960, the cpu registers can hold any mode but the float registers
    can only hold SFmode, DFmode, or TFmode.  */
 #define HARD_REGNO_MODE_OK(REGNO, MODE) hard_regno_mode_ok ((REGNO), (MODE))
-
+#if 0
 /* Value is 1 if it is a good idea to tie two pseudo registers
    when one has mode MODE1 and one has mode MODE2.
    If HARD_REGNO_MODE_OK could produce different values for MODE1 and MODE2,
@@ -526,6 +529,7 @@ extern int target_flags;
 
 #define MODES_TIEABLE_P(MODE1, MODE2) \
   ((MODE1) == (MODE2) || GET_MODE_CLASS (MODE1) == GET_MODE_CLASS (MODE2))
+#endif
 
 /* Specify the registers used for certain standard purposes.
    The values of these macros are register numbers.  */
@@ -1051,6 +1055,7 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
   { if (legitimate_address_p (MODE, X, 0)) goto ADDR; }
 #endif
 
+#if 0
 /* Try machine-dependent ways of modifying an illegitimate address
    to be legitimate.  If we find one, return the new, valid address.
    This macro is used in only one place: `memory_address' in explow.c.
@@ -1075,8 +1080,8 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 /* Go to LABEL if ADDR (a legitimate address expression)
    has an effect that depends on the machine mode it is used for.
    On the 960 this is never true.  */
-
 #define GO_IF_MODE_DEPENDENT_ADDRESS(ADDR,LABEL)
+#endif
 
 /* Specify the machine mode that this machine uses
    for the index in the tablejump instruction.  */
@@ -1114,10 +1119,11 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 /* Define this to be nonzero if shift instructions ignore all but the low-order
    few bits.  */
 #define SHIFT_COUNT_TRUNCATED 0
-
+#if 0
 /* Value is 1 if truncating an integer of INPREC bits to OUTPREC bits
    is done just by pretending it is already truncated.  */
 #define TRULY_NOOP_TRUNCATION(OUTPREC, INPREC) 1
+#endif
 
 /* Specify the machine mode that pointers have.
    After generation of rtl, the compiler makes no further distinction
@@ -1150,9 +1156,10 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
 #define NO_FUNCTION_CSE
 
 /* Use memcpy, etc. instead of bcopy.  */
-
+#if 0
 #ifndef WIND_RIVER
 #define	TARGET_MEM_FUNCTIONS	1
+#endif
 #endif
 
 /* Control the assembler format that we output.  */
@@ -1195,6 +1202,7 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
 /* Don't emit dbx records longer than this.  This is an arbitrary value.  */
 #define DBX_CONTIN_LENGTH 1500
 
+#if 0
 /* This is how to output a note to DBX telling it the line number
    to which the following sequence of instructions corresponds.  */
 
@@ -1206,6 +1214,7 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
   } else if (write_symbols == DBX_DEBUG) {			\
 	fprintf((FILE),"\t.stabd	68,0,%d\n",(LINE));	\
   } }
+#endif
 
 /* Globalizing directive for a label.  */
 #define GLOBAL_ASM_OP "\t.globl "
@@ -1318,7 +1327,7 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
 
 /* Output assembler code for a block containing the constant parts
    of a trampoline, leaving space for the variable parts.  */
-
+#if 0
 /* On the i960, the trampoline contains three instructions:
      ldconst _function, r4
      ldconst static addr, g12
@@ -1346,13 +1355,15 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
   emit_move_insn (gen_rtx_MEM (SImode, plus_constant (TRAMP, 4)), FNADDR); \
   emit_move_insn (gen_rtx_MEM (SImode, plus_constant (TRAMP, 12)), CXT); \
 }
+#endif
 
 /* Generate RTL to flush the register windows so as to make arbitrary frames
    available.  */
 #define SETUP_FRAME_ADDRESSES()		\
   emit_insn (gen_flush_register_windows ())
-
+#if 0
 #define BUILTIN_SETJMP_FRAME_VALUE hard_frame_pointer_rtx
+#endif
 
 #if 0
 /* Promote char and short arguments to ints, when want compatibility with
@@ -1380,6 +1391,7 @@ extern enum insn_types i960_last_insn_type;
 
 /* Table listing what rtl codes each predicate in i960.c will accept.  */
 
+#if 0
 #define PREDICATE_CODES \
   {"fpmove_src_operand", {CONST_INT, CONST_DOUBLE, CONST, SYMBOL_REF,	\
 			  LABEL_REF, SUBREG, REG, MEM}},		\
@@ -1398,7 +1410,7 @@ extern enum insn_types i960_last_insn_type;
 		       CONST_DOUBLE, CONST}},				\
   {"power2_operand", {CONST_INT}},					\
   {"cmplpower2_operand", {CONST_INT}},
-
+#endif
 /* Defined in reload.c, and used in insn-recog.c.  */
 
 extern int rtx_equal_function_value_matters;
