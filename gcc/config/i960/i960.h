@@ -1290,7 +1290,7 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
   } while (0)
 
 /* Output text for an #ident directive.  */
-#define	ASM_OUTPUT_IDENT(FILE, STR)  fprintf(FILE, "\t# %s\n", STR);
+//#define	ASM_OUTPUT_IDENT(FILE, STR)  fprintf(FILE, "\t# %s\n", STR);
 
 /* Align code to 8 byte boundary if TARGET_CODE_ALIGN is true.  */
 
