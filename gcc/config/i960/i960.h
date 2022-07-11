@@ -377,6 +377,7 @@ extern int target_flags;
 
 /* Width in bits of a long double.  */
 #define	LONG_DOUBLE_TYPE_SIZE (TARGET_LONG_DOUBLE_64 ? 64 : 128)
+#if 0
 #define MAX_LONG_DOUBLE_TYPE_SIZE 128
 
 /* Define this to set long double type size to use in libgcc2.c, which can
@@ -387,6 +388,7 @@ extern int target_flags;
 #define LIBGCC2_LONG_DOUBLE_TYPE_SIZE 128
 #endif
 
+#endif
 /* Allocation boundary (in *bits*) for storing pointers in memory.  */
 #define POINTER_BOUNDARY 32
 
@@ -418,7 +420,7 @@ extern int target_flags;
    when given unaligned data.
    80960 will work even with unaligned data, but it is slow.  */
 #define STRICT_ALIGNMENT TARGET_STRICT_ALIGN
-
+#if 0
 /* Specify alignment for string literals (which might be higher than the
    base type's minimal alignment requirement.  This allows strings to be
    aligned on word boundaries, and optimizes calls to the str* and mem*
@@ -429,6 +431,7 @@ extern int target_flags;
    ? i960_object_bytes_bitalign (int_size_in_bytes (TREE_TYPE (EXP)))	    \
    : (int)(ALIGN))
 
+#endif
 /* Macros to determine size of aggregates (structures and unions
    in C).  Normally, these may be defined to simply return the maximum
    alignment and simple rounded-up size, but on some machines (like
@@ -496,6 +499,7 @@ extern int target_flags;
   0, 0, 0, 0, 0, 0, 0, 0,	\
   1, 1, 1, 1, 1, 1}
 
+#if 0
 /* If no fp unit, make all of the fp registers fixed so that they can't
    be used.  */
 #define	CONDITIONAL_REGISTER_USAGE	\
@@ -503,6 +507,8 @@ extern int target_flags;
      fixed_regs[32] = fixed_regs[33] = fixed_regs[34] = fixed_regs[35] = 1;\
   }									\
 
+#endif
+#if 0
 /* Return number of consecutive hard regs needed starting at reg REGNO
    to hold something of mode MODE.
    This is ordinarily the length in words of a value of mode MODE
@@ -521,7 +527,6 @@ extern int target_flags;
    On 80960, the cpu registers can hold any mode but the float registers
    can only hold SFmode, DFmode, or TFmode.  */
 #define HARD_REGNO_MODE_OK(REGNO, MODE) hard_regno_mode_ok ((REGNO), (MODE))
-#if 0
 /* Value is 1 if it is a good idea to tie two pseudo registers
    when one has mode MODE1 and one has mode MODE2.
    If HARD_REGNO_MODE_OK could produce different values for MODE1 and MODE2,
@@ -547,6 +552,7 @@ extern int target_flags;
 /* Base register for access to local variables of the function.  */
 #define FRAME_POINTER_REGNUM 15
 
+#if 0
 /* Value should be nonzero if functions must have frame pointers.
    Zero means the frame pointer need not be set up (and parms
    may be accessed via the stack pointer) in functions that seem suitable.
@@ -561,6 +567,7 @@ extern int target_flags;
 #define FRAME_POINTER_REQUIRED \
   (! leaf_function_p () || current_function_has_nonlocal_goto)
 
+#endif
 /* Definitions for register eliminations.
 
    This is an array of structures.  Each structure initializes one pair
@@ -569,10 +576,11 @@ extern int target_flags;
    in order of preference..  */
 
 #define ELIMINABLE_REGS	 {{FRAME_POINTER_REGNUM, STACK_POINTER_REGNUM}}
-
+#if 0
 /* Given FROM and TO register numbers, say whether this elimination is allowed.
    Frame pointer elimination is automatically handled.  */
 #define CAN_ELIMINATE(FROM, TO) 1
+#endif
 
 /* Define the offset between two registers, one to be eliminated, and
    the other its replacement, at the start of a routine.
@@ -592,10 +600,11 @@ extern int target_flags;
    a register that can be set before a call or before a jump.  */
 #define STATIC_CHAIN_REGNUM 12
  
+#if 0
 /* Functions which return large structures get the address
    to place the wanted value at in g13.  */
-
 #define STRUCT_VALUE_REGNUM 13 
+#endif
 
 /* The order in which to allocate registers.  */
 
@@ -860,6 +869,7 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 #define INIT_CUMULATIVE_ARGS(CUM, FNTYPE, LIBNAME, INDIRECT, N_NAMED_ARGS) \
   ((CUM).ca_nregparms = 0, (CUM).ca_nstackparms = 0)
 
+#if 0
 /* Update the data in CUM to advance over an argument
    of mode MODE and data type TYPE.
    CUM should be advanced to align with the data type accessed and
@@ -879,7 +889,6 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
    : ((GET_MODE_ALIGNMENT (MODE) <= PARM_BOUNDARY)			\
       ? PARM_BOUNDARY							\
       : GET_MODE_ALIGNMENT (MODE)))
-
 /* Determine where to put an argument to a function.
    Value is zero to push the argument on the stack,
    or a hard register in which to store the argument.
@@ -895,6 +904,7 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 
 #define FUNCTION_ARG(CUM, MODE, TYPE, NAMED)	\
   i960_function_arg(&CUM, MODE, TYPE, NAMED)
+#endif
 
 /* Define how to find the value returned by a function.
    VALTYPE is the data type of the value (as a tree).
@@ -913,12 +923,13 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 /* Don't default to pcc-struct-return, because we have already specified
    exactly how to return structures in the RETURN_IN_MEMORY macro.  */
 #define DEFAULT_PCC_STRUCT_RETURN 0
-
+#if 0
 /* For an arg passed partly in registers and partly in memory,
    this is the number of registers used.
    This never happens on 80960.  */
 
 #define FUNCTION_ARG_PARTIAL_NREGS(CUM, MODE, TYPE, NAMED) 0
+#endif
 
 /* Output the label for a function definition.
   This handles leaf functions and a few other things for the i960.  */
@@ -974,7 +985,7 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
   (GET_CODE (X) == LABEL_REF || GET_CODE (X) == SYMBOL_REF		\
    || GET_CODE (X) == CONST_INT || GET_CODE (X) == CONST		\
    || GET_CODE (X) == HIGH)
-
+#if 0
 /* LEGITIMATE_CONSTANT_P is nonzero if the constant value X
    is a legitimate general operand.
    It is given that X satisfies CONSTANT_P.
@@ -985,6 +996,7 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 
 #define LEGITIMATE_CONSTANT_P(X) \
   ((GET_CODE (X) != CONST_DOUBLE) || fp_literal ((X), GET_MODE (X)))
+#endif
 
 /* The macros REG_OK_FOR..._P assume that the arg is a REG rtx
    and check its validity for a certain class.
