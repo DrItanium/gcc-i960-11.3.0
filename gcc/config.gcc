@@ -365,6 +365,9 @@ bfin*-*)
 bpf-*-*)
 	cpu_type=bpf
 	;;
+i960-*-*)
+	cpu_type=i960
+	;;
 frv*)	cpu_type=frv
 	extra_options="${extra_options} g.opt"
 	;;
@@ -2245,6 +2248,19 @@ i[34567]86-*-mingw* | x86_64-*-mingw*)
 x86_64-*-fuchsia*)
 	tmake_file="${tmake_file} i386/t-x86_64-elf"
 	tm_file="${tm_file} i386/unix.h i386/att.h elfos.h newlib-stdint.h i386/i386elf.h i386/x86-64.h fuchsia.h"
+	;;
+i960*-*-elf*)
+	tm_file="${tm_file} dbxelf.h elfos.h newlib-stdint.h"
+	tmake_file="i960/t-i960"
+	target_cpu_default="0"
+	if test x$gas = xyes
+	then
+		target_cpu_default="${target_cpu_default}|MASK_GNU_AS"
+	fi
+	if test x$gnu_ld = xyes
+	then
+		target_cpu_default="${target_cpu_default}|MASK_GNU_LD"
+	fi
 	;;
 ia64*-*-elf*)
 	tm_file="${tm_file} dbxelf.h elfos.h newlib-stdint.h ia64/sysv4.h ia64/elf.h"
