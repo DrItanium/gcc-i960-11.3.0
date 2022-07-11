@@ -680,6 +680,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 #define INDEX_REG_CLASS LOCAL_OR_GLOBAL_REGS
 #define BASE_REG_CLASS LOCAL_OR_GLOBAL_REGS
 
+#if 0
 /* Get reg_class from a letter such as appears in the machine description.
    'f' is a floating point register (fp0..fp3)
    'l' is a local register (r0-r15)
@@ -719,6 +720,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    (((C) == 'G' && (VALUE) == CONST0_RTX (GET_MODE (VALUE)))		\
     || ((C) == 'H' && ((VALUE) == CONST1_RTX (GET_MODE (VALUE))))))
 
+#endif
 /* Given an rtx X being reloaded into a reg required to be
    in class CLASS, return the class of reg to actually use.
    In general this is just CLASS; but on some machines
@@ -741,12 +743,14 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 #define SECONDARY_RELOAD_CLASS(CLASS,MODE,IN) \
   secondary_reload_class (CLASS, MODE, IN)
 
+#if 0
 /* Return the maximum number of consecutive registers
    needed to represent mode MODE in a register of class CLASS.  */
 /* On 80960, this is the size of MODE in words,
    except in the FP regs, where a single reg is always enough.  */
 #define CLASS_MAX_NREGS(CLASS, MODE)					\
   ((CLASS) == FP_REGS ? 1 : HARD_REGNO_NREGS (0, (MODE)))
+#endif
 
 /* Stack layout; function entry, exit and calling.  */
 
@@ -760,6 +764,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    goes at a more negative offset in the frame.  */
 /* #define FRAME_GROWS_DOWNWARD */
 
+#if 0
 /* Offset within stack frame to start allocating local variables at.
    If FRAME_GROWS_DOWNWARD, this is the offset to the END of the
    first local allocated.  Otherwise, it is the offset to the BEGINNING
@@ -769,6 +774,8 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    bytes allocated for varargs functions.  */
 #define STARTING_FRAME_OFFSET 64
 
+#endif
+
 /* If we generate an insn to push BYTES bytes,
    this says how many the stack pointer really advances by.
    On 80960, don't define this because there are no push insns.  */
@@ -776,19 +783,20 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 
 /* Offset of first parameter from the argument pointer register value.  */
 #define FIRST_PARM_OFFSET(FNDECL) 0
-
+#if 0
 /* When a parameter is passed in a register, no stack space is
    allocated for it.  However, when args are passed in the
    stack, space is allocated for every register parameter.  */
 #define MAYBE_REG_PARM_STACK_SPACE 48
 #define FINAL_REG_PARM_STACK_SPACE(CONST_SIZE, VAR_SIZE)	\
   i960_final_reg_parm_stack_space (CONST_SIZE, VAR_SIZE);
+#endif
 #define REG_PARM_STACK_SPACE(DECL) i960_reg_parm_stack_space (DECL)
 #define OUTGOING_REG_PARM_STACK_SPACE
 
 /* Keep the stack pointer constant throughout the function.  */
 #define ACCUMULATE_OUTGOING_ARGS 1
-
+#if 0
 /* Value is 1 if returning from a function call automatically
    pops the arguments described by the number-of-args field in the call.
    FUNDECL is the declaration node of the function (as a tree),
@@ -796,6 +804,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    or for a library call it is an identifier node for the subroutine name.  */
 
 #define RETURN_POPS_ARGS(FUNDECL,FUNTYPE,SIZE) 0
+#endif
 
 /* Define how to find the value returned by a library function
    assuming the value has mode MODE.  */
@@ -813,6 +822,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 
 #define FUNCTION_ARG_REGNO_P(N) ((N) < 12)
 
+#if 0
 /* Perform any needed actions needed for a function that is receiving a
    variable number of arguments. 
 
@@ -829,14 +839,17 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 
 #define SETUP_INCOMING_VARARGS(CUM,MODE,TYPE,PRETEND_SIZE,NO_RTL) \
   i960_setup_incoming_varargs(&CUM,MODE,TYPE,&PRETEND_SIZE,NO_RTL)
+#endif
 
 /* Implement `va_start' for varargs and stdarg.  */
 #define EXPAND_BUILTIN_VA_START(valist, nextarg) \
   i960_va_start (valist, nextarg)
 
+#if 0
 /* Implement `va_arg'.  */
 #define EXPAND_BUILTIN_VA_ARG(valist, type) \
   i960_va_arg (valist, type)
+#endif
 
 /* Define a data type for recording info about an argument list
    during the scan of that argument list.  This data type should
