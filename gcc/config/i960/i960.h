@@ -237,8 +237,8 @@ extern int i960_last_maxbitalignment;
 #define TARGET_FLAG_LONG_DOUBLE_64	0x10000
 #define TARGET_LONG_DOUBLE_64	(target_flags & TARGET_FLAG_LONG_DOUBLE_64)
 
-extern int target_flags;
 #if 0
+extern int target_flags;
 /* Macro to define tables used to set the flags.
    This is a list in braces of pairs in braces,
    each pair being { "NAME", VALUE }
@@ -1366,11 +1366,11 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
   assemble_aligned_integer (UNITS_PER_WORD, GEN_INT (0x00000000));	\
   assemble_aligned_integer (UNITS_PER_WORD, GEN_INT (0x84212000));	\
 }
-
+#endif
 /* Length in units of the trampoline for entering a nested function.  */
 
 #define TRAMPOLINE_SIZE 20
-
+#if 0
 /* Emit RTL insns to initialize the variable parts of a trampoline.
    FNADDR is an RTX for the address of the function's pure code.
    CXT is an RTX for the static chain value for the function.  */
