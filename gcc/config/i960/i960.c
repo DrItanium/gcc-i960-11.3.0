@@ -53,6 +53,14 @@ static void i960_output_mi_thunk (FILE *, tree, HOST_WIDE_INT,
 static bool i960_rtx_costs (rtx, int, int, int *);
 static int i960_address_cost (rtx);
 static tree i960_build_builtin_va_list (void);
+/* Per-function machine data.  */
+struct GTY(()) machine_function
+{
+
+  /* Number of bytes saved on the stack for outgoing/sub-function args.  */
+  HOST_WIDE_INT args_size;
+
+};
 
 /* Save the operands last given to a compare for use when we
    generate a scc or bcc insn.  */
@@ -119,7 +127,19 @@ static int ret_label = 0;
 #define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
 
 struct gcc_target targetm = TARGET_INITIALIZER;
-
+/* Zero initialization is OK for all current fields.  */
+
+static struct machine_function *
+i960_init_machine_status (void)
+{
+  return ggc_cleared_alloc<machine_function> ();
+}
+static void
+i960_option_override (void)
+{
+  /* Set the per-function-data initializer.  */
+  init_machine_status = i960_init_machine_status;
+}
 /* Override conflicting target switch options.
    Doesn't actually detect if more than one -mARCH option is given, but
    does handle the case of two blatantly conflicting -mARCH options.
@@ -2915,3 +2935,5 @@ i960_rtx_costs (x, code, outer_code, total)
       return false;
     }
 }
+#undef  TARGET_OPTION_OVERRIDE
+#define TARGET_OPTION_OVERRIDE or1k_option_override
