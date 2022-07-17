@@ -108,6 +108,9 @@ static int ret_label = 0;
 #undef TARGET_ASM_ALIGNED_SI_OP
 #define TARGET_ASM_ALIGNED_SI_OP "\t.word\t"
 
+#undef  TARGET_OPTION_OVERRIDE
+#define TARGET_OPTION_OVERRIDE or1k_option_override
+
 #undef TARGET_ASM_FUNCTION_PROLOGUE
 #define TARGET_ASM_FUNCTION_PROLOGUE i960_output_function_prologue
 #undef TARGET_ASM_FUNCTION_EPILOGUE
@@ -2935,5 +2938,3 @@ i960_rtx_costs (x, code, outer_code, total)
       return false;
     }
 }
-#undef  TARGET_OPTION_OVERRIDE
-#define TARGET_OPTION_OVERRIDE or1k_option_override
