@@ -1180,7 +1180,7 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
       i960_last_insn_type = I_TYPE_CTRL; 
     }
 }
-
+
 /* Compute and return the frame size.  */
 
 int
