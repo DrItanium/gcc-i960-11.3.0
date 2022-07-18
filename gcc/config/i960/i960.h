@@ -1178,7 +1178,7 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
    shouldn't be put through pseudo regs where they can be cse'd.
    Desirable on machines where ordinary constants are expensive
    but a CALL with constant address is cheap.  */
-#define NO_FUNCTION_CSE
+#define NO_FUNCTION_CSE 1
 
 /* Use memcpy, etc. instead of bcopy.  */
 #if 0
