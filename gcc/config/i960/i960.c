@@ -109,7 +109,7 @@ static int ret_label = 0;
 #define TARGET_ASM_ALIGNED_SI_OP "\t.word\t"
 
 #undef  TARGET_OPTION_OVERRIDE
-#define TARGET_OPTION_OVERRIDE or1k_option_override
+#define TARGET_OPTION_OVERRIDE i960_option_override
 
 #undef TARGET_ASM_FUNCTION_PROLOGUE
 #define TARGET_ASM_FUNCTION_PROLOGUE i960_output_function_prologue
@@ -195,7 +195,7 @@ i960_initialize ()
       i960_last_maxbitalignment = 8;
     }
 }
-
+
 /* Return true if OP can be used as the source of an fp move insn.  */
 
 int
