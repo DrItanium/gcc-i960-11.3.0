@@ -547,7 +547,7 @@ extern int target_flags;
 
 /* Actual top-of-stack address is same as
    the contents of the stack pointer register.  */
-#define STACK_POINTER_OFFSET (-current_function_outgoing_args_size)
+#define STACK_POINTER_OFFSET (-crtl->outgoing_args_size)
 
 /* Base register for access to local variables of the function.  */
 #define FRAME_POINTER_REGNUM 15
