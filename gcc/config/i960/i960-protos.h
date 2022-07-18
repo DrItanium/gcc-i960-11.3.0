@@ -92,7 +92,7 @@ extern void i960_initialize (void);
 extern int bitpos (unsigned int);
 extern int is_mask (unsigned int);
 extern int bitstr (unsigned int, int *, int *);
-extern int compute_frame_size (int);
+extern int compute_frame_size (poly_int64);
 extern void output_function_profiler (FILE *, int);
 extern void i960_scan_opcode (const char *);
 

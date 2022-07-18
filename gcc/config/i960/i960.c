@@ -199,9 +199,7 @@ i960_initialize ()
 /* Return true if OP can be used as the source of an fp move insn.  */
 
 int
-fpmove_src_operand (op, mode)
-     rtx op;
-     enum machine_mode mode;
+fpmove_src_operand (rtx op, enum machine_mode mode)
 {
   return (GET_CODE (op) == CONST_DOUBLE || general_operand (op, mode));
 }
@@ -210,9 +208,7 @@ fpmove_src_operand (op, mode)
 /* Return true if OP is a register or zero.  */
 
 int
-reg_or_zero_operand (op, mode)
-     rtx op;
-     enum machine_mode mode;
+reg_or_zero_operand (rtx op, enum machine_mode mode)
 {
   return register_operand (op, mode) || op == const0_rtx;
 }
@@ -222,9 +218,7 @@ reg_or_zero_operand (op, mode)
    address arithmetic insn (such as add %o1,7,%l2) of mode MODE.  */
 
 int
-arith_operand (op, mode)
-     rtx op;
-     enum machine_mode mode;
+arith_operand (rtx op, enum machine_mode mode)
 {
   return (register_operand (op, mode) || literal (op, mode));
 }
@@ -233,9 +227,7 @@ arith_operand (op, mode)
    address logic insn, possibly complementing OP, of mode MODE.  */
 
 int
-logic_operand (op, mode)
-     rtx op;
-     enum machine_mode mode;
+logic_operand (rtx op, enum machine_mode mode)
 {
   return (register_operand (op, mode)
 	  || (GET_CODE (op) == CONST_INT
@@ -245,9 +237,7 @@ logic_operand (op, mode)
 /* Return true if OP is a register or a valid floating point literal.  */
 
 int
-fp_arith_operand (op, mode)
-     rtx op;
-     enum machine_mode mode;
+fp_arith_operand (rtx op, enum machine_mode mode)
 {
   return (register_operand (op, mode) || fp_literal (op, mode));
 }
@@ -255,9 +245,7 @@ fp_arith_operand (op, mode)
 /* Return true if OP is a register or a valid signed integer literal.  */
 
 int
-signed_arith_operand (op, mode)
-     rtx op;
-     enum machine_mode mode;
+signed_arith_operand (rtx op, enum machine_mode mode)
 {
   return (register_operand (op, mode) || signed_literal (op, mode));
 }
@@ -266,9 +254,7 @@ signed_arith_operand (op, mode)
    range constraining immediate operands in three-address insns.  */
 
 int
-literal (op, mode)
-     rtx op;
-     enum machine_mode mode ATTRIBUTE_UNUSED;
+literal (rtx op, enum machine_mode mode)
 {
   return ((GET_CODE (op) == CONST_INT) && INTVAL(op) >= 0 && INTVAL(op) < 32);
 }
@@ -276,9 +262,7 @@ literal (op, mode)
 /* Return true if OP is a float constant of 1.  */
 
 int
-fp_literal_one (op, mode)
-     rtx op;
-     enum machine_mode mode;
+fp_literal_one (rtx op, enum machine_mode mode)
 {
   return (TARGET_NUMERICS && mode == GET_MODE (op) && op == CONST1_RTX (mode));
 }
@@ -286,9 +270,7 @@ fp_literal_one (op, mode)
 /* Return true if OP is a float constant of 0.  */
 
 int
-fp_literal_zero (op, mode)
-     rtx op;
-     enum machine_mode mode;
+fp_literal_zero (rtx op, enum machine_mode mode)
 {
   return (TARGET_NUMERICS && mode == GET_MODE (op) && op == CONST0_RTX (mode));
 }
@@ -296,9 +278,7 @@ fp_literal_zero (op, mode)
 /* Return true if OP is a valid floating point literal.  */
 
 int
-fp_literal(op, mode)
-     rtx op;
-     enum machine_mode mode;
+fp_literal(rtx op, enum machine_mode mode)
 {
   return fp_literal_zero (op, mode) || fp_literal_one (op, mode);
 }
@@ -306,9 +286,7 @@ fp_literal(op, mode)
 /* Return true if OP is a valid signed immediate constant.  */
 
 int
-signed_literal(op, mode)
-     rtx op;
-     enum machine_mode mode ATTRIBUTE_UNUSED;
+signed_literal(rtx op, enum machine_mode mode)
 {
   return ((GET_CODE (op) == CONST_INT) && INTVAL(op) > -32 && INTVAL(op) < 32);
 }
@@ -317,9 +295,7 @@ signed_literal(op, mode)
    operand of mode MODE.  */
 
 int
-symbolic_memory_operand (op, mode)
-     rtx op;
-     enum machine_mode mode ATTRIBUTE_UNUSED;
+symbolic_memory_operand (rtx op, enum machine_mode mode)
 {
   if (GET_CODE (op) == SUBREG)
     op = SUBREG_REG (op);
@@ -333,9 +309,7 @@ symbolic_memory_operand (op, mode)
 /* Return truth value of whether OP is EQ or NE.  */
 
 int
-eq_or_neq (op, mode)
-     rtx op;
-     enum machine_mode mode ATTRIBUTE_UNUSED;
+eq_or_neq (rtx op, enum machine_mode mode)
 {
   return (GET_CODE (op) == EQ || GET_CODE (op) == NE);
 }
@@ -343,7 +317,7 @@ eq_or_neq (op, mode)
 /* OP is an integer register or a constant.  */
 
 int
-arith32_operand (op, mode)
+arith32_operand (rtx op, enum machine_mode mode)
      rtx op;
      enum machine_mode mode;
 {
@@ -356,8 +330,6 @@ arith32_operand (op, mode)
 
 int
 power2_operand (op,mode)
-     rtx op;
-     enum machine_mode mode ATTRIBUTE_UNUSED;
 {
   if (GET_CODE (op) != CONST_INT)
     return 0;
@@ -369,9 +341,7 @@ power2_operand (op,mode)
    power of 2.  */
 
 int
-cmplpower2_operand (op, mode)
-     rtx op;
-     enum machine_mode mode ATTRIBUTE_UNUSED;
+cmplpower2_operand (rtx op, enum machine_mode mode)
 {
   if (GET_CODE (op) != CONST_INT)
     return 0;
@@ -383,8 +353,7 @@ cmplpower2_operand (op, mode)
    return -1.  */
 
 int
-bitpos (val)
-     unsigned int val;
+bitpos (unsigned int val)
 {
   register int i;
 
@@ -406,8 +375,7 @@ bitpos (val)
    it does not indicate what the start and stop bit positions are.  */
 
 int
-is_mask (val)
-     unsigned int val;
+is_mask (unsigned int val)
 {
   register int start, end = 0, i;
 
@@ -444,9 +412,7 @@ is_mask (val)
    start and end bit positions of the mask.  */
 
 int
-bitstr (val, s, e)
-     unsigned int val;
-     int *s, *e;
+bitstr (unsigned int val, int* s, int* e)
 {
   register int start, end, i;
 
@@ -487,9 +453,7 @@ bitstr (val, s, e)
 /* Return the machine mode to use for a comparison.  */
 
 enum machine_mode
-select_cc_mode (op, x)
-     RTX_CODE op;
-     rtx x ATTRIBUTE_UNUSED;
+select_cc_mode (RTX_CODE op, rtx x)
 {
   if (op == GTU || op == LTU || op == GEU || op == LEU)
     return CC_UNSmode;
@@ -500,9 +464,7 @@ select_cc_mode (op, x)
    return the rtx for register 36 in the proper mode.  */
 
 rtx
-gen_compare_reg (code, x, y)
-     enum rtx_code code;
-     rtx x, y;
+gen_compare_reg (enum rtx_code code, rtx x, rtx y)
 {
   rtx cc_reg;
   enum machine_mode ccmode = SELECT_CC_MODE (code, x, y);
@@ -2065,10 +2027,7 @@ i960_print_operand_addr (file, addr)
 	   : REG_OK_FOR_INDEX_P (SUBREG_REG (X)))))
 
 int
-legitimate_address_p (mode, addr, strict)
-     enum machine_mode mode ATTRIBUTE_UNUSED;
-     register rtx addr;
-     int strict;
+legitimate_address_p (enum machine_mode mode, rtx addr, int strict)
 {
   if (RTX_OK_FOR_BASE_P (addr, strict))
     return 1;
@@ -2154,10 +2113,7 @@ legitimate_address_p (mode, addr, strict)
    can be recognized.  */
 
 rtx
-legitimize_address (x, oldx, mode)
-     register rtx x;
-     register rtx oldx ATTRIBUTE_UNUSED;
-     enum machine_mode mode ATTRIBUTE_UNUSED;
+legitimize_address (rtx x, rtx oldx, enum machine_mode mode)
 { 
   if (GET_CODE (x) == SYMBOL_REF)
     {
@@ -2215,9 +2171,7 @@ legitimize_address (x, oldx, mode)
    objects of size SIZE and known alignment ALIGN as having.  */
    
 int
-i960_alignment (size, align)
-     int size;
-     int align;
+i960_alignment (int size, int align)
 {
   int i;
 
@@ -2232,12 +2186,10 @@ i960_alignment (size, align)
   return align;
 }
 #endif
-
+
 
 int
-hard_regno_mode_ok (regno, mode)
-     int regno;
-     enum machine_mode mode;
+hard_regno_mode_ok (int regno, enum machine_mode mode)
 {
   if (regno < 32)
     {
@@ -2285,15 +2237,13 @@ hard_regno_mode_ok (regno, mode)
   abort ();
 }
 
-
+
 /* Return the minimum alignment of an expression rtx X in bytes.  This takes
    advantage of machine specific facts, such as knowing that the frame pointer
    is always 16 byte aligned.  */
 
 int
-i960_expr_alignment (x, size)
-     rtx x;
-     int size;
+i960_expr_alignment (rtx x, int size)
 {
   int align = 1;
 
@@ -2361,10 +2311,7 @@ i960_expr_alignment (x, size)
    for an object of size SIZE.  */
 
 int
-i960_improve_align (base, offset, size)
-     rtx base;
-     rtx offset;
-     int size;
+i960_improve_align (rtx base, rtx offset, int size)
 {
   int i, j;
 
@@ -2390,9 +2337,7 @@ i960_improve_align (base, offset, size)
    (SImode) alignment as if they had 16 byte (TImode) alignment.  */
 
 int
-i960_si_ti (base, offset)
-     rtx base;
-     rtx offset;
+i960_si_ti (rtx base, rtx offset)
 {
   return i960_improve_align (base, offset, 16);
 }
@@ -2401,9 +2346,7 @@ i960_si_ti (base, offset)
    (SImode) alignment as if they had 8 byte (DImode) alignment.  */
 
 int
-i960_si_di (base, offset)
-     rtx base;
-     rtx offset;
+i960_si_di (rtx base, rtx offset)
 {
   return i960_improve_align (base, offset, 8);
 }
@@ -2412,11 +2355,7 @@ i960_si_di (base, offset)
    type being accessed.  These values will be rounded by the caller.  */
 
 static void 
-i960_arg_size_and_align (mode, type, size_out, align_out)
-     enum machine_mode mode;
-     tree type;
-     int *size_out;
-     int *align_out;
+i960_arg_size_and_align (enum machine_mode mode, tree type, int* size_out, int* align_out)
 {
   int size, align;
 
@@ -2460,11 +2399,7 @@ i960_arg_size_and_align (mode, type, size_out, align_out)
 /* Update CUM to advance past an argument described by MODE and TYPE.  */
 
 void
-i960_function_arg_advance (cum, mode, type, named)
-     CUMULATIVE_ARGS *cum;
-     enum machine_mode mode;
-     tree type;
-     int named ATTRIBUTE_UNUSED;
+i960_function_arg_advance (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree type, int named)
 {
   int size, align;
 
@@ -2487,11 +2422,7 @@ i960_function_arg_advance (cum, mode, type, named)
    passed in, or else return 0 if it is passed on the stack.  */
 
 rtx
-i960_function_arg (cum, mode, type, named)
-     CUMULATIVE_ARGS *cum;
-     enum machine_mode mode;
-     tree type;
-     int named ATTRIBUTE_UNUSED;
+i960_function_arg (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree type, int named)
 {
   rtx ret;
   int size, align;
@@ -2520,8 +2451,7 @@ i960_function_arg (cum, mode, type, named)
 /* Return the number of bits that an object of size N bytes is aligned to.  */
 
 int
-i960_object_bytes_bitalign (n)
-     int n;
+i960_object_bytes_bitalign (int n)
 {
   if (n > 8)      n = 128;
   else if (n > 4) n = 64;
@@ -2537,9 +2467,7 @@ i960_object_bytes_bitalign (n)
                      MIN (pragma align, structure size alignment)).  */
 
 int
-i960_round_align (align, type)
-     int align;
-     tree type;
+i960_round_align (int align, tree type)
 {
   int new_align;
   tree tsize;
@@ -2570,12 +2498,7 @@ i960_round_align (align, type)
    all register parameters to memory.  */
 
 void
-i960_setup_incoming_varargs (cum, mode, type, pretend_size, no_rtl)
-     CUMULATIVE_ARGS *cum;
-     enum machine_mode mode ATTRIBUTE_UNUSED;
-     tree type ATTRIBUTE_UNUSED;
-     int *pretend_size ATTRIBUTE_UNUSED;
-     int no_rtl;
+i960_setup_incoming_varargs (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree type, int* pretend_size, int no_rtl)
 {
   /* Note: for a varargs fn with only a va_alist argument, this is 0.  */
   int first_reg = cum->ca_nregparms;
@@ -2637,9 +2560,7 @@ i960_build_builtin_va_list ()
 /* Implement `va_start' for varargs and stdarg.  */
 
 void
-i960_va_start (valist, nextarg)
-     tree valist;
-     rtx nextarg ATTRIBUTE_UNUSED;
+i960_va_start (tree valist, rtx nextarg)
 {
   tree s, t, base, num;
   rtx fake_arg_pointer_rtx;
@@ -2732,9 +2653,7 @@ i960_va_arg (valist, type)
    function, based on how many bytes would be allocated on the stack.  */
 
 int
-i960_final_reg_parm_stack_space (const_size, var_size)
-     int const_size;
-     tree var_size;
+i960_final_reg_parm_stack_space (int const_size, tree var_size)
 {
   if (var_size || const_size > 48)
     return 48;
@@ -2746,8 +2665,7 @@ i960_final_reg_parm_stack_space (const_size, var_size)
    on the i960.  */
 
 int
-i960_reg_parm_stack_space (fndecl)
-     tree fndecl;
+i960_reg_parm_stack_space (tree fndecl)
 {
   /* In this case, we are called from emit_library_call, and we don't need
      to pretend we have more space for parameters than what's apparent.  */
@@ -2772,10 +2690,7 @@ i960_reg_parm_stack_space (fndecl)
    NO_REGS is returned.  */
 
 enum reg_class
-secondary_reload_class (class, mode, in)
-     enum reg_class class;
-     enum machine_mode mode;
-     rtx in;
+secondary_reload_class (enum reg_class theClass, enum machine_mode mode, rtx in)
 {
   int regno = -1;
 
@@ -2784,27 +2699,26 @@ secondary_reload_class (class, mode, in)
 
   /* We can place anything into LOCAL_OR_GLOBAL_REGS and can put
      LOCAL_OR_GLOBAL_REGS into anything.  */
-  if (class == LOCAL_OR_GLOBAL_REGS || class == LOCAL_REGS
-      || class == GLOBAL_REGS || (regno >= 0 && regno < 32))
+  if (theClass == LOCAL_OR_GLOBAL_REGS || theClass == LOCAL_REGS
+      || theClass == GLOBAL_REGS || (regno >= 0 && regno < 32))
     return NO_REGS;
 
   /* We can place any hard register, 0.0, and 1.0 into FP_REGS.  */
-  if (class == FP_REGS
+  if (theClass == FP_REGS
       && ((regno >= 0 && regno < FIRST_PSEUDO_REGISTER)
 	  || in == CONST0_RTX (mode) || in == CONST1_RTX (mode)))
     return NO_REGS;
 
   return LOCAL_OR_GLOBAL_REGS;
 }
-
+
 /* Look at the opcode P, and set i96_last_insn_type to indicate which
    function unit it executed on.  */
 
 /* ??? This would make more sense as an attribute.  */
 
 void
-i960_scan_opcode (p)
-     const char *p;
+i960_scan_opcode (const char* p)
 {
   switch (*p)
     {
@@ -2868,33 +2782,24 @@ i960_scan_opcode (p)
 }
 
 static void
-i960_output_mi_thunk (file, thunk, delta, vcall_offset, function)
-     FILE *file;
-     tree thunk ATTRIBUTE_UNUSED;
-     HOST_WIDE_INT delta;
-     HOST_WIDE_INT vcall_offset ATTRIBUTE_UNUSED;
-     tree function;
+i960_output_mi_thunk (FILE* file, tree thunk, HOST_WIDE_INT delta, HOST_WIDE_INT vcall_offset, tree function)
 {
-  int d = delta;
-  if (d < 0 && d > -32)							
-    fprintf (file, "\tsubo %d,g0,g0\n", -d);				
-  else if (d > 0 && d < 32)						
-    fprintf (file, "\taddo %d,g0,g0\n", d);				
-  else									
-    {									
-      fprintf (file, "\tldconst %d,r5\n", d);				
-      fprintf (file, "\taddo r5,g0,g0\n");				
-    }									
-  fprintf (file, "\tbx ");						
-  assemble_name (file, XSTR (XEXP (DECL_RTL (function), 0), 0));	
-  fprintf (file, "\n");							
+    int d = delta;
+    if (d < 0 && d > -32) {
+        fprintf (file, "\tsubo %d,g0,g0\n", -d);
+    } else if (d > 0 && d < 32) {
+        fprintf (file, "\taddo %d,g0,g0\n", d);
+    } else {
+        fprintf (file, "\tldconst %d,r5\n", d);
+        fprintf (file, "\taddo r5,g0,g0\n");
+    } 
+    fprintf (file, "\tbx ");
+    assemble_name (file, XSTR (XEXP (DECL_RTL (function), 0), 0));	
+    fprintf (file, "\n");
 }
 
 static bool
-i960_rtx_costs (x, code, outer_code, total)
-     rtx x;
-     int code, outer_code;
-     int *total;
+i960_rtx_costs (rtx x, int code, int outer_code, int* total)
 {
   switch (code)
     {
