@@ -17,10 +17,10 @@
 ;; along with GCC; see the file COPYING3.  If not see
 ;; <http://www.gnu.org/licenses/>.
 
-(define_predicate "arith_operand" (match_code "const_int,subreg,reg")))
-(define_predicate "logic_operand" (match_code "const_int,subreg,reg")))
-(define_predicate "signed_arith_operand" (match_code "const_int,subreg,reg")))
-(define_predicate "fp_arith_operand" (match_code "subreg,reg,const_double")))
+(define_predicate "arith_operand" (match_code "const_int,subreg,reg"))
+(define_predicate "logic_operand" (match_code "const_int,subreg,reg"))
+(define_predicate "signed_arith_operand" (match_code "const_int,subreg,reg"))
+(define_predicate "fp_arith_operand" (match_code "subreg,reg,const_double"))
 (define_predicate "literal" (match_code "const_int"))
 (define_predicate "power2_operand" (match_code "const_int"))
 (define_predicate "cmplpower2_operand" (match_code "const_int"))
