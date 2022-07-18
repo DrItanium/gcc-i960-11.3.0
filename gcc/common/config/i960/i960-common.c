@@ -30,6 +30,7 @@
 /* Implement TARGET_OPTION_OPTIMIZATION_TABLE.  */
 static const struct default_options i960_option_optimization_table[] =
   {
+      /// @todo implement optimizations specific to this target
     { OPT_LEVELS_NONE, 0, NULL, 0 }
   };
 
