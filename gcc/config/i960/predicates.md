@@ -28,3 +28,9 @@
 (define_predicate "fp_literal_double" (match_code "const_double"))
 (define_predicate "fp_literal_one" (match_code "const_double"))
 (define_predicate "signed_literal" (match_code "const_int"))
+
+(define_predicate "fpmove_src_operand"
+ (match_code "const_int,const_double,const,symbol_ref,label_ref,subreg,reg,mem"))
+
+(define_predicate "arith32_operand"
+ (match_code "subreg,reg,label_ref,symbol_ref,const_int,const_double,const"))
