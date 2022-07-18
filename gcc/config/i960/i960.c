@@ -480,7 +480,7 @@ gen_compare_reg (enum rtx_code code, rtx x, rtx y)
     }
 
   cc_reg = gen_rtx_REG (ccmode, 36);
-  emit_insn (gen_rtx_SET (VOIDmode, cc_reg,
+  emit_insn (gen_rtx_SET (cc_reg,
 			  gen_rtx_COMPARE (ccmode, x, y)));
 
   return cc_reg;
@@ -578,7 +578,7 @@ emit_move_sequence (rtx* operands, enum machine_mode mode)
       emit_insn (gen_rtx_PARALLEL
 		 (VOIDmode,
 		  gen_rtvec (2,
-			     gen_rtx_SET (VOIDmode, operands[0], operands[1]),
+			     gen_rtx_SET (operands[0], operands[1]),
 			     gen_rtx_CLOBBER (VOIDmode,
 					      gen_rtx_SCRATCH (Pmode)))));
       return 1;
@@ -1392,7 +1392,7 @@ i960_output_function_prologue (FILE* file, HOST_WIDE_INT size)
     {
       rtx min_stack = stack_limit_rtx;
       if (actual_fsize != 0)
-	min_stack = plus_constant (stack_limit_rtx, -actual_fsize);
+          min_stack = plus_constant (Pmode, stack_limit_rtx, -actual_fsize);
 
       /* Now, emulate a little bit of reload.  We want to turn 'min_stack'
 	 into an arith_operand.  Use register 20 as the temporary.  */
@@ -1562,9 +1562,7 @@ output_function_profiler (FILE* file, int labelno)
 /* Output code for the function epilogue.  */
 
 static void
-i960_output_function_epilogue (file, size)
-     FILE *file;
-     HOST_WIDE_INT size ATTRIBUTE_UNUSED;
+i960_output_function_epilogue (FILE* file, HOST_WIDE_INT size)
 {
   if (i960_leaf_ret_reg >= 0)
     {
@@ -1625,8 +1623,7 @@ i960_output_function_epilogue (file, size)
 /* Output code for a call insn.  */
 
 const char *
-i960_output_call_insn (target, argsize_rtx, arg_pointer, insn)
-     register rtx target, argsize_rtx, arg_pointer, insn;
+i960_output_call_insn (rtx target, rtx argsize_rtx, rtx arg_pointer, rtx insn)
 {
   int argsize = INTVAL (argsize_rtx);
   rtx nexti = next_real_insn (insn);
@@ -1677,8 +1674,7 @@ i960_output_call_insn (target, argsize_rtx, arg_pointer, insn)
 /* Output code for a return insn.  */
 
 const char *
-i960_output_ret_insn (insn)
-     register rtx insn;
+i960_output_ret_insn (rtx insn)
 {
   static char lbuf[20];
   
@@ -1708,10 +1704,7 @@ i960_output_ret_insn (insn)
 /* Print the operand represented by rtx X formatted by code CODE.  */
 
 void
-i960_print_operand (file, x, code)
-     FILE *file;
-     rtx x;
-     int code;
+i960_print_operand (FILE* file, rtx x, int code)
 {
   enum rtx_code rtxcode = x ? GET_CODE (x) : NIL;
 
@@ -1855,16 +1848,14 @@ i960_print_operand (file, x, code)
 
   return;
 }
-
+
 /* Print a memory address as an operand to reference that memory location.
 
    This is exactly the same as legitimate_address_p, except that it the prints
    addresses instead of recognizing them.  */
 
 void
-i960_print_operand_addr (file, addr)
-     FILE *file;
-     register rtx addr;
+i960_print_operand_addr (FILE* file, rtx addr)
 {
   rtx breg, ireg;
   rtx scale, offset;
@@ -2132,7 +2123,7 @@ legitimize_address (rtx x, rtx oldx, enum machine_mode mode)
 	x = gen_rtx_PLUS (Pmode,
 			  gen_rtx_PLUS (Pmode, XEXP (XEXP (x, 0), 0),
 					XEXP (XEXP (XEXP (x, 0), 1), 0)),
-			  plus_constant (other, INTVAL (constant)));
+			  plus_constant (Pmode, other, INTVAL (constant)));
     }
 
   return x;
@@ -2379,7 +2370,7 @@ i960_function_arg_advance (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree ty
 
   if (size > 4 || cum->ca_nstackparms != 0
       || (size + ROUND_PARM (cum->ca_nregparms, align)) > NPARM_REGS
-      || MUST_PASS_IN_STACK (mode, type))
+      || TARGET_MUST_PASS_IN_STACK (mode, type))
     {
       /* Indicate that all the registers are in use, even if all are not,
 	 so va_start will compute the right value.  */
@@ -2406,7 +2397,7 @@ i960_function_arg (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree type, int 
 
   if (size > 4 || cum->ca_nstackparms != 0
       || (size + ROUND_PARM (cum->ca_nregparms, align)) > NPARM_REGS
-      || MUST_PASS_IN_STACK (mode, type))
+      || TARGET_MUST_PASS_IN_STACK (mode, type))
     {
       cum->ca_nstackparms = ROUND_PARM (cum->ca_nstackparms, align);
       ret = 0;
@@ -2501,9 +2492,9 @@ i960_setup_incoming_varargs (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree 
 	 va_start assumes it.  */
       emit_insn (gen_cmpsi (fake_arg_pointer_rtx, const0_rtx));
       emit_jump_insn (gen_bne (label));
-      emit_insn (gen_rtx_SET (VOIDmode, fake_arg_pointer_rtx,
+      emit_insn (gen_rtx_SET (fake_arg_pointer_rtx,
 			      stack_pointer_rtx));
-      emit_insn (gen_rtx_SET (VOIDmode, stack_pointer_rtx,
+      emit_insn (gen_rtx_SET (stack_pointer_rtx,
 			      memory_address (SImode,
 					      plus_constant (stack_pointer_rtx,
 							     48))));
@@ -2562,8 +2553,7 @@ i960_va_start (tree valist, rtx nextarg)
 /* Implement `va_arg'.  */
 
 rtx
-i960_va_arg (valist, type)
-     tree valist, type;
+i960_va_arg (tree valist, tree type)
 {
   HOST_WIDE_INT siz, ali;
   tree base, num, pad, next, this, t1, t2, int48;
