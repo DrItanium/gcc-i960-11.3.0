@@ -493,8 +493,7 @@ gen_compare_reg (enum rtx_code code, rtx x, rtx y)
 /* ??? Try using just RTX_COST, i.e. not defining ADDRESS_COST.  */
 
 static int
-i960_address_cost (x)
-     rtx x;
+i960_address_cost (rtx x)
 {
   if (GET_CODE (x) == REG)
     return 1;
@@ -541,7 +540,7 @@ i960_address_cost (x)
   /* Symbol_refs and other unrecognized addresses are cost 4.  */
   return 4;
 }
-
+
 /* Emit insns to move operands[1] into operands[0].
 
    Return 1 if we have written out everything that needs to be done to
@@ -549,9 +548,7 @@ i960_address_cost (x)
    normally.  */
 
 int
-emit_move_sequence (operands, mode)
-     rtx *operands;
-     enum machine_mode mode;
+emit_move_sequence (rtx* operands, enum machine_mode mode)
 {
   /* We can only store registers to memory.  */
   
@@ -593,8 +590,7 @@ emit_move_sequence (operands, mode)
 /* Output assembler to move a double word value.  */
 
 const char *
-i960_output_move_double (dst, src)
-     rtx dst, src;
+i960_output_move_double (rtx dst, rtx src)
 {
   rtx operands[5];
 
@@ -667,8 +663,7 @@ i960_output_move_double (dst, src)
 /* Output assembler to move a double word zero.  */
 
 const char *
-i960_output_move_double_zero (dst)
-     rtx dst;
+i960_output_move_double_zero (rtx dst)
 {
   rtx operands[2];
 
@@ -683,8 +678,7 @@ i960_output_move_double_zero (dst)
 /* Output assembler to move a quad word value.  */
 
 const char *
-i960_output_move_quad (dst, src)
-     rtx dst, src;
+i960_output_move_quad (rtx dst, rtx src)
 {
   rtx operands[7];
 
@@ -764,8 +758,7 @@ i960_output_move_quad (dst, src)
 /* Output assembler to move a quad word zero.  */
 
 const char *
-i960_output_move_quad_zero (dst)
-     rtx dst;
+i960_output_move_quad_zero (rtx dst)
 {
   rtx operands[4];
 
@@ -784,8 +777,7 @@ i960_output_move_quad_zero (dst)
    Uses several strategies to try to use as few insns as possible.  */
 
 const char *
-i960_output_ldconst (dst, src)
-     register rtx dst, src;
+i960_output_ldconst (rtx dst, rtx src)
 {
   register int rsrc1;
   register unsigned rsrc2;
@@ -998,9 +990,7 @@ i960_output_ldconst (dst, src)
    OP1 and OP2 are the two source operands of a 3 operand insn.  */
 
 int
-i960_bypass (insn, op1, op2, cmpbr_flag)
-     register rtx insn, op1, op2;
-     int cmpbr_flag;
+i960_bypass (rtx insn, rtx op1, rtx op2, int cmpbr_flag)
 {
   register rtx prev_insn, prev_dest;
 
@@ -1029,16 +1019,13 @@ i960_bypass (insn, op1, op2, cmpbr_flag)
     }
   return 0;
 }
-
+
 /* Output the code which declares the function name.  This also handles
    leaf routines, which have special requirements, and initializes some
    global variables.  */
 
 void
-i960_function_name_declare (file, name, fndecl)
-     FILE *file;
-     const char *name;
-     tree fndecl;
+i960_function_name_declare (FILE* file, const char* name, tree fndecl)
 {
   register int i, j;
   int leaf_proc_ok;
@@ -1197,8 +1184,7 @@ i960_function_name_declare (file, name, fndecl)
 /* Compute and return the frame size.  */
 
 int
-compute_frame_size (size)
-     int size;
+compute_frame_size (int size)
 {
   int actual_fsize;
   int outgoing_args_size = current_function_outgoing_args_size;
@@ -1230,12 +1216,7 @@ static void i960_arg_size_and_align (enum machine_mode, tree, int *, int *);
    registers in range [start, finish_reg).  The function returns the
    number of groups formed.  */
 static int
-i960_form_reg_groups (start_reg, finish_reg, regs, state, reg_groups)
-     int start_reg;
-     int finish_reg;
-     int *regs;
-     int state;
-     struct reg_group *reg_groups;
+i960_form_reg_groups (int start_reg, int finish_reg, int* regs, int state, struct reg_group* reg_groups)
 {
   int i;
   int nw = 0;
@@ -1264,9 +1245,7 @@ i960_form_reg_groups (start_reg, finish_reg, regs, state, reg_groups)
 
 /* We sort register winodws in descending order by length.  */
 static int
-i960_reg_group_compare (group1, group2)
-     const void *group1;
-     const void *group2;
+i960_reg_group_compare (const void* group1, const void* group2)
 {
   const struct reg_group *w1 = group1;
   const struct reg_group *w2 = group2;
@@ -1283,10 +1262,7 @@ i960_reg_group_compare (group1, group2)
    which will contain SUBGROUP_LENGTH registers.  The function
    returns new number of winodws.  */
 static int
-i960_split_reg_group (reg_groups, nw, subgroup_length)
-     struct reg_group *reg_groups;
-     int nw;
-     int subgroup_length;
+i960_split_reg_group (reg_group* reg_groups, int nw, int subgroup_length)
 {
   if (subgroup_length < reg_groups->length - subgroup_length)
     /* This guarantees correct alignments of the two subgroups for
@@ -1308,9 +1284,7 @@ i960_split_reg_group (reg_groups, nw, subgroup_length)
 /* Output code for the function prologue.  */
 
 static void
-i960_output_function_prologue (file, size)
-     FILE *file;
-     HOST_WIDE_INT size;
+i960_output_function_prologue (FILE* file, HOST_WIDE_INT size)
 {
   register int i, j, nr;
   int n_saved_regs = 0;
@@ -1511,9 +1485,7 @@ i960_output_function_prologue (file, size)
 /* Output code for the function profiler.  */
 
 void
-output_function_profiler (file, labelno)
-     FILE *file;
-     int labelno;
+output_function_profiler (FILE* file, int labelno)
 {
   /* The last used parameter register.  */
   int last_parm_reg;
