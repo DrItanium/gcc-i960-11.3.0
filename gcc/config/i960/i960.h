@@ -508,7 +508,6 @@ extern int target_flags;
   }									\
 
 #endif
-#if 0
 /* Return number of consecutive hard regs needed starting at reg REGNO
    to hold something of mode MODE.
    This is ordinarily the length in words of a value of mode MODE
@@ -517,7 +516,7 @@ extern int target_flags;
    On 80960, ordinary registers hold 32 bits worth, but can be ganged
    together to hold double or extended precision floating point numbers,
    and the floating point registers hold any size floating point number */
-#define HARD_REGNO_NREGS(REGNO, MODE)   \
+#define compat_HARD_REGNO_NREGS(REGNO, MODE)   \
   ((REGNO) < 32							\
    ? (((MODE) == VOIDmode)					\
       ? 1 : ((GET_MODE_SIZE (MODE) + UNITS_PER_WORD - 1) / UNITS_PER_WORD)) \
@@ -526,12 +525,12 @@ extern int target_flags;
 /* Value is 1 if hard register REGNO can hold a value of machine-mode MODE.
    On 80960, the cpu registers can hold any mode but the float registers
    can only hold SFmode, DFmode, or TFmode.  */
-#define HARD_REGNO_MODE_OK(REGNO, MODE) hard_regno_mode_ok ((REGNO), (MODE))
+#define compat_HARD_REGNO_MODE_OK(REGNO, MODE) hard_regno_mode_ok ((REGNO), (MODE))
 /* Value is 1 if it is a good idea to tie two pseudo registers
    when one has mode MODE1 and one has mode MODE2.
    If HARD_REGNO_MODE_OK could produce different values for MODE1 and MODE2,
    for any hard reg, then this must be 0 for correct output.  */
-
+#if 0
 #define MODES_TIEABLE_P(MODE1, MODE2) \
   ((MODE1) == (MODE2) || GET_MODE_CLASS (MODE1) == GET_MODE_CLASS (MODE2))
 #endif
