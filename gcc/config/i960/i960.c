@@ -47,6 +47,7 @@ Boston, MA 02111-1307, USA.  */
 #include "target-def.h"
 
 #define current_function_args_size (cfun->args_size)
+#define compat_STARTING_FRAME_OFFSET 64
 static void i960_output_function_prologue (FILE *, HOST_WIDE_INT);
 static void i960_output_function_epilogue (FILE *, HOST_WIDE_INT);
 static void i960_output_mi_thunk (FILE *, tree, HOST_WIDE_INT,
@@ -319,8 +320,6 @@ eq_or_neq (rtx op, enum machine_mode mode)
 
 int
 arith32_operand (rtx op, enum machine_mode mode)
-     rtx op;
-     enum machine_mode mode;
 {
   if (register_operand (op, mode))
     return 1;
@@ -330,7 +329,7 @@ arith32_operand (rtx op, enum machine_mode mode)
 /* Return true if OP is an integer constant which is a power of 2.  */
 
 int
-power2_operand (op,mode)
+power2_operand (rtx op,enum machine_mode mode)
 {
   if (GET_CODE (op) != CONST_INT)
     return 0;
@@ -356,7 +355,7 @@ cmplpower2_operand (rtx op, enum machine_mode mode)
 int
 bitpos (unsigned int val)
 {
-  register int i;
+  int i;
 
   for (i = 0; val != 0; i++, val >>= 1)
     {
@@ -378,7 +377,7 @@ bitpos (unsigned int val)
 int
 is_mask (unsigned int val)
 {
-  register int start, end = 0, i;
+  int start, end = 0, i;
 
   start = -1;
   for (i = 0; val != 0; val >>= 1, i++)
@@ -415,7 +414,7 @@ is_mask (unsigned int val)
 int
 bitstr (unsigned int val, int* s, int* e)
 {
-  register int start, end, i;
+  int start, end, i;
 
   start = -1;
   end = -1;
@@ -593,72 +592,63 @@ emit_move_sequence (rtx* operands, enum machine_mode mode)
 const char *
 i960_output_move_double (rtx dst, rtx src)
 {
-  rtx operands[5];
+    rtx operands[5];
 
-  if (GET_CODE (dst) == REG
-      && GET_CODE (src) == REG)
-    {
-      if ((REGNO (src) & 1)
-	  || (REGNO (dst) & 1))
-	{
-	  /* We normally copy the low-numbered register first.  However, if
-	     the second source register is the same as the first destination
-	     register, we must copy in the opposite order.  */
-	  if (REGNO (src) + 1 == REGNO (dst))
-	    return "mov	%D1,%D0\n\tmov	%1,%0";
-	  else
-	    return "mov	%1,%0\n\tmov	%D1,%D0";
-	}
-      else
-	return "movl	%1,%0";
+    if (GET_CODE (dst) == REG && GET_CODE (src) == REG) {
+        if ((REGNO (src) & 1) || (REGNO (dst) & 1)) {
+            /* We normally copy the low-numbered register first.  However, if
+               the second source register is the same as the first destination
+               register, we must copy in the opposite order.  */
+            if (REGNO (src) + 1 == REGNO (dst)) {
+                return "mov	%D1,%D0\n\tmov	%1,%0";
+            } else {
+                return "mov	%1,%0\n\tmov	%D1,%D0";
+            }
+        } else {
+            return "movl	%1,%0";
+        }
+    } else if (GET_CODE (dst) == REG
+            && GET_CODE (src) == CONST_INT
+            && CONST_OK_FOR_LETTER_P (INTVAL (src), 'I')) {
+        if (REGNO (dst) & 1) {
+            return "mov	%1,%0\n\tmov	0,%D0";
+        } else {
+            return "movl	%1,%0";
+        }
+    } else if (GET_CODE (dst) == REG
+            && GET_CODE (src) == MEM) {
+        if (REGNO (dst) & 1) {
+            /* One can optimize a few cases here, but you have to be
+               careful of clobbering registers used in the address and
+               edge conditions.  */
+            operands[0] = dst;
+            operands[1] = src;
+            operands[2] = gen_rtx_REG (Pmode, REGNO (dst) + 1);
+            operands[3] = gen_rtx_MEM (word_mode, operands[2]);
+            operands[4] = adjust_address (operands[3], word_mode,
+                    UNITS_PER_WORD);
+            output_asm_insn
+                ("lda	%1,%2\n\tld	%3,%0\n\tld	%4,%D0", operands);
+            return "";
+        } else {
+            return "ldl	%1,%0";
+        }
+    } else if (GET_CODE (dst) == MEM && GET_CODE (src) == REG) {
+        if (REGNO (src) & 1) {
+            operands[0] = dst;
+            operands[1] = adjust_address (dst, word_mode, UNITS_PER_WORD);
+            if (! memory_address_p (word_mode, XEXP (operands[1], 0))) {
+                abort ();
+            }
+            operands[2] = src;
+            output_asm_insn ("st	%2,%0\n\tst	%D2,%1", operands);
+            return "";
+        }
+        return "stl	%1,%0";
+    } else {
+        abort ();
     }
-  else if (GET_CODE (dst) == REG
-	   && GET_CODE (src) == CONST_INT
-	   && CONST_OK_FOR_LETTER_P (INTVAL (src), 'I'))
-    {
-      if (REGNO (dst) & 1)
-	return "mov	%1,%0\n\tmov	0,%D0";
-      else
-	return "movl	%1,%0";
-    }
-  else if (GET_CODE (dst) == REG
-	   && GET_CODE (src) == MEM)
-    {
-      if (REGNO (dst) & 1)
-	{
-	  /* One can optimize a few cases here, but you have to be
-	     careful of clobbering registers used in the address and
-	     edge conditions.  */
-	  operands[0] = dst;
-	  operands[1] = src;
-	  operands[2] = gen_rtx_REG (Pmode, REGNO (dst) + 1);
-	  operands[3] = gen_rtx_MEM (word_mode, operands[2]);
-	  operands[4] = adjust_address (operands[3], word_mode,
-					UNITS_PER_WORD);
-	  output_asm_insn
-	    ("lda	%1,%2\n\tld	%3,%0\n\tld	%4,%D0", operands);
-	  return "";
-	}
-      else
-	return "ldl	%1,%0";
-    }
-  else if (GET_CODE (dst) == MEM
-	   && GET_CODE (src) == REG)
-    {
-      if (REGNO (src) & 1)
-	{
-	  operands[0] = dst;
-	  operands[1] = adjust_address (dst, word_mode, UNITS_PER_WORD);
-	  if (! memory_address_p (word_mode, XEXP (operands[1], 0)))
-	    abort ();
-	  operands[2] = src;
-	  output_asm_insn ("st	%2,%0\n\tst	%D2,%1", operands);
-	  return "";
-	}
-      return "stl	%1,%0";
-    }
-  else
-    abort ();
+    return "";
 }
 
 /* Output assembler to move a double word zero.  */
@@ -684,76 +674,68 @@ i960_output_move_quad (rtx dst, rtx src)
   rtx operands[7];
 
   if (GET_CODE (dst) == REG
-      && GET_CODE (src) == REG)
-    {
-      if ((REGNO (src) & 3)
-	  || (REGNO (dst) & 3))
-	{
-	  /* We normally copy starting with the low numbered register.
-	     However, if there is an overlap such that the first dest reg
-	     is <= the last source reg but not < the first source reg, we
-	     must copy in the opposite order.  */
-	  if (REGNO (dst) <= REGNO (src) + 3
-	      && REGNO (dst) >= REGNO (src))
-	    return "mov	%F1,%F0\n\tmov	%E1,%E0\n\tmov	%D1,%D0\n\tmov	%1,%0";
-	  else
-	    return "mov	%1,%0\n\tmov	%D1,%D0\n\tmov	%E1,%E0\n\tmov	%F1,%F0";
-	}
-      else
-	return "movq	%1,%0";
-    }
-  else if (GET_CODE (dst) == REG
-	   && GET_CODE (src) == CONST_INT
-	   && CONST_OK_FOR_LETTER_P (INTVAL (src), 'I'))
-    {
-      if (REGNO (dst) & 3)
-	return "mov	%1,%0\n\tmov	0,%D0\n\tmov	0,%E0\n\tmov	0,%F0";
-      else
-	return "movq	%1,%0";
-    }
-  else if (GET_CODE (dst) == REG
-	   && GET_CODE (src) == MEM)
-    {
-      if (REGNO (dst) & 3)
-	{
-	  /* One can optimize a few cases here, but you have to be
-	     careful of clobbering registers used in the address and
-	     edge conditions.  */
-	  operands[0] = dst;
-	  operands[1] = src;
-	  operands[2] = gen_rtx_REG (Pmode, REGNO (dst) + 3);
-	  operands[3] = gen_rtx_MEM (word_mode, operands[2]);
-	  operands[4]
-	    = adjust_address (operands[3], word_mode, UNITS_PER_WORD);
-	  operands[5]
-	    = adjust_address (operands[4], word_mode, UNITS_PER_WORD);
-	  operands[6]
-	    = adjust_address (operands[5], word_mode, UNITS_PER_WORD);
-	  output_asm_insn ("lda	%1,%2\n\tld	%3,%0\n\tld	%4,%D0\n\tld	%5,%E0\n\tld	%6,%F0", operands);
-	  return "";
-	}
-      else
-	return "ldq	%1,%0";
-    }
-  else if (GET_CODE (dst) == MEM
-	   && GET_CODE (src) == REG)
-    {
-      if (REGNO (src) & 3)
-	{
-	  operands[0] = dst;
-	  operands[1] = adjust_address (dst, word_mode, UNITS_PER_WORD);
-	  operands[2] = adjust_address (dst, word_mode, 2 * UNITS_PER_WORD);
-	  operands[3] = adjust_address (dst, word_mode, 3 * UNITS_PER_WORD);
-	  if (! memory_address_p (word_mode, XEXP (operands[3], 0)))
-	    abort ();
-	  operands[4] = src;
-	  output_asm_insn ("st	%4,%0\n\tst	%D4,%1\n\tst	%E4,%2\n\tst	%F4,%3", operands);
-	  return "";
-	}
+          && GET_CODE (src) == REG) {
+      if ((REGNO (src) & 3) || (REGNO (dst) & 3)) {
+          /* We normally copy starting with the low numbered register.
+             However, if there is an overlap such that the first dest reg
+             is <= the last source reg but not < the first source reg, we
+             must copy in the opposite order.  */
+          if (REGNO (dst) <= REGNO (src) + 3
+                  && REGNO (dst) >= REGNO (src)) {
+              return "mov	%F1,%F0\n\tmov	%E1,%E0\n\tmov	%D1,%D0\n\tmov	%1,%0";
+          } else {
+              return "mov	%1,%0\n\tmov	%D1,%D0\n\tmov	%E1,%E0\n\tmov	%F1,%F0";
+          }
+      } else {
+          return "movq	%1,%0";
+      }
+  } else if (GET_CODE (dst) == REG
+          && GET_CODE (src) == CONST_INT
+          && CONST_OK_FOR_LETTER_P (INTVAL (src), 'I')) {
+      if (REGNO (dst) & 3) {
+          return "mov	%1,%0\n\tmov	0,%D0\n\tmov	0,%E0\n\tmov	0,%F0";
+      } else {
+          return "movq	%1,%0";
+      }
+  } else if (GET_CODE (dst) == REG && GET_CODE (src) == MEM) {
+      if (REGNO (dst) & 3) {
+          /* One can optimize a few cases here, but you have to be
+             careful of clobbering registers used in the address and
+             edge conditions.  */
+          operands[0] = dst;
+          operands[1] = src;
+          operands[2] = gen_rtx_REG (Pmode, REGNO (dst) + 3);
+          operands[3] = gen_rtx_MEM (word_mode, operands[2]);
+          operands[4]
+              = adjust_address (operands[3], word_mode, UNITS_PER_WORD);
+          operands[5]
+              = adjust_address (operands[4], word_mode, UNITS_PER_WORD);
+          operands[6]
+              = adjust_address (operands[5], word_mode, UNITS_PER_WORD);
+          output_asm_insn ("lda	%1,%2\n\tld	%3,%0\n\tld	%4,%D0\n\tld	%5,%E0\n\tld	%6,%F0", operands);
+          return "";
+      } else {
+          return "ldq	%1,%0";
+      }
+  } else if (GET_CODE (dst) == MEM
+          && GET_CODE (src) == REG) {
+      if (REGNO (src) & 3) {
+          operands[0] = dst;
+          operands[1] = adjust_address (dst, word_mode, UNITS_PER_WORD);
+          operands[2] = adjust_address (dst, word_mode, 2 * UNITS_PER_WORD);
+          operands[3] = adjust_address (dst, word_mode, 3 * UNITS_PER_WORD);
+          if (! memory_address_p (word_mode, XEXP (operands[3], 0))) {
+              abort ();
+          }
+          operands[4] = src;
+          output_asm_insn ("st	%4,%0\n\tst	%D4,%1\n\tst	%E4,%2\n\tst	%F4,%3", operands);
+          return "";
+      }
       return "stq	%1,%0";
-    }
-  else
-    abort ();
+  } else {
+      abort ();
+  }
+  return "";
 }
 
 /* Output assembler to move a quad word zero.  */
@@ -780,8 +762,8 @@ i960_output_move_quad_zero (rtx dst)
 const char *
 i960_output_ldconst (rtx dst, rtx src)
 {
-  register int rsrc1;
-  register unsigned rsrc2;
+  int rsrc1;
+  unsigned rsrc2;
   enum machine_mode mode = GET_MODE (dst);
   rtx operands[4];
 
@@ -993,7 +975,7 @@ i960_output_ldconst (rtx dst, rtx src)
 int
 i960_bypass (rtx insn, rtx op1, rtx op2, int cmpbr_flag)
 {
-  register rtx prev_insn, prev_dest;
+  rtx prev_insn, prev_dest;
 
   if (TARGET_C_SERIES)
     return 0;
@@ -1028,7 +1010,7 @@ i960_bypass (rtx insn, rtx op1, rtx op2, int cmpbr_flag)
 void
 i960_function_name_declare (FILE* file, const char* name, tree fndecl)
 {
-  register int i, j;
+  int i, j;
   int leaf_proc_ok;
   rtx insn;
 
@@ -1287,7 +1269,7 @@ i960_split_reg_group (reg_group* reg_groups, int nw, int subgroup_length)
 static void
 i960_output_function_prologue (FILE* file, HOST_WIDE_INT size)
 {
-  register int i, j, nr;
+  int i, j, nr;
   int n_saved_regs = 0;
   int n_remaining_saved_regs;
   HOST_WIDE_INT lvar_size;
@@ -1430,7 +1412,7 @@ i960_output_function_prologue (FILE* file, HOST_WIDE_INT size)
   /* Take hardware register save area created by the call instruction
      into account, but store them before the argument block area.  */
   lvar_size = actual_fsize - compute_frame_size (0) - n_remaining_saved_regs * 4;
-  offset = STARTING_FRAME_OFFSET + lvar_size;
+  offset = compat_STARTING_FRAME_OFFSET + lvar_size;
   /* Save registers on stack if needed.  */
   /* ??? Is it worth to use the same algorithm as one for saving
      global registers in local registers? */
@@ -1573,7 +1555,7 @@ i960_output_function_epilogue (FILE* file, HOST_WIDE_INT size)
 
   if (*epilogue_string == 0)
     {
-      register rtx tmp;
+      rtx tmp;
 	
       /* Emit a return insn, but only if control can fall through to here.  */
 
@@ -2644,10 +2626,10 @@ i960_reg_parm_stack_space (tree fndecl)
      48 bytes of parameters.  */
   if (current_function_args_size != 0 || VARARGS_STDARG_FUNCTION (fndecl))
     return 48;
-  else
-    return 0;
+
+  return 0;
 }
-
+
 /* Return the register class of a scratch register needed to copy IN into
    or out of a register in CLASS in MODE.  If it can be done directly,
    NO_REGS is returned.  */
