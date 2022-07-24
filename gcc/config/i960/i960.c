@@ -2069,55 +2069,6 @@ legitimate_address_p (enum machine_mode mode, rtx addr, int strict)
 rtx
 legitimize_address (rtx x, rtx oldx, enum machine_mode mode)
 { 
-  if (GET_CODE (x) == SYMBOL_REF)
-    {
-      abort ();
-      x = copy_to_reg (x);
-    }
-
-  if (! TARGET_COMPLEX_ADDR && ! reload_completed)
-    return x;
-
-  /* Canonicalize (plus (mult (reg) (const)) (plus (reg) (const)))
-     into (plus (plus (mult (reg) (const)) (reg)) (const)).  This can be
-     created by virtual register instantiation, register elimination, and
-     similar optimizations.  */
-  if (GET_CODE (x) == PLUS && GET_CODE (XEXP (x, 0)) == MULT
-      && GET_CODE (XEXP (x, 1)) == PLUS)
-    x = gen_rtx_PLUS (Pmode,
-		      gen_rtx_PLUS (Pmode, XEXP (x, 0), XEXP (XEXP (x, 1), 0)),
-		      XEXP (XEXP (x, 1), 1));
-
-  /* Canonicalize (plus (plus (mult (reg) (const)) (plus (reg) (const))) const)
-     into (plus (plus (mult (reg) (const)) (reg)) (const)).  */
-  else if (GET_CODE (x) == PLUS && GET_CODE (XEXP (x, 0)) == PLUS
-	   && GET_CODE (XEXP (XEXP (x, 0), 0)) == MULT
-	   && GET_CODE (XEXP (XEXP (x, 0), 1)) == PLUS
-	   && CONSTANT_P (XEXP (x, 1)))
-    {
-      rtx constant, other;
-
-      if (GET_CODE (XEXP (x, 1)) == CONST_INT)
-	{
-	  constant = XEXP (x, 1);
-	  other = XEXP (XEXP (XEXP (x, 0), 1), 1);
-	}
-      else if (GET_CODE (XEXP (XEXP (XEXP (x, 0), 1), 1)) == CONST_INT)
-	{
-	  constant = XEXP (XEXP (XEXP (x, 0), 1), 1);
-	  other = XEXP (x, 1);
-	}
-      else
-	constant = 0, other = 0;
-
-      if (constant)
-	x = gen_rtx_PLUS (Pmode,
-			  gen_rtx_PLUS (Pmode, XEXP (XEXP (x, 0), 0),
-					XEXP (XEXP (XEXP (x, 0), 1), 0)),
-			  plus_constant (Pmode, other, INTVAL (constant)));
-    }
-
-  return x;
 }
 
 #if 0
@@ -2838,12 +2789,94 @@ i960_hard_regno_mode_ok (unsigned int regno, machine_mode mode) {
     }
     return false;
 }
+static rtx
+i960_legitimize_address (rtx x,
+			rtx oldx,
+			machine_mode mode)
+{
+/* Try machine-dependent ways of modifying an illegitimate address
+   to be legitimate.  If we find one, return the new, valid address.
+   This macro is used in only one place: `memory_address' in explow.c.
+
+   OLDX is the address as it was before break_out_memory_refs was called.
+   In some cases it is useful to look at this to decide what needs to be done.
+
+   MODE and WIN are passed so that this macro can use
+   GO_IF_LEGITIMATE_ADDRESS.
+
+   It is always safe for this macro to do nothing.  It exists to recognize
+   opportunities to optimize the output.  */
+
+/* On 80960, convert non-canonical addresses to canonical form.  */
+//#define TARGET_LEGITIMIZE_ADDRESS(X, OLDX, MODE, WIN)	\
+//{ rtx orig_x = (X);				\
+//  (X) = legitimize_address (X, OLDX, MODE);	\
+//  if ((X) != orig_x && memory_address_p (MODE, X)) \
+//    goto WIN; }
+
+  if (GET_CODE (x) == SYMBOL_REF)
+    {
+      abort ();
+      x = copy_to_reg (x);
+    }
+
+  if (! TARGET_COMPLEX_ADDR && ! reload_completed)
+    return x;
+
+  /* Canonicalize (plus (mult (reg) (const)) (plus (reg) (const)))
+     into (plus (plus (mult (reg) (const)) (reg)) (const)).  This can be
+     created by virtual register instantiation, register elimination, and
+     similar optimizations.  */
+  if (GET_CODE (x) == PLUS && GET_CODE (XEXP (x, 0)) == MULT
+      && GET_CODE (XEXP (x, 1)) == PLUS)
+    x = gen_rtx_PLUS (Pmode,
+		      gen_rtx_PLUS (Pmode, XEXP (x, 0), XEXP (XEXP (x, 1), 0)),
+		      XEXP (XEXP (x, 1), 1));
+
+  /* Canonicalize (plus (plus (mult (reg) (const)) (plus (reg) (const))) const)
+     into (plus (plus (mult (reg) (const)) (reg)) (const)).  */
+  else if (GET_CODE (x) == PLUS && GET_CODE (XEXP (x, 0)) == PLUS
+	   && GET_CODE (XEXP (XEXP (x, 0), 0)) == MULT
+	   && GET_CODE (XEXP (XEXP (x, 0), 1)) == PLUS
+	   && CONSTANT_P (XEXP (x, 1)))
+    {
+      rtx constant, other;
+
+      if (GET_CODE (XEXP (x, 1)) == CONST_INT)
+	{
+	  constant = XEXP (x, 1);
+	  other = XEXP (XEXP (XEXP (x, 0), 1), 1);
+	}
+      else if (GET_CODE (XEXP (XEXP (XEXP (x, 0), 1), 1)) == CONST_INT)
+	{
+	  constant = XEXP (XEXP (XEXP (x, 0), 1), 1);
+	  other = XEXP (x, 1);
+	}
+      else
+	constant = 0, other = 0;
+
+      if (constant)
+	x = gen_rtx_PLUS (Pmode,
+			  gen_rtx_PLUS (Pmode, XEXP (XEXP (x, 0), 0),
+					XEXP (XEXP (XEXP (x, 0), 1), 0)),
+			  plus_constant (Pmode, other, INTVAL (constant)));
+    }
+
+  return x;
+}
+bool
+i960_truly_noop_truncation (poly_uint64 outprec, poly_uint64 inprec)
+{
+/* Value is 1 if truncating an integer of INPREC bits to OUTPREC bits
+   is done just by pretending it is already truncated.  */
+    return 1;
+}
 /* Return the maximum number of consecutive registers
    needed to represent mode MODE in a register of class CLASS.  */
 /* On 80960, this is the size of MODE in words,
    except in the FP regs, where a single reg is always enough.  */
-#define TARGET_CLASS_MAX_NREGS(CLASS, MODE)					\
-  ((CLASS) == FP_REGS ? 1 : TARGET_HARD_REGNO_NREGS (0, (MODE)))
+//#define TARGET_CLASS_MAX_NREGS(CLASS, MODE)					\
+//  ((CLASS) == FP_REGS ? 1 : TARGET_HARD_REGNO_NREGS (0, (MODE)))
 
 #undef  TARGET_OPTION_OVERRIDE
 #define TARGET_OPTION_OVERRIDE i960_option_override
@@ -2853,3 +2886,8 @@ i960_hard_regno_mode_ok (unsigned int regno, machine_mode mode) {
 #define TARGET_HARD_REGNO_MODE_OK i960_hard_regno_mode_ok
 #undef TARGET_MODES_TIEABLE_P
 #define TARGET_MODES_TIEABLE_P i960_modes_tieable_p
+#undef TARGET_LEGITIMIZE_ADDRESS 
+#define TARGET_LEGITIMIZE_ADDRESS i960_legitimize_address
+#undef TARGET_TRULY_NOOP_TRUNCATION 
+#define TARGET_TRULY_NOOP_TRUNCATION i960_truly_noop_truncation
+
