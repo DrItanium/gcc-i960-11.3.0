@@ -46,8 +46,11 @@ Boston, MA 02111-1307, USA.  */
 #include "target.h"
 #include "target-def.h"
 #include "errors.h"
+#include "emit-rtl.h"
 
-#define current_function_args_size (cfun->args_size)
+#define current_function_args_size (crtl->args.size)
+#define current_function_args_info (crtl->args_info)
+#define current_function_stdarg (cfun->stdarg)
 #define compat_STARTING_FRAME_OFFSET 64
 #ifdef compat_CONST_OK_FOR_LETTER_P 
 #warning "CONST_OK_FOR_LETTER_P needs to be reimplemented in gcc11 terms"
