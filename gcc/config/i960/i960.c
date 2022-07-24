@@ -105,7 +105,7 @@ static int ret_label = 0;
 (TYPE_ARG_TYPES (TREE_TYPE (FNDECL)) != 0				\
   && (TREE_VALUE (tree_last (TYPE_ARG_TYPES (TREE_TYPE (FNDECL)))))	\
       != void_type_node)
-
+
 /* Initialize the GCC target structure.  */
 #undef TARGET_ASM_ALIGNED_SI_OP
 #define TARGET_ASM_ALIGNED_SI_OP "\t.word\t"
@@ -154,47 +154,38 @@ i960_option_override (void)
 void
 i960_initialize ()
 {
-  if (TARGET_K_SERIES && TARGET_C_SERIES)
-    {
-      warning ("conflicting architectures defined - using C series");
-      target_flags &= ~TARGET_FLAG_K_SERIES;
+    if (TARGET_K_SERIES && TARGET_C_SERIES) {
+        warning ("conflicting architectures defined - using C series");
+        target_flags &= ~TARGET_FLAG_K_SERIES;
     }
-  if (TARGET_K_SERIES && TARGET_MC)
-    {
-      warning ("conflicting architectures defined - using K series");
-      target_flags &= ~TARGET_FLAG_MC;
+    if (TARGET_K_SERIES && TARGET_MC) {
+        warning ("conflicting architectures defined - using K series");
+        target_flags &= ~TARGET_FLAG_MC;
     }
-  if (TARGET_C_SERIES && TARGET_MC)
-    {
-      warning ("conflicting architectures defined - using C series");
-      target_flags &= ~TARGET_FLAG_MC;
+    if (TARGET_C_SERIES && TARGET_MC) {
+        warning ("conflicting architectures defined - using C series");
+        target_flags &= ~TARGET_FLAG_MC;
     }
-  if (TARGET_IC_COMPAT3_0)
-    {
-      flag_short_enums = 1;
-      flag_signed_char = 1;
-      target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
-      if (TARGET_IC_COMPAT2_0)
-	{
-	  warning ("iC2.0 and iC3.0 are incompatible - using iC3.0");
-	  target_flags &= ~TARGET_FLAG_IC_COMPAT2_0;
-	}
+    if (TARGET_IC_COMPAT3_0) {
+        flag_short_enums = 1;
+        flag_signed_char = 1;
+        target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
+        if (TARGET_IC_COMPAT2_0) {
+            warning ("iC2.0 and iC3.0 are incompatible - using iC3.0");
+            target_flags &= ~TARGET_FLAG_IC_COMPAT2_0;
+        }
     }
-  if (TARGET_IC_COMPAT2_0)
-    {
-      flag_signed_char = 1;
-      target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
+    if (TARGET_IC_COMPAT2_0) {
+        flag_signed_char = 1;
+        target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
     }
 
-  if (TARGET_IC_COMPAT2_0)
-    {
-      i960_maxbitalignment = 8;
-      i960_last_maxbitalignment = 128;
-    }
-  else
-    {
-      i960_maxbitalignment = 128;
-      i960_last_maxbitalignment = 8;
+    if (TARGET_IC_COMPAT2_0) {
+        i960_maxbitalignment = 8;
+        i960_last_maxbitalignment = 128;
+    } else {
+        i960_maxbitalignment = 128;
+        i960_last_maxbitalignment = 8;
     }
 }
 
@@ -2727,7 +2718,7 @@ i960_scan_opcode (const char* p)
 }
 
 static void
-i960_output_mi_thunk (FILE* file, tree thunk, HOST_WIDE_INT delta, HOST_WIDE_INT vcall_offset, tree function)
+i960_output_mi_thunk (FILE* file, tree /*thunk*/, HOST_WIDE_INT delta, HOST_WIDE_INT vcall_offset, tree function)
 {
     int d = delta;
     if (d < 0 && d > -32) {
