@@ -506,30 +506,7 @@ extern int target_flags;
   }									\
 
 #endif
-/* Return number of consecutive hard regs needed starting at reg REGNO
-   to hold something of mode MODE.
-   This is ordinarily the length in words of a value of mode MODE
-   but can be less for certain modes in special long registers.
 
-   On 80960, ordinary registers hold 32 bits worth, but can be ganged
-   together to hold double or extended precision floating point numbers,
-   and the floating point registers hold any size floating point number */
-#define TARGET_HARD_REGNO_NREGS(REGNO, MODE)   \
-  ((REGNO) < 32							\
-   ? (((MODE) == VOIDmode)					\
-      ? 1 : ((GET_MODE_SIZE (MODE) + UNITS_PER_WORD - 1) / UNITS_PER_WORD)) \
-   : ((REGNO) < FIRST_PSEUDO_REGISTER) ? 1 : 0)
-
-/* Value is 1 if hard register REGNO can hold a value of machine-mode MODE.
-   On 80960, the cpu registers can hold any mode but the float registers
-   can only hold SFmode, DFmode, or TFmode.  */
-#define TARGET_HARD_REGNO_MODE_OK(REGNO, MODE) hard_regno_mode_ok ((REGNO), (MODE))
-/* Value is 1 if it is a good idea to tie two pseudo registers
-   when one has mode MODE1 and one has mode MODE2.
-   If HARD_REGNO_MODE_OK could produce different values for MODE1 and MODE2,
-   for any hard reg, then this must be 0 for correct output.  */
-#define TARGET_MODES_TIEABLE_P(MODE1, MODE2) \
-  ((MODE1) == (MODE2) || GET_MODE_CLASS (MODE1) == GET_MODE_CLASS (MODE2))
 
 /* Specify the registers used for certain standard purposes.
    The values of these macros are register numbers.  */
@@ -736,12 +713,6 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 #define SECONDARY_RELOAD_CLASS(CLASS,MODE,IN) \
   secondary_reload_class (CLASS, MODE, IN)
 
-/* Return the maximum number of consecutive registers
-   needed to represent mode MODE in a register of class CLASS.  */
-/* On 80960, this is the size of MODE in words,
-   except in the FP regs, where a single reg is always enough.  */
-#define TARGET_CLASS_MAX_NREGS(CLASS, MODE)					\
-  ((CLASS) == FP_REGS ? 1 : TARGET_HARD_REGNO_NREGS (0, (MODE)))
 
 /* Stack layout; function entry, exit and calling.  */
 

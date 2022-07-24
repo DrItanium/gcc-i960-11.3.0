@@ -51,6 +51,8 @@ Boston, MA 02111-1307, USA.  */
 #include "builtins.h"
 #include "calls.h"
 #include "targhooks.h"
+#include "memmodel.h"
+#include "i960.h"
 // include last
 #include "target-def.h"
 
@@ -1175,7 +1177,8 @@ int
 compute_frame_size (int size)
 {
   int actual_fsize;
-  int outgoing_args_size = current_function_outgoing_args_size;
+  //int outgoing_args_size = current_function_outgoing_args_size;
+  int outgoing_args_size = (cfun->outgoing_args_size);
 
   /* The STARTING_FRAME_OFFSET is totally hidden to us as far
      as size is concerned.  */
@@ -2142,50 +2145,6 @@ i960_alignment (int size, int align)
 int
 hard_regno_mode_ok (int regno, enum machine_mode mode)
 {
-  if (regno < 32)
-    {
-      switch (mode)
-	{
-	case CCmode: case CC_UNSmode: case CC_CHKmode:
-	  return 0;
-
-	case DImode: case DFmode:
-	  return (regno & 1) == 0;
-
-	case TImode: case TFmode:
-	  return (regno & 3) == 0;
-
-	default:
-	  return 1;
-	}
-    }
-  else if (regno >= 32 && regno < 36)
-    {
-      switch (mode)
-	{
-	case SFmode: case DFmode: case TFmode:
-	case SCmode: case DCmode:
-	  return 1;
-
-	default:
-	  return 0;
-	}
-    }
-  else if (regno == 36)
-    {
-      switch (mode)
-	{
-	case CCmode: case CC_UNSmode: case CC_CHKmode:
-	  return 1;
-
-	default:
-	  return 0;
-	}
-    }
-  else if (regno == 37)
-    return 0;
-
-  abort ();
 }
 
 
@@ -2316,7 +2275,7 @@ i960_arg_size_and_align (enum machine_mode mode, tree type, int* size_out, int* 
      formal alignment requirement to be its size in words.  */
 
   if (mode == BLKmode) {
-      size = ((int_size_in_bytes (type) + UNITS_PER_WORD - 1)).to_constant() / UNITS_PER_WORD;
+      size = ((int_size_in_bytes (type).to_constant() + UNITS_PER_WORD - 1)) / UNITS_PER_WORD;
   } else if (mode == VOIDmode) {
       /* End of parm list.  */
       if (type == 0 || TYPE_MODE (type) != VOIDmode) {
@@ -2514,6 +2473,7 @@ i960_build_builtin_va_list ()
 void
 i960_va_start (tree valist, rtx nextarg)
 {
+#if 0
   tree s, t, base, num;
   rtx fake_arg_pointer_rtx;
 
@@ -2537,6 +2497,9 @@ i960_va_start (tree valist, rtx nextarg)
   t = build (MODIFY_EXPR, unsigned_type_node, num, s);
   TREE_SIDE_EFFECTS (t) = 1;
   expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
+#else
+#warning "reimplement i960_va_start"
+#undef
 }
 
 /* Implement `va_arg'.  */
@@ -2556,7 +2519,7 @@ i960_va_arg (tree valist, tree type)
 		       TYPE_SIZE_UNIT (TREE_TYPE (valist))));
 
   /* Round up sizeof(type) to a word.  */
-  siz = (int_size_in_bytes (type) + UNITS_PER_WORD - 1) & -UNITS_PER_WORD;
+  siz = (int_size_in_bytes (type).to_constant() + UNITS_PER_WORD - 1) & -UNITS_PER_WORD;
 
   /* Round up alignment to a word.  */
   ali = TYPE_ALIGN (type);
@@ -2794,6 +2757,99 @@ i960_rtx_costs (rtx x, int code, int outer_code, int* total)
       return false;
     }
 }
+static unsigned int
+i960_hard_regno_nregs (unsigned int regno, machine_mode mode)
+{
+/* Return number of consecutive hard regs needed starting at reg REGNO
+   to hold something of mode MODE.
+   This is ordinarily the length in words of a value of mode MODE
+   but can be less for certain modes in special long registers.
+
+   On 80960, ordinary registers hold 32 bits worth, but can be ganged
+   together to hold double or extended precision floating point numbers,
+   and the floating point registers hold any size floating point number */
+    if (regno < 32) {
+        if (mode == VOIDmode) {
+            return 1;
+        } else {
+            return ((GET_MODE_SIZE(mode).to_constant() + UNITS_PER_WORD - 1) / UNITS_PER_WORD);
+        }
+    } else {
+        if (regno < FIRST_PSEUDO_REGISTER) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+}
+bool i960_modes_tieable_p			(machine_mode mode1, machine_mode mode2) {
+/* Value is 1 if it is a good idea to tie two pseudo registers
+   when one has mode MODE1 and one has mode MODE2.
+   If HARD_REGNO_MODE_OK could produce different values for MODE1 and MODE2,
+   for any hard reg, then this must be 0 for correct output.  */
+    return (mode1 == mode2) || GET_MODE_CLASS(mode1) == GET_MODE_CLASS(mode2);
+}
+static bool
+i960_hard_regno_mode_ok (unsigned int regno, machine_mode mode) {
+/* Value is 1 if hard register REGNO can hold a value of machine-mode MODE.
+   On 80960, the cpu registers can hold any mode but the float registers
+   can only hold SFmode, DFmode, or TFmode.  */
+    if (regno < 32) {
+        switch (mode) {
+            case CCmode: 
+            case CC_UNSmode: 
+            case CC_CHKmode:
+                return false;
+
+            case DImode: 
+            case DFmode:
+                return (regno & 1) == 0;
+
+            case TImode: 
+            case TFmode:
+                return (regno & 3) == 0;
+
+            default:
+                return true;
+        }
+    } else if (regno >= 32 && regno < 36) {
+        switch (mode) {
+            case SFmode: 
+            case DFmode: 
+            case TFmode:
+            case SCmode: 
+            case DCmode:
+                return 1;
+            default:
+                return 0;
+        }
+    } else if (regno == 36) {
+        switch (mode) {
+            case CCmode: 
+            case CC_UNSmode: 
+            case CC_CHKmode:
+                return 1;
+
+            default:
+                return 0;
+        }
+    } else if (regno == 37) {
+        return false;
+    }
+    return false;
+}
+/* Return the maximum number of consecutive registers
+   needed to represent mode MODE in a register of class CLASS.  */
+/* On 80960, this is the size of MODE in words,
+   except in the FP regs, where a single reg is always enough.  */
+#define TARGET_CLASS_MAX_NREGS(CLASS, MODE)					\
+  ((CLASS) == FP_REGS ? 1 : TARGET_HARD_REGNO_NREGS (0, (MODE)))
 
 #undef  TARGET_OPTION_OVERRIDE
 #define TARGET_OPTION_OVERRIDE i960_option_override
+#undef TARGET_HARD_REGNO_NREGS
+#define TARGET_HARD_REGNO_NREGS i960_hard_regno_nregs
+#undef TARGET_HARD_REGNO_MODE_OK
+#define TARGET_HARD_REGNO_MODE_OK i960_hard_regno_mode_ok
+#undef TARGET_MODES_TIEABLE_P
+#define TARGET_MODES_TIEABLE_P i960_modes_tieable_p
