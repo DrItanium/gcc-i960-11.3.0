@@ -46,6 +46,12 @@ Boston, MA 02111-1307, USA.  */
 #include "target.h"
 #include "emit-rtl.h"
 #include "errors.h"
+#include "stringpool.h"
+#include "attribs.h"
+#include "builtins.h"
+#include "calls.h"
+#include "targhooks.h"
+// include last
 #include "target-def.h"
 
 #define current_function_args_size (crtl->args.size.to_constant())
@@ -120,8 +126,6 @@ static int ret_label = 0;
 #undef TARGET_ASM_ALIGNED_SI_OP
 #define TARGET_ASM_ALIGNED_SI_OP "\t.word\t"
 
-#undef  TARGET_OPTION_OVERRIDE
-#define TARGET_OPTION_OVERRIDE i960_option_override
 
 #undef TARGET_ASM_FUNCTION_PROLOGUE
 #define TARGET_ASM_FUNCTION_PROLOGUE i960_output_function_prologue
@@ -149,7 +153,7 @@ i960_init_machine_status (void)
 {
   return ggc_cleared_alloc<machine_function> ();
 }
-static void
+void
 i960_option_override (void)
 {
   /* Set the per-function-data initializer.  */
@@ -257,7 +261,7 @@ signed_arith_operand (rtx op, enum machine_mode mode)
    range constraining immediate operands in three-address insns.  */
 
 int
-literal (rtx op, enum machine_mode mode)
+literal (rtx op, enum machine_mode )
 {
   return ((GET_CODE (op) == CONST_INT) && INTVAL(op) >= 0 && INTVAL(op) < 32);
 }
@@ -289,7 +293,7 @@ fp_literal(rtx op, enum machine_mode mode)
 /* Return true if OP is a valid signed immediate constant.  */
 
 int
-signed_literal(rtx op, enum machine_mode mode)
+signed_literal(rtx op, enum machine_mode )
 {
   return ((GET_CODE (op) == CONST_INT) && INTVAL(op) > -32 && INTVAL(op) < 32);
 }
@@ -298,7 +302,7 @@ signed_literal(rtx op, enum machine_mode mode)
    operand of mode MODE.  */
 
 int
-symbolic_memory_operand (rtx op, enum machine_mode mode)
+symbolic_memory_operand (rtx op, enum machine_mode)
 {
   if (GET_CODE (op) == SUBREG)
     op = SUBREG_REG (op);
@@ -312,7 +316,7 @@ symbolic_memory_operand (rtx op, enum machine_mode mode)
 /* Return truth value of whether OP is EQ or NE.  */
 
 int
-eq_or_neq (rtx op, enum machine_mode mode)
+eq_or_neq (rtx op, enum machine_mode)
 {
   return (GET_CODE (op) == EQ || GET_CODE (op) == NE);
 }
@@ -330,7 +334,7 @@ arith32_operand (rtx op, enum machine_mode mode)
 /* Return true if OP is an integer constant which is a power of 2.  */
 
 int
-power2_operand (rtx op,enum machine_mode mode)
+power2_operand (rtx op,enum machine_mode)
 {
   if (GET_CODE (op) != CONST_INT)
     return 0;
@@ -342,7 +346,7 @@ power2_operand (rtx op,enum machine_mode mode)
    power of 2.  */
 
 int
-cmplpower2_operand (rtx op, enum machine_mode mode)
+cmplpower2_operand (rtx op, enum machine_mode)
 {
   if (GET_CODE (op) != CONST_INT)
     return 0;
@@ -2790,3 +2794,6 @@ i960_rtx_costs (rtx x, int code, int outer_code, int* total)
       return false;
     }
 }
+
+#undef  TARGET_OPTION_OVERRIDE
+#define TARGET_OPTION_OVERRIDE i960_option_override

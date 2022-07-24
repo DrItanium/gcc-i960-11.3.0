@@ -516,7 +516,7 @@ extern int target_flags;
    On 80960, ordinary registers hold 32 bits worth, but can be ganged
    together to hold double or extended precision floating point numbers,
    and the floating point registers hold any size floating point number */
-#define compat_HARD_REGNO_NREGS(REGNO, MODE)   \
+#define TARGET_HARD_REGNO_NREGS(REGNO, MODE)   \
   ((REGNO) < 32							\
    ? (((MODE) == VOIDmode)					\
       ? 1 : ((GET_MODE_SIZE (MODE) + UNITS_PER_WORD - 1) / UNITS_PER_WORD)) \
@@ -525,15 +525,13 @@ extern int target_flags;
 /* Value is 1 if hard register REGNO can hold a value of machine-mode MODE.
    On 80960, the cpu registers can hold any mode but the float registers
    can only hold SFmode, DFmode, or TFmode.  */
-#define compat_HARD_REGNO_MODE_OK(REGNO, MODE) hard_regno_mode_ok ((REGNO), (MODE))
+#define TARGET_HARD_REGNO_MODE_OK(REGNO, MODE) hard_regno_mode_ok ((REGNO), (MODE))
 /* Value is 1 if it is a good idea to tie two pseudo registers
    when one has mode MODE1 and one has mode MODE2.
    If HARD_REGNO_MODE_OK could produce different values for MODE1 and MODE2,
    for any hard reg, then this must be 0 for correct output.  */
-#if 0
-#define MODES_TIEABLE_P(MODE1, MODE2) \
+#define TARGET_MODES_TIEABLE_P(MODE1, MODE2) \
   ((MODE1) == (MODE2) || GET_MODE_CLASS (MODE1) == GET_MODE_CLASS (MODE2))
-#endif
 
 /* Specify the registers used for certain standard purposes.
    The values of these macros are register numbers.  */
@@ -763,7 +761,6 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    goes at a more negative offset in the frame.  */
 /* #define FRAME_GROWS_DOWNWARD */
 
-#if 0
 /* Offset within stack frame to start allocating local variables at.
    If FRAME_GROWS_DOWNWARD, this is the offset to the END of the
    first local allocated.  Otherwise, it is the offset to the BEGINNING
@@ -771,9 +768,8 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 
    The i960 has a 64 byte register save area, plus possibly some extra
    bytes allocated for varargs functions.  */
-#define STARTING_FRAME_OFFSET 64
+#define TARGET_STARTING_FRAME_OFFSET 64
 
-#endif
 
 /* If we generate an insn to push BYTES bytes,
    this says how many the stack pointer really advances by.
@@ -782,28 +778,24 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 
 /* Offset of first parameter from the argument pointer register value.  */
 #define FIRST_PARM_OFFSET(FNDECL) 0
-#if 0
 /* When a parameter is passed in a register, no stack space is
    allocated for it.  However, when args are passed in the
    stack, space is allocated for every register parameter.  */
-#define MAYBE_REG_PARM_STACK_SPACE 48
-#define FINAL_REG_PARM_STACK_SPACE(CONST_SIZE, VAR_SIZE)	\
+#define TARGET_MAYBE_REG_PARM_STACK_SPACE 48
+#define TARGET_FINAL_REG_PARM_STACK_SPACE(CONST_SIZE, VAR_SIZE)	\
   i960_final_reg_parm_stack_space (CONST_SIZE, VAR_SIZE);
-#endif
 #define REG_PARM_STACK_SPACE(DECL) i960_reg_parm_stack_space (DECL)
 #define OUTGOING_REG_PARM_STACK_SPACE
 
 /* Keep the stack pointer constant throughout the function.  */
 #define ACCUMULATE_OUTGOING_ARGS 1
-#if 0
 /* Value is 1 if returning from a function call automatically
    pops the arguments described by the number-of-args field in the call.
    FUNDECL is the declaration node of the function (as a tree),
    FUNTYPE is the data type of the function (as a tree),
    or for a library call it is an identifier node for the subroutine name.  */
 
-#define RETURN_POPS_ARGS(FUNDECL,FUNTYPE,SIZE) 0
-#endif
+#define TARGET_RETURN_POPS_ARGS(FUNDECL,FUNTYPE,SIZE) 0
 
 /* Define how to find the value returned by a library function
    assuming the value has mode MODE.  */
@@ -821,7 +813,6 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 
 #define FUNCTION_ARG_REGNO_P(N) ((N) < 12)
 
-#if 0
 /* Perform any needed actions needed for a function that is receiving a
    variable number of arguments. 
 
@@ -836,9 +827,8 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    Normally, this macro will push all remaining incoming registers on the
    stack and set PRETEND_SIZE to the length of the registers pushed.  */
 
-#define SETUP_INCOMING_VARARGS(CUM,MODE,TYPE,PRETEND_SIZE,NO_RTL) \
+#define TARGET_SETUP_INCOMING_VARARGS(CUM,MODE,TYPE,PRETEND_SIZE,NO_RTL) \
   i960_setup_incoming_varargs(&CUM,MODE,TYPE,&PRETEND_SIZE,NO_RTL)
-#endif
 
 /* Implement `va_start' for varargs and stdarg.  */
 #define EXPAND_BUILTIN_VA_START(valist, nextarg) \
@@ -997,7 +987,6 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
   (GET_CODE (X) == LABEL_REF || GET_CODE (X) == SYMBOL_REF		\
    || GET_CODE (X) == CONST_INT || GET_CODE (X) == CONST		\
    || GET_CODE (X) == HIGH)
-#if 0
 /* LEGITIMATE_CONSTANT_P is nonzero if the constant value X
    is a legitimate general operand.
    It is given that X satisfies CONSTANT_P.
@@ -1006,9 +995,8 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 
    ??? This probably should be defined to 1.  */
 
-#define LEGITIMATE_CONSTANT_P(X) \
+#define TARGET_LEGITIMATE_CONSTANT_P(X) \
   ((GET_CODE (X) != CONST_DOUBLE) || fp_literal ((X), GET_MODE (X)))
-#endif
 
 /* The macros REG_OK_FOR..._P assume that the arg is a REG rtx
    and check its validity for a certain class.
@@ -1078,8 +1066,7 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 #define GO_IF_LEGITIMATE_ADDRESS(MODE, X, ADDR) \
   { if (legitimate_address_p (MODE, X, 0)) goto ADDR; }
 #endif
-
-#if 0
+
 /* Try machine-dependent ways of modifying an illegitimate address
    to be legitimate.  If we find one, return the new, valid address.
    This macro is used in only one place: `memory_address' in explow.c.
@@ -1095,12 +1082,13 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 
 /* On 80960, convert non-canonical addresses to canonical form.  */
 
-#define LEGITIMIZE_ADDRESS(X, OLDX, MODE, WIN)	\
+#define TARGET_LEGITIMIZE_ADDRESS(X, OLDX, MODE, WIN)	\
 { rtx orig_x = (X);				\
   (X) = legitimize_address (X, OLDX, MODE);	\
   if ((X) != orig_x && memory_address_p (MODE, X)) \
     goto WIN; }
 
+#if 0
 /* Go to LABEL if ADDR (a legitimate address expression)
    has an effect that depends on the machine mode it is used for.
    On the 960 this is never true.  */
@@ -1143,11 +1131,9 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 /* Define this to be nonzero if shift instructions ignore all but the low-order
    few bits.  */
 #define SHIFT_COUNT_TRUNCATED 0
-#if 0
 /* Value is 1 if truncating an integer of INPREC bits to OUTPREC bits
    is done just by pretending it is already truncated.  */
-#define TRULY_NOOP_TRUNCATION(OUTPREC, INPREC) 1
-#endif
+#define TARGET_TRULY_NOOP_TRUNCATION(OUTPREC, INPREC) 1
 
 /* Specify the machine mode that pointers have.
    After generation of rtl, the compiler makes no further distinction
