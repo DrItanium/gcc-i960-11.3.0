@@ -420,18 +420,16 @@ extern int target_flags;
    when given unaligned data.
    80960 will work even with unaligned data, but it is slow.  */
 #define STRICT_ALIGNMENT TARGET_STRICT_ALIGN
-#if 0
 /* Specify alignment for string literals (which might be higher than the
    base type's minimal alignment requirement.  This allows strings to be
    aligned on word boundaries, and optimizes calls to the str* and mem*
    library functions.  */
-#define CONSTANT_ALIGNMENT(EXP, ALIGN) \
+#define TARGET_CONSTANT_ALIGNMENT(EXP, ALIGN) \
   (TREE_CODE (EXP) == STRING_CST	\
    && i960_object_bytes_bitalign (int_size_in_bytes (TREE_TYPE (EXP))) > (int)(ALIGN) \
    ? i960_object_bytes_bitalign (int_size_in_bytes (TREE_TYPE (EXP)))	    \
    : (int)(ALIGN))
 
-#endif
 /* Macros to determine size of aggregates (structures and unions
    in C).  Normally, these may be defined to simply return the maximum
    alignment and simple rounded-up size, but on some machines (like
@@ -676,7 +674,6 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    i960, but this distinction may one day be useful.  */
 #define INDEX_REG_CLASS LOCAL_OR_GLOBAL_REGS
 #define BASE_REG_CLASS LOCAL_OR_GLOBAL_REGS
-
 #if 0
 /* Get reg_class from a letter such as appears in the machine description.
    'f' is a floating point register (fp0..fp3)
@@ -689,7 +686,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 #define REG_CLASS_FROM_LETTER(C) \
   (((C) == 'f') && (TARGET_NUMERICS) ? FP_REGS : ((C) == 'l' ? LOCAL_REGS : \
     (C) == 'b' ? GLOBAL_REGS : ((C) == 'd' ? LOCAL_OR_GLOBAL_REGS : NO_REGS)))
-
+#endif
 /* The letters I, J, K, L and M in a register constraint string
    can be used to stand for particular ranges of immediate operands.
    This macro defines what the ranges are.
@@ -701,7 +698,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    	'J' means literal 0
 	'K' means 0..-31.  */
 
-#define CONST_OK_FOR_LETTER_P(VALUE, C)  				\
+#define TARGET_CONST_OK_FOR_LETTER_P(VALUE, C)  				\
   ((C) == 'I' ? (((unsigned) (VALUE)) <= 31)				\
    : (C) == 'J' ? ((VALUE) == 0)					\
    : (C) == 'K' ? ((VALUE) >= -31 && (VALUE) <= 0)			\
@@ -712,12 +709,11 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    Here VALUE is the CONST_DOUBLE rtx itself.
    For the 80960, G is 0.0 and H is 1.0.  */
 
-#define CONST_DOUBLE_OK_FOR_LETTER_P(VALUE, C)				\
+#define TARGET_CONST_DOUBLE_OK_FOR_LETTER_P(VALUE, C)				\
   ((TARGET_NUMERICS) &&							\
    (((C) == 'G' && (VALUE) == CONST0_RTX (GET_MODE (VALUE)))		\
     || ((C) == 'H' && ((VALUE) == CONST1_RTX (GET_MODE (VALUE))))))
 
-#endif
 /* Given an rtx X being reloaded into a reg required to be
    in class CLASS, return the class of reg to actually use.
    In general this is just CLASS; but on some machines
@@ -740,14 +736,12 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 #define SECONDARY_RELOAD_CLASS(CLASS,MODE,IN) \
   secondary_reload_class (CLASS, MODE, IN)
 
-#if 0
 /* Return the maximum number of consecutive registers
    needed to represent mode MODE in a register of class CLASS.  */
 /* On 80960, this is the size of MODE in words,
    except in the FP regs, where a single reg is always enough.  */
-#define CLASS_MAX_NREGS(CLASS, MODE)					\
-  ((CLASS) == FP_REGS ? 1 : HARD_REGNO_NREGS (0, (MODE)))
-#endif
+#define TARGET_CLASS_MAX_NREGS(CLASS, MODE)					\
+  ((CLASS) == FP_REGS ? 1 : TARGET_HARD_REGNO_NREGS (0, (MODE)))
 
 /* Stack layout; function entry, exit and calling.  */
 
@@ -834,11 +828,9 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 #define EXPAND_BUILTIN_VA_START(valist, nextarg) \
   i960_va_start (valist, nextarg)
 
-#if 0
 /* Implement `va_arg'.  */
-#define EXPAND_BUILTIN_VA_ARG(valist, type) \
+#define TARGET_EXPAND_BUILTIN_VA_ARG(valist, type) \
   i960_va_arg (valist, type)
-#endif
 
 /* Define a data type for recording info about an argument list
    during the scan of that argument list.  This data type should
@@ -871,19 +863,18 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 #define INIT_CUMULATIVE_ARGS(CUM, FNTYPE, LIBNAME, INDIRECT, N_NAMED_ARGS) \
   ((CUM).ca_nregparms = 0, (CUM).ca_nstackparms = 0)
 
-#if 0
 /* Update the data in CUM to advance over an argument
    of mode MODE and data type TYPE.
    CUM should be advanced to align with the data type accessed and
    also the size of that data type in # of regs.
    (TYPE is null for libcalls where that information may not be available.)  */
 
-#define FUNCTION_ARG_ADVANCE(CUM, MODE, TYPE, NAMED)	\
+#define TARGET_FUNCTION_ARG_ADVANCE(CUM, MODE, TYPE, NAMED)	\
   i960_function_arg_advance(&CUM, MODE, TYPE, NAMED)
 
 /* Indicate the alignment boundary for an argument of the specified mode and
    type.  */
-#define FUNCTION_ARG_BOUNDARY(MODE, TYPE)				\
+#define TARGET_FUNCTION_ARG_BOUNDARY(MODE, TYPE)				\
   (((TYPE) != 0)							\
    ? ((TYPE_ALIGN (TYPE) <= PARM_BOUNDARY)				\
       ? PARM_BOUNDARY							\
@@ -904,9 +895,8 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
    NAMED is nonzero if this argument is a named parameter
     (otherwise it is an extra parameter matching an ellipsis).  */
 
-#define FUNCTION_ARG(CUM, MODE, TYPE, NAMED)	\
+#define TARGET_FUNCTION_ARG(CUM, MODE, TYPE, NAMED)	\
   i960_function_arg(&CUM, MODE, TYPE, NAMED)
-#endif
 
 /* Define how to find the value returned by a function.
    VALTYPE is the data type of the value (as a tree).
@@ -925,13 +915,11 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 /* Don't default to pcc-struct-return, because we have already specified
    exactly how to return structures in the RETURN_IN_MEMORY macro.  */
 #define DEFAULT_PCC_STRUCT_RETURN 0
-#if 0
 /* For an arg passed partly in registers and partly in memory,
    this is the number of registers used.
    This never happens on 80960.  */
 
-#define FUNCTION_ARG_PARTIAL_NREGS(CUM, MODE, TYPE, NAMED) 0
-#endif
+#define TARGET_FUNCTION_ARG_PARTIAL_NREGS(CUM, MODE, TYPE, NAMED) 0
 
 /* Output the label for a function definition.
   This handles leaf functions and a few other things for the i960.  */
@@ -1088,12 +1076,10 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
   if ((X) != orig_x && memory_address_p (MODE, X)) \
     goto WIN; }
 
-#if 0
 /* Go to LABEL if ADDR (a legitimate address expression)
    has an effect that depends on the machine mode it is used for.
    On the 960 this is never true.  */
-#define GO_IF_MODE_DEPENDENT_ADDRESS(ADDR,LABEL)
-#endif
+#define TARGET_GO_IF_MODE_DEPENDENT_ADDRESS(ADDR,LABEL)
 
 /* Specify the machine mode that this machine uses
    for the index in the tablejump instruction.  */
@@ -1165,13 +1151,6 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
    but a CALL with constant address is cheap.  */
 #define NO_FUNCTION_CSE 1
 
-/* Use memcpy, etc. instead of bcopy.  */
-#if 0
-#ifndef WIND_RIVER
-#define	TARGET_MEM_FUNCTIONS	1
-#endif
-#endif
-
 /* Control the assembler format that we output.  */
 
 /* Output to assembler file text saying following lines
@@ -1212,11 +1191,10 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
 /* Don't emit dbx records longer than this.  This is an arbitrary value.  */
 #define DBX_CONTIN_LENGTH 1500
 
-#if 0
 /* This is how to output a note to DBX telling it the line number
    to which the following sequence of instructions corresponds.  */
-
-#define ASM_OUTPUT_SOURCE_LINE(FILE, LINE, COUNTER)		\
+#if 0
+#define TARGET_ASM_OUTPUT_SOURCE_LINE(FILE, LINE, COUNTER)		\
 { if (write_symbols == SDB_DEBUG) {				\
     fprintf ((FILE), "\t.ln	%d\n",				\
 	     (sdb_begin_function_line				\
@@ -1337,6 +1315,7 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
 
 /* Output assembler code for a block containing the constant parts
    of a trampoline, leaving space for the variable parts.  */
+/// @todo implement proper trampoline support
 #if 0
 /* On the i960, the trampoline contains three instructions:
      ldconst _function, r4
@@ -1371,20 +1350,16 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
    available.  */
 #define SETUP_FRAME_ADDRESSES()		\
   emit_insn (gen_flush_register_windows ())
-#if 0
-#define BUILTIN_SETJMP_FRAME_VALUE hard_frame_pointer_rtx
-#endif
+#define TARGET_BUILTIN_SETJMP_FRAME_VALUE hard_frame_pointer_rtx
 
-#if 0
 /* Promote char and short arguments to ints, when want compatibility with
    the iC960 compilers.  */
 
 /* ??? In order for this to work, all users would need to be changed
    to test the value of the macro at run time.  */
-#define PROMOTE_PROTOTYPES	TARGET_CLEAN_LINKAGE
+#define TARGET_PROMOTE_PROTOTYPES	TARGET_CLEAN_LINKAGE
 /* ??? This does not exist.  */
-#define PROMOTE_RETURN		TARGET_CLEAN_LINKAGE
-#endif
+//#define TARGET_PROMOTE_FUNCTION_RETURN		TARGET_CLEAN_LINKAGE
 
 /* Instruction type definitions.  Used to alternate instructions types for
    better performance on the C series chips.  */

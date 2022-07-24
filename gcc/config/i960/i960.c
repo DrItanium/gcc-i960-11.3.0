@@ -578,7 +578,7 @@ emit_move_sequence (rtx* operands, enum machine_mode mode)
 	      && REGNO (operands[0]) >= FIRST_PSEUDO_REGISTER))
       && GET_CODE (operands[1]) == REG
       && REGNO (operands[1]) < FIRST_PSEUDO_REGISTER
-      && ! compat_HARD_REGNO_MODE_OK (REGNO (operands[1]), mode))
+      && ! TARGET_HARD_REGNO_MODE_OK (REGNO (operands[1]), mode))
     {
       emit_insn (gen_rtx_PARALLEL
 		 (VOIDmode,
@@ -614,7 +614,7 @@ i960_output_move_double (rtx dst, rtx src)
         }
     } else if (GET_CODE (dst) == REG
             && GET_CODE (src) == CONST_INT
-            && compat_CONST_OK_FOR_LETTER_P (INTVAL (src), 'I')) {
+            && TARGET_CONST_OK_FOR_LETTER_P (INTVAL (src), 'I')) {
         if (REGNO (dst) & 1) {
             return "mov	%1,%0\n\tmov	0,%D0";
         } else {
@@ -696,7 +696,7 @@ i960_output_move_quad (rtx dst, rtx src)
       }
   } else if (GET_CODE (dst) == REG
           && GET_CODE (src) == CONST_INT
-          && compat_CONST_OK_FOR_LETTER_P (INTVAL (src), 'I')) {
+          && TARGET_CONST_OK_FOR_LETTER_P (INTVAL (src), 'I')) {
       if (REGNO (dst) & 3) {
           return "mov	%1,%0\n\tmov	0,%D0\n\tmov	0,%E0\n\tmov	0,%F0";
       } else {
