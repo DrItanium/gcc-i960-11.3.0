@@ -44,11 +44,11 @@ Boston, MA 02111-1307, USA.  */
 #include "toplev.h"
 #include "tm_p.h"
 #include "target.h"
-#include "target-def.h"
-#include "errors.h"
 #include "emit-rtl.h"
+#include "errors.h"
+#include "target-def.h"
 
-#define current_function_args_size (crtl->args.size)
+#define current_function_args_size (crtl->args.size.to_constant())
 #define current_function_args_info (crtl->args_info)
 #define current_function_stdarg (cfun->stdarg)
 #define compat_STARTING_FRAME_OFFSET 64
@@ -568,7 +568,7 @@ emit_move_sequence (rtx* operands, enum machine_mode mode)
   /* ??? We must also handle stores to pseudos here, because the pseudo may be
      replaced with a MEM later.  This would be cleaner if we didn't have
      a separate pattern for unaligned DImode/TImode stores.  */
-  if (GET_MODE_SIZE (mode) > UNITS_PER_WORD
+  if (GET_MODE_SIZE(mode).to_constant() > UNITS_PER_WORD
       && (GET_CODE (operands[0]) == MEM
 	  || (GET_CODE (operands[0]) == REG
 	      && REGNO (operands[0]) >= FIRST_PSEUDO_REGISTER))
@@ -1052,7 +1052,7 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
   /* Can not use tail calls or make this a leaf routine if there is a non
      zero frame size.  */
 
-  if (get_frame_size () != 0)
+  if (get_frame_size().to_constant() != 0)
     leaf_proc_ok = 0;
 
   /* I don't understand this condition, and do not think that it is correct.
@@ -2311,24 +2311,25 @@ i960_arg_size_and_align (enum machine_mode mode, tree type, int* size_out, int* 
      and the parm has to be of scalar type.  In this case, consider its
      formal alignment requirement to be its size in words.  */
 
-  if (mode == BLKmode)
-    size = (int_size_in_bytes (type) + UNITS_PER_WORD - 1) / UNITS_PER_WORD;
-  else if (mode == VOIDmode)
-    {
+  if (mode == BLKmode) {
+      size = ((int_size_in_bytes (type) + UNITS_PER_WORD - 1)).to_constant() / UNITS_PER_WORD;
+  } else if (mode == VOIDmode) {
       /* End of parm list.  */
-      if (type == 0 || TYPE_MODE (type) != VOIDmode)
-	abort ();
+      if (type == 0 || TYPE_MODE (type) != VOIDmode) {
+          abort ();
+      }
       size = 1;
-    }
-  else
-    size = (GET_MODE_SIZE (mode) + UNITS_PER_WORD - 1) / UNITS_PER_WORD;
+  } else {
+      size = ((GET_MODE_SIZE (mode) + UNITS_PER_WORD - 1)).to_constant() / UNITS_PER_WORD;
+  }
 
-  if (type == 0)
-    align = size;
-  else if (TYPE_ALIGN (type) >= BITS_PER_WORD)
-    align = TYPE_ALIGN (type) / BITS_PER_WORD;
-  else
-    align = 1;
+  if (type == 0) {
+      align = size;
+  } else if (TYPE_ALIGN (type) >= BITS_PER_WORD) {
+      align = TYPE_ALIGN (type) / BITS_PER_WORD;
+  } else {
+      align = 1;
+  }
 
   *size_out  = size;
   *align_out = align;
