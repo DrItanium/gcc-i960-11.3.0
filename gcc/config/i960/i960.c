@@ -46,6 +46,7 @@ Boston, MA 02111-1307, USA.  */
 #include "target.h"
 #include "target-def.h"
 
+#define current_function_args_size (cfun->args_size)
 static void i960_output_function_prologue (FILE *, HOST_WIDE_INT);
 static void i960_output_function_epilogue (FILE *, HOST_WIDE_INT);
 static void i960_output_mi_thunk (FILE *, tree, HOST_WIDE_INT,
@@ -2556,7 +2557,7 @@ rtx
 i960_va_arg (tree valist, tree type)
 {
   HOST_WIDE_INT siz, ali;
-  tree base, num, pad, next, this, t1, t2, int48;
+  tree base, num, pad, next, this_, t1, t2, int48;
   rtx addr_rtx;
 
   /* The array type always decays to a pointer before we get here, so we
@@ -2596,10 +2597,10 @@ i960_va_arg (tree valist, tree type)
     t2 = fold (build (GT_EXPR, integer_type_node, next, int48));
   t1 = fold (build (LE_EXPR, integer_type_node, num, int48));
   t1 = fold (build (TRUTH_AND_EXPR, integer_type_node, t1, t2));
-  this = fold (build (COND_EXPR, unsigned_type_node, t1, int48, pad));
+  this_ = fold (build (COND_EXPR, unsigned_type_node, t1, int48, pad));
 
   /* Find the address for the current argument.  */
-  t1 = fold (build (PLUS_EXPR, unsigned_type_node, base, this));
+  t1 = fold (build (PLUS_EXPR, unsigned_type_node, base, this_));
   t1 = build1 (NOP_EXPR, ptr_type_node, t1);
   addr_rtx = expand_expr (t1, NULL_RTX, Pmode, EXPAND_NORMAL);
 
