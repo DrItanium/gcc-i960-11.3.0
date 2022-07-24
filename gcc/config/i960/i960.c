@@ -44,7 +44,6 @@ Boston, MA 02111-1307, USA.  */
 #include "toplev.h"
 #include "tm_p.h"
 #include "target.h"
-#include "emit-rtl.h"
 #include "errors.h"
 #include "stringpool.h"
 #include "attribs.h"
@@ -52,7 +51,7 @@ Boston, MA 02111-1307, USA.  */
 #include "calls.h"
 #include "targhooks.h"
 #include "memmodel.h"
-#include "i960.h"
+#include "emit-rtl.h"
 // include last
 #include "target-def.h"
 
@@ -2450,7 +2449,7 @@ i960_va_start (tree valist, rtx nextarg)
   expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
 #else
 #warning "reimplement i960_va_start"
-#undef
+#endif
 }
 
 /* Implement `va_arg'.  */
@@ -2808,10 +2807,10 @@ i960_legitimize_address (rtx x,
    opportunities to optimize the output.  */
 
 /* On 80960, convert non-canonical addresses to canonical form.  */
-//#define TARGET_LEGITIMIZE_ADDRESS(X, OLDX, MODE, WIN)	\
-//{ rtx orig_x = (X);				\
-//  (X) = legitimize_address (X, OLDX, MODE);	\
-//  if ((X) != orig_x && memory_address_p (MODE, X)) \
+//#define TARGET_LEGITIMIZE_ADDRESS(X, OLDX, MODE, WIN)	
+//{ rtx orig_x = (X);				
+//  (X) = legitimize_address (X, OLDX, MODE);	
+//  if ((X) != orig_x && memory_address_p (MODE, X)) 
 //    goto WIN; }
 
   if (GET_CODE (x) == SYMBOL_REF)
@@ -2871,6 +2870,18 @@ i960_truly_noop_truncation (poly_uint64 outprec, poly_uint64 inprec)
    is done just by pretending it is already truncated.  */
     return 1;
 }
+bool
+gcn_legitimate_constant_p (machine_mode, rtx x)
+{
+/* LEGITIMATE_CONSTANT_P is nonzero if the constant value X
+   is a legitimate general operand.
+   It is given that X satisfies CONSTANT_P.
+
+   Anything but a CONST_DOUBLE can be made to work, excepting 0.0 and 1.0.
+
+   ??? This probably should be defined to 1.  */
+    return (GET_CODE(x) != CONST_DOUBLE) || fp_literal(x, GET_MODE(x));
+}
 /* Return the maximum number of consecutive registers
    needed to represent mode MODE in a register of class CLASS.  */
 /* On 80960, this is the size of MODE in words,
@@ -2890,4 +2901,6 @@ i960_truly_noop_truncation (poly_uint64 outprec, poly_uint64 inprec)
 #define TARGET_LEGITIMIZE_ADDRESS i960_legitimize_address
 #undef TARGET_TRULY_NOOP_TRUNCATION 
 #define TARGET_TRULY_NOOP_TRUNCATION i960_truly_noop_truncation
+#undef TARGET_LEGITIMATE_CONSTANT_P 
+#define TARGET_LEGITIMATE_CONSTANT_P i960_legitimate_constant_p
 

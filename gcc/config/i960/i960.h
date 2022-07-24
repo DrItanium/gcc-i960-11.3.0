@@ -946,16 +946,6 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
   (GET_CODE (X) == LABEL_REF || GET_CODE (X) == SYMBOL_REF		\
    || GET_CODE (X) == CONST_INT || GET_CODE (X) == CONST		\
    || GET_CODE (X) == HIGH)
-/* LEGITIMATE_CONSTANT_P is nonzero if the constant value X
-   is a legitimate general operand.
-   It is given that X satisfies CONSTANT_P.
-
-   Anything but a CONST_DOUBLE can be made to work, excepting 0.0 and 1.0.
-
-   ??? This probably should be defined to 1.  */
-
-#define TARGET_LEGITIMATE_CONSTANT_P(X) \
-  ((GET_CODE (X) != CONST_DOUBLE) || fp_literal ((X), GET_MODE (X)))
 
 /* The macros REG_OK_FOR..._P assume that the arg is a REG rtx
    and check its validity for a certain class.
