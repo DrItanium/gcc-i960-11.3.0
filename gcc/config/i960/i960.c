@@ -2871,7 +2871,7 @@ i960_truly_noop_truncation (poly_uint64 outprec, poly_uint64 inprec)
     return 1;
 }
 bool
-gcn_legitimate_constant_p (machine_mode, rtx x)
+i960_legitimate_constant_p (machine_mode, rtx x)
 {
 /* LEGITIMATE_CONSTANT_P is nonzero if the constant value X
    is a legitimate general operand.
@@ -2881,6 +2881,19 @@ gcn_legitimate_constant_p (machine_mode, rtx x)
 
    ??? This probably should be defined to 1.  */
     return (GET_CODE(x) != CONST_DOUBLE) || fp_literal(x, GET_MODE(x));
+}
+static HOST_WIDE_INT
+i960_constant_alignment (const_tree exp, HOST_WIDE_INT basic_align)
+{
+/* Specify alignment for string literals (which might be higher than the
+   base type's minimal alignment requirement.  This allows strings to be
+   aligned on word boundaries, and optimizes calls to the str* and mem*
+   library functions.  */
+    if (TREE_CODE(exp) == STRING_CST && (i960_object_bytes_bitalign(int_size_in_bytes(TREE_TYPE(exp))) > basic_align)) {
+        return i960_object_bytes_bitalign(int_size_in_bytes(TREE_TYPE(exp)));
+    } else {
+        return basic_align;
+    }
 }
 /* Return the maximum number of consecutive registers
    needed to represent mode MODE in a register of class CLASS.  */
@@ -2903,4 +2916,5 @@ gcn_legitimate_constant_p (machine_mode, rtx x)
 #define TARGET_TRULY_NOOP_TRUNCATION i960_truly_noop_truncation
 #undef TARGET_LEGITIMATE_CONSTANT_P 
 #define TARGET_LEGITIMATE_CONSTANT_P i960_legitimate_constant_p
-
+#undef TARGET_CONSTANT_ALIGNMENT
+#define TARGET_CONSTANT_ALIGNMENT i960_constant_alignment
