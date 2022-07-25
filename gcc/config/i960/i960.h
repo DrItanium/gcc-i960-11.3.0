@@ -1334,4 +1334,4 @@ extern enum insn_types i960_last_insn_type;
 #endif
 /* Defined in reload.c, and used in insn-recog.c.  */
 
-extern int rtx_equal_function_value_matters;
+//extern int rtx_equal_function_value_matters;

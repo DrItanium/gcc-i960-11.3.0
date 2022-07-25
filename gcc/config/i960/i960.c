@@ -552,7 +552,7 @@ i960_emit_move_sequence (rtx* operands, enum machine_mode mode)
   if (GET_CODE (operands[0]) == MEM && GET_CODE (operands[1]) != REG
       && (operands[1] != const0_rtx || current_function_args_size
 	  || current_function_stdarg
-	  || rtx_equal_function_value_matters))
+	  || currently_expanding_to_rtl))
     /* Here we use the same test as movsi+1 pattern -- see i960.md.  */
     operands[1] = force_reg (mode, operands[1]);
 
@@ -1203,7 +1203,7 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
 /* Compute and return the frame size.  */
 
 int
-i960_compute_frame_size (int size)
+i960_compute_frame_size (poly_int64 size)
 {
   int actual_fsize;
   int outgoing_args_size = crtl->outgoing_args_size;

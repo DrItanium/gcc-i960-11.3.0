@@ -32,8 +32,8 @@ Boston, MA 02111-1307, USA.  */
 extern struct rtx_def *i960_gen_compare_reg (enum rtx_code, rtx, rtx);
 /* Define functions in i960.c and used in insn-output.c.  */
 extern const char *i960_output_ldconst (rtx, rtx);
-extern const char *i960_output_call_insn (rtx, rtx, rtx, rtx);
-extern const char *i960_output_ret_insn (rtx);
+extern const char *i960_output_call_insn (rtx, rtx, rtx, rtx_insn*);
+extern const char *i960_output_ret_insn (rtx_insn*);
 extern const char *i960_output_move_double (rtx, rtx);
 extern const char *i960_output_move_double_zero (rtx);
 extern const char *i960_output_move_quad (rtx, rtx);
