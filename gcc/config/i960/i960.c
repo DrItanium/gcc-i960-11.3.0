@@ -1526,7 +1526,7 @@ output_function_profiler (FILE* file, int labelno)
      for preserved call-saved global registers.  */
 
   for (last_parm_reg = 7;
-       last_parm_reg >= 0 && ! def_regs_ever_live_p(last_parm_reg);
+       last_parm_reg >= 0 && ! df_regs_ever_live_p(last_parm_reg);
        last_parm_reg--)
     ;
 
@@ -1650,10 +1650,10 @@ i960_output_function_epilogue (FILE* file/*, HOST_WIDE_INT size*/)
 /* Output code for a call insn.  */
 
 const char *
-i960_output_call_insn (rtx target, rtx argsize_rtx, rtx arg_pointer, rtx insn)
+i960_output_call_insn (rtx target, rtx argsize_rtx, rtx arg_pointer, rtx_insn* insn)
 {
   int argsize = INTVAL (argsize_rtx);
-  rtx nexti = next_real_insn (insn);
+  auto nexti = next_real_insn (insn);
   rtx operands[2];
   int varargs_stdarg_function
     = VARARGS_STDARG_FUNCTION (current_function_decl);
@@ -1701,7 +1701,7 @@ i960_output_call_insn (rtx target, rtx argsize_rtx, rtx arg_pointer, rtx insn)
 /* Output code for a return insn.  */
 
 const char *
-i960_output_ret_insn (rtx insn)
+i960_output_ret_insn (rtx_insn* insn)
 {
   static char lbuf[20];
   
@@ -1733,7 +1733,7 @@ i960_output_ret_insn (rtx insn)
 void
 i960_print_operand (FILE* file, rtx x, int code)
 {
-  enum rtx_code rtxcode = x ? GET_CODE (x) : NIL;
+  enum rtx_code rtxcode = GET_CODE (x);
 
   if (rtxcode == REG)
     {
@@ -1765,7 +1765,8 @@ i960_print_operand (FILE* file, rtx x, int code)
     }
   else if (rtxcode == MEM)
     {
-      output_address (XEXP (x, 0));
+        /// @todo is VOIDmode right?
+      output_address (VOIDmode, XEXP (x, 0));
       return;
     }
   else if (rtxcode == CONST_INT)
