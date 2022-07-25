@@ -2390,8 +2390,8 @@ i960_round_align (int align, tree type)
    create a register parameter block if one doesn't exist, and then copy
    all register parameters to memory.  */
 
-void
-i960_setup_incoming_varargs (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree type, int* pretend_size, int no_rtl)
+void 
+i960_setup_incoming_varargs (CUMULATIVE_ARGS *, const class function_arg_info& arg, int * pretend_size, int no_rtl);
 {
   /* Note: for a varargs fn with only a va_alist argument, this is 0.  */
   int first_reg = cum->ca_nregparms;

@@ -702,7 +702,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
       : (CLASS) == ALL_REGS ? LOCAL_OR_GLOBAL_REGS : (CLASS)))
 
 #define SECONDARY_RELOAD_CLASS(CLASS,MODE,IN) \
-  secondary_reload_class (CLASS, MODE, IN)
+  i960_secondary_reload_class (CLASS, MODE, IN)
 
 
 /* Stack layout; function entry, exit and calling.  */
