@@ -56,6 +56,7 @@ Boston, MA 02111-1307, USA.  */
 #include "target.h"
 #include "varasm.h"
 #include "fold-const.h"
+#include "real.h"
 // include last
 #include "target-def.h"
 
@@ -234,7 +235,7 @@ i960_logic_operand (rtx op, enum machine_mode mode)
 int
 i960_fp_arith_operand (rtx op, enum machine_mode mode)
 {
-  return (register_operand (op, mode) || fp_literal (op, mode));
+  return (register_operand (op, mode) || i960_fp_literal (op, mode));
 }
 
 /* Return true if OP is a register or a valid signed integer literal.  */
@@ -810,15 +811,13 @@ i960_output_ldconst (rtx dst, rtx src)
     }
   else if (mode == TFmode)
     {
-      REAL_VALUE_TYPE d;
       long value_long[3];
       int i;
 
-      if (fp_literal_zero (src, TFmode))
-	return "movt	0,%0";
+      if (i960_fp_literal_zero (src, TFmode))
+          return "movt	0,%0";
 
-      REAL_VALUE_FROM_CONST_DOUBLE (d, src);
-      REAL_VALUE_TO_TARGET_LONG_DOUBLE (d, value_long);
+      REAL_VALUE_TO_TARGET_LONG_DOUBLE (*CONST_DOUBLE_REAL_VALUE(src), value_long);
 
       output_asm_insn ("# ldconst	%1,%0",operands);
 
@@ -836,7 +835,7 @@ i960_output_ldconst (rtx dst, rtx src)
     {
       rtx first, second;
 
-      if (fp_literal_zero (src, DFmode))
+      if (i960_fp_literal_zero (src, DFmode))
 	return "movl	0,%0";
 
       split_double (src, &first, &second);
@@ -855,11 +854,10 @@ i960_output_ldconst (rtx dst, rtx src)
     }
   else if (mode == SFmode)
     {
-      REAL_VALUE_TYPE d;
+      //REAL_VALUE_TYPE d;
       long value;
 
-      REAL_VALUE_FROM_CONST_DOUBLE (d, src);
-      REAL_VALUE_TO_TARGET_SINGLE (d, value);
+      REAL_VALUE_TO_TARGET_SINGLE(*CONST_DOUBLE_REAL_VALUE(src), value);
 
       output_asm_insn ("# ldconst	%1,%0",operands);
       operands[0] = gen_rtx_REG (SImode, REGNO (dst));
@@ -2925,7 +2923,7 @@ i960_legitimate_constant_p (machine_mode, rtx x)
    Anything but a CONST_DOUBLE can be made to work, excepting 0.0 and 1.0.
 
    ??? This probably should be defined to 1.  */
-    return (GET_CODE(x) != CONST_DOUBLE) || fp_literal(x, GET_MODE(x));
+    return (GET_CODE(x) != CONST_DOUBLE) || i960_fp_literal(x, GET_MODE(x));
 }
 static HOST_WIDE_INT
 i960_constant_alignment (const_tree exp, HOST_WIDE_INT basic_align)
