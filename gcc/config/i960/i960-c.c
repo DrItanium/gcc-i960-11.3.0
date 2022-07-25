@@ -4,6 +4,7 @@
    Contributed by Steven McGeady, Intel Corp.
    Additional Work by Glenn Colon-Bonet, Jonathan Shapiro, Andy Wilson
    Converted to GCC 2.0 by Jim Wilson and Michael Tiemann, Cygnus Support.
+   Modifications for gcc11 support by Joshua Scoggins
 
 This file is part of GCC.
 
@@ -53,8 +54,7 @@ Boston, MA 02111-1307, USA.  */
    This implementation only handles the case of no identifiers.  */
 
 void
-i960_pr_align (pfile)
-     cpp_reader *pfile ATTRIBUTE_UNUSED;
+i960_pr_align (cpp_reader* pfile)
 {
   tree number;
   enum cpp_ttype type;
@@ -97,8 +97,7 @@ i960_pr_align (pfile)
 }
 
 void
-i960_pr_noalign (pfile)
-     cpp_reader *pfile ATTRIBUTE_UNUSED;
+i960_pr_noalign (cpp_reader* pfile)
 {
   enum cpp_ttype type;
   tree number;

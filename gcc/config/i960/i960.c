@@ -198,7 +198,7 @@ i960_initialize ()
 /* Return true if OP can be used as the source of an fp move insn.  */
 
 int
-fpmove_src_operand (rtx op, enum machine_mode mode)
+i960_fpmove_src_operand (rtx op, enum machine_mode mode)
 {
   return (GET_CODE (op) == CONST_DOUBLE || general_operand (op, mode));
 }
@@ -316,7 +316,7 @@ i960_eq_or_neq (rtx op, enum machine_mode)
 /* OP is an integer register or a constant.  */
 
 int
-arith32_operand (rtx op, enum machine_mode mode)
+i960_arith32_operand (rtx op, enum machine_mode mode)
 {
   if (register_operand (op, mode))
     return 1;
@@ -326,7 +326,7 @@ arith32_operand (rtx op, enum machine_mode mode)
 /* Return true if OP is an integer constant which is a power of 2.  */
 
 int
-power2_operand (rtx op,enum machine_mode)
+i960_power2_operand (rtx op,enum machine_mode)
 {
   if (GET_CODE (op) != CONST_INT)
     return 0;
@@ -338,7 +338,7 @@ power2_operand (rtx op,enum machine_mode)
    power of 2.  */
 
 int
-cmplpower2_operand (rtx op, enum machine_mode)
+i960_cmplpower2_operand (rtx op, enum machine_mode)
 {
   if (GET_CODE (op) != CONST_INT)
     return 0;
@@ -350,7 +350,7 @@ cmplpower2_operand (rtx op, enum machine_mode)
    return -1.  */
 
 int
-bitpos (unsigned int val)
+i960_bitpos (unsigned int val)
 {
   int i;
 
@@ -372,7 +372,7 @@ bitpos (unsigned int val)
    it does not indicate what the start and stop bit positions are.  */
 
 int
-is_mask (unsigned int val)
+i960_is_mask (unsigned int val)
 {
   int start, end = 0, i;
 
@@ -409,7 +409,7 @@ is_mask (unsigned int val)
    start and end bit positions of the mask.  */
 
 int
-bitstr (unsigned int val, int* s, int* e)
+i960_bitstr (unsigned int val, int* s, int* e)
 {
   int start, end, i;
 
@@ -450,7 +450,7 @@ bitstr (unsigned int val, int* s, int* e)
 /* Return the machine mode to use for a comparison.  */
 
 enum machine_mode
-select_cc_mode (RTX_CODE op, rtx x)
+i960_select_cc_mode (RTX_CODE op, rtx x)
 {
   if (op == GTU || op == LTU || op == GEU || op == LEU)
     return CC_UNSmode;
@@ -461,7 +461,7 @@ select_cc_mode (RTX_CODE op, rtx x)
    return the rtx for register 36 in the proper mode.  */
 
 rtx
-gen_compare_reg (enum rtx_code code, rtx x, rtx y)
+i960_gen_compare_reg (enum rtx_code code, rtx x, rtx y)
 {
   rtx cc_reg;
   enum machine_mode ccmode = SELECT_CC_MODE (code, x, y);
@@ -961,19 +961,19 @@ i960_output_ldconst (rtx dst, rtx src)
     }
 
   /* If const is a single bit.  */
-  if (bitpos (rsrc1) >= 0)
+  if (i960_bitpos (rsrc1) >= 0)
     {
-      operands[1] = GEN_INT (bitpos (rsrc1));
+      operands[1] = GEN_INT (i960_bitpos (rsrc1));
       output_asm_insn ("setbit\t%1,0,%0\t# ldconst %3,%0", operands);
       return "";
     }
 
   /* If const is a bit string of less than 6 bits (1..31 shifted).  */
-  if (is_mask (rsrc1))
+  if (i960_is_mask (rsrc1))
     {
       int s, e;
 
-      if (bitstr (rsrc1, &s, &e) < 6)
+      if (i960_bitstr (rsrc1, &s, &e) < 6)
 	{
 	  rsrc2 = ((unsigned int) rsrc1) >> s;
 	  operands[1] = GEN_INT (rsrc2);
@@ -1203,7 +1203,7 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
 /* Compute and return the frame size.  */
 
 int
-compute_frame_size (int size)
+i960_compute_frame_size (int size)
 {
   int actual_fsize;
   int outgoing_args_size = crtl->outgoing_args_size;
@@ -1266,8 +1266,8 @@ i960_form_reg_groups (int start_reg, int finish_reg, int* regs, int state, struc
 static int
 i960_reg_group_compare (const void* group1, const void* group2)
 {
-  const struct reg_group *w1 = group1;
-  const struct reg_group *w2 = group2;
+  const struct reg_group *w1 = reinterpret_cast<const struct reg_group*>( group1);
+  const struct reg_group *w2 = reinterpret_cast<const struct reg_group*>( group2);
 
   if (w1->length > w2->length)
     return -1;
@@ -1508,7 +1508,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 /* Output code for the function profiler.  */
 
 void
-output_function_profiler (FILE* file, int labelno)
+i960_output_function_profiler (FILE* file, int labelno)
 {
   /* The last used parameter register.  */
   int last_parm_reg;
@@ -2018,7 +2018,7 @@ i960_print_operand_addr (FILE* file, rtx addr)
 	   : REG_OK_FOR_INDEX_P (SUBREG_REG (X)))))
 
 int
-legitimate_address_p (enum machine_mode mode, rtx addr, int strict)
+i960_legitimate_address_p (enum machine_mode mode, rtx addr, int strict)
 {
   if (RTX_OK_FOR_BASE_P (addr, strict))
     return 1;
@@ -2103,11 +2103,7 @@ legitimate_address_p (enum machine_mode mode, rtx addr, int strict)
    This converts some non-canonical addresses to canonical form so they
    can be recognized.  */
 
-rtx
-legitimize_address (rtx x, rtx oldx, enum machine_mode mode)
-{ 
-}
-
+
 #if 0
 /* Return the most stringent alignment that we are willing to consider
    objects of size SIZE and known alignment ALIGN as having.  */
