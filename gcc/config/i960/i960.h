@@ -716,7 +716,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    that is, each additional local variable allocated
    goes at a more negative offset in the frame.  */
 /* #define FRAME_GROWS_DOWNWARD */
-
+#if 0
 /* Offset within stack frame to start allocating local variables at.
    If FRAME_GROWS_DOWNWARD, this is the offset to the END of the
    first local allocated.  Otherwise, it is the offset to the BEGINNING
@@ -725,6 +725,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    The i960 has a 64 byte register save area, plus possibly some extra
    bytes allocated for varargs functions.  */
 #define TARGET_STARTING_FRAME_OFFSET 64
+#endif
 
 
 /* If we generate an insn to push BYTES bytes,

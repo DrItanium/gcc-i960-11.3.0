@@ -71,7 +71,7 @@ static void i960_output_function_epilogue (FILE * /*, HOST_WIDE_INT*/);
 static void i960_output_mi_thunk (FILE *, tree, HOST_WIDE_INT,
 				  HOST_WIDE_INT, tree);
 static bool i960_rtx_costs (rtx, machine_mode, int, int, int *, bool);
-static int i960_address_cost (rtx);
+static int i960_address_cost (rtx, machine_mode, addr_space_t, bool);
 static tree i960_build_builtin_va_list (void);
 /* Per-function machine data.  */
 struct GTY(()) machine_function
@@ -125,27 +125,6 @@ static int ret_label = 0;
       != void_type_node)
 
 /* Initialize the GCC target structure.  */
-#undef TARGET_ASM_ALIGNED_SI_OP
-#define TARGET_ASM_ALIGNED_SI_OP "\t.word\t"
-
-
-#undef TARGET_ASM_FUNCTION_PROLOGUE
-#define TARGET_ASM_FUNCTION_PROLOGUE i960_output_function_prologue
-#undef TARGET_ASM_FUNCTION_EPILOGUE
-#define TARGET_ASM_FUNCTION_EPILOGUE i960_output_function_epilogue
-
-#undef TARGET_ASM_OUTPUT_MI_THUNK
-#define TARGET_ASM_OUTPUT_MI_THUNK i960_output_mi_thunk
-#undef TARGET_CAN_ASM_OUTPUT_MI_THUNK
-#define TARGET_CAN_ASM_OUTPUT_MI_THUNK default_can_output_mi_thunk_no_vcall
-
-#undef TARGET_RTX_COSTS
-#define TARGET_RTX_COSTS i960_rtx_costs
-#undef TARGET_ADDRESS_COST
-#define TARGET_ADDRESS_COST i960_address_cost
-
-#undef TARGET_BUILD_BUILTIN_VA_LIST
-#define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
 
 /* Zero initialization is OK for all current fields.  */
 
@@ -498,8 +477,8 @@ gen_compare_reg (enum rtx_code code, rtx x, rtx y)
 
 /* ??? Try using just RTX_COST, i.e. not defining ADDRESS_COST.  */
 
-static int
-i960_address_cost (rtx x)
+static int 
+i960_address_cost (rtx x, machine_mode, addr_space_t, bool);
 {
   if (GET_CODE (x) == REG)
     return 1;
@@ -2967,33 +2946,51 @@ i960_function_arg_boundary (machine_mode mode, const_tree type) {
    except in the FP regs, where a single reg is always enough.  */
 //#define TARGET_CLASS_MAX_NREGS(CLASS, MODE)					\
 //  ((CLASS) == FP_REGS ? 1 : TARGET_HARD_REGNO_NREGS (0, (MODE)))
+//#define TARGET_STARTING_FRAME_OFFSET 64
+static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 
-#undef  TARGET_OPTION_OVERRIDE
-#define TARGET_OPTION_OVERRIDE i960_option_override
-#undef TARGET_HARD_REGNO_NREGS
-#define TARGET_HARD_REGNO_NREGS i960_hard_regno_nregs
-#undef TARGET_HARD_REGNO_MODE_OK
-#define TARGET_HARD_REGNO_MODE_OK i960_hard_regno_mode_ok
-#undef TARGET_MODES_TIEABLE_P
-#define TARGET_MODES_TIEABLE_P i960_modes_tieable_p
-#undef TARGET_LEGITIMIZE_ADDRESS 
-#define TARGET_LEGITIMIZE_ADDRESS i960_legitimize_address
-#undef TARGET_TRULY_NOOP_TRUNCATION 
-#define TARGET_TRULY_NOOP_TRUNCATION i960_truly_noop_truncation
-#undef TARGET_LEGITIMATE_CONSTANT_P 
-#define TARGET_LEGITIMATE_CONSTANT_P i960_legitimate_constant_p
-#undef TARGET_CONSTANT_ALIGNMENT
-#define TARGET_CONSTANT_ALIGNMENT i960_constant_alignment
-#undef TARGET_SETUP_INCOMING_VARARGS
-#define TARGET_SETUP_INCOMING_VARARGS i960_setup_incoming_varargs
-#undef TARGET_FUNCTION_ARG_ADVANCE
-#define TARGET_FUNCTION_ARG_ADVANCE i960_function_arg_advance
-#undef TARGET_FUNCTION_ARG 
-#define TARGET_FUNCTION_ARG i960_function_arg
-#undef TARGET_FUNCTION_ARG_BOUNDARY
-#define TARGET_FUNCTION_ARG_BOUNDARY i960_function_arg_boundary
-#undef TARGET_EXPAND_BUILTIN_VA_START
-#define TARGET_EXPAND_BUILTIN_VA_START i960_va_start
+//#undef  TARGET_OPTION_OVERRIDE
+//#define TARGET_OPTION_OVERRIDE i960_option_override
+//#undef TARGET_HARD_REGNO_NREGS
+//#define TARGET_HARD_REGNO_NREGS i960_hard_regno_nregs
+//#undef TARGET_HARD_REGNO_MODE_OK
+//#define TARGET_HARD_REGNO_MODE_OK i960_hard_regno_mode_ok
+//#undef TARGET_MODES_TIEABLE_P
+//#define TARGET_MODES_TIEABLE_P i960_modes_tieable_p
+//#undef TARGET_LEGITIMIZE_ADDRESS 
+//#define TARGET_LEGITIMIZE_ADDRESS i960_legitimize_address
+//#undef TARGET_TRULY_NOOP_TRUNCATION 
+//#define TARGET_TRULY_NOOP_TRUNCATION i960_truly_noop_truncation
+//#undef TARGET_LEGITIMATE_CONSTANT_P 
+//#define TARGET_LEGITIMATE_CONSTANT_P i960_legitimate_constant_p
+//#undef TARGET_CONSTANT_ALIGNMENT
+//#define TARGET_CONSTANT_ALIGNMENT i960_constant_alignment
+//#undef TARGET_SETUP_INCOMING_VARARGS
+//#define TARGET_SETUP_INCOMING_VARARGS i960_setup_incoming_varargs
+//#undef TARGET_FUNCTION_ARG_ADVANCE
+//#define TARGET_FUNCTION_ARG_ADVANCE i960_function_arg_advance
+//#undef TARGET_FUNCTION_ARG 
+//#define TARGET_FUNCTION_ARG i960_function_arg
+//#undef TARGET_FUNCTION_ARG_BOUNDARY
+//#define TARGET_FUNCTION_ARG_BOUNDARY i960_function_arg_boundary
+//#undef TARGET_EXPAND_BUILTIN_VA_START
+//#define TARGET_EXPAND_BUILTIN_VA_START i960_va_start
+//#undef TARGET_STARTING_FRAME_OFFSET
+//#define TARGET_STARTING_FRAME_OFFSET i960_starting_frame_offset
+//#undef TARGET_ASM_ALIGNED_SI_OP
+//#define TARGET_ASM_ALIGNED_SI_OP "\t.word\t"
+#undef TARGET_ASM_FUNCTION_PROLOGUE
+#define TARGET_ASM_FUNCTION_PROLOGUE i960_output_function_prologue
+#undef TARGET_ASM_FUNCTION_EPILOGUE
+#define TARGET_ASM_FUNCTION_EPILOGUE i960_output_function_epilogue
+#undef TARGET_ASM_OUTPUT_MI_THUNK
+#define TARGET_ASM_OUTPUT_MI_THUNK i960_output_mi_thunk
+#undef TARGET_RTX_COSTS
+#define TARGET_RTX_COSTS i960_rtx_costs
+#undef TARGET_ADDRESS_COST
+#define TARGET_ADDRESS_COST i960_address_cost
+//#undef TARGET_BUILD_BUILTIN_VA_LIST
+//#define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
 
 struct gcc_target targetm = TARGET_INITIALIZER;
 #include "gt-i960.h"
