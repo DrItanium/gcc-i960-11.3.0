@@ -58,7 +58,7 @@ extern int i960_arith32_operand (rtx, enum machine_mode);
 extern int i960_power2_operand (rtx, enum machine_mode);
 extern int i960_cmplpower2_operand (rtx, enum machine_mode);
 extern int i960_emit_move_sequence (rtx *, enum machine_mode);
-extern int i960_bypass (rtx, rtx, rtx, int);
+extern int i960_bypass (rtx_insn*, rtx, rtx, int);
 extern void i960_print_operand_addr (FILE *, rtx);
 extern int i960_expr_alignment (rtx, int);
 extern int i960_improve_align (rtx, rtx, int);

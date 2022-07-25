@@ -1001,8 +1001,9 @@ i960_output_ldconst (rtx dst, rtx src)
    OP1 and OP2 are the two source operands of a 3 operand insn.  */
 
 int
-i960_bypass (rtx insn, rtx op1, rtx op2, int cmpbr_flag)
+i960_bypass (rtx_insn* insn, rtx op1, rtx op2, int cmpbr_flag)
 {
+#if 0
   rtx prev_insn, prev_dest;
 
   if (TARGET_C_SERIES)
@@ -1029,6 +1030,10 @@ i960_bypass (rtx insn, rtx op1, rtx op2, int cmpbr_flag)
 	return 1;
     }
   return 0;
+#else
+#warning "reimplement i960_bypass"
+  return 0;
+#endif
 }
 
 /* Output the code which declares the function name.  This also handles
@@ -2497,6 +2502,7 @@ i960_va_start (tree valist, rtx nextarg)
 
 /* Implement `va_arg'.  */
 
+#if 0
 rtx
 i960_va_arg (tree valist, tree type)
 {
@@ -2555,6 +2561,7 @@ i960_va_arg (tree valist, tree type)
   
   return addr_rtx;
 }
+#endif
 
 /* Calculate the final size of the reg parm stack space for the current
    function, based on how many bytes would be allocated on the stack.  */
