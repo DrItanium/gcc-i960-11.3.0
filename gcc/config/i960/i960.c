@@ -65,6 +65,7 @@ Boston, MA 02111-1307, USA.  */
 #ifdef compat_HARD_REGNO_MODE_OK
 #warning "HARD_REGNO_MODE_OK needs to be reimplemented in gcc11 terms"
 #endif
+static rtx* i960_function_arg (CUMULATIVE_ARGS cum,/* enum machine_mode mode, tree type, int named*/ const class function_args_info&);
 static unsigned int i960_function_arg_boundary (machine_mode, const_tree);
 static void i960_output_function_prologue (FILE * /*, HOST_WIDE_INT*/);
 static void i960_output_function_epilogue (FILE * /*, HOST_WIDE_INT*/);
@@ -73,6 +74,8 @@ static void i960_output_mi_thunk (FILE *, tree, HOST_WIDE_INT,
 static bool i960_rtx_costs (rtx, machine_mode, int, int, int *, bool);
 static int i960_address_cost (rtx, machine_mode, addr_space_t, bool);
 static tree i960_build_builtin_va_list (void);
+static void i960_option_override (void);
+static void i960_function_arg_advance (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree type, int named);
 /* Per-function machine data.  */
 struct GTY(()) machine_function
 {
@@ -205,7 +208,7 @@ reg_or_zero_operand (rtx op, enum machine_mode mode)
    address arithmetic insn (such as add %o1,7,%l2) of mode MODE.  */
 
 int
-arith_operand (rtx op, enum machine_mode mode)
+i960_arith_operand (rtx op, enum machine_mode mode)
 {
   return (register_operand (op, mode) || literal (op, mode));
 }
@@ -214,7 +217,7 @@ arith_operand (rtx op, enum machine_mode mode)
    address logic insn, possibly complementing OP, of mode MODE.  */
 
 int
-logic_operand (rtx op, enum machine_mode mode)
+i960_logic_operand (rtx op, enum machine_mode mode)
 {
   return (register_operand (op, mode)
 	  || (GET_CODE (op) == CONST_INT
@@ -224,7 +227,7 @@ logic_operand (rtx op, enum machine_mode mode)
 /* Return true if OP is a register or a valid floating point literal.  */
 
 int
-fp_arith_operand (rtx op, enum machine_mode mode)
+i960_fp_arith_operand (rtx op, enum machine_mode mode)
 {
   return (register_operand (op, mode) || fp_literal (op, mode));
 }
@@ -232,7 +235,7 @@ fp_arith_operand (rtx op, enum machine_mode mode)
 /* Return true if OP is a register or a valid signed integer literal.  */
 
 int
-signed_arith_operand (rtx op, enum machine_mode mode)
+i960_signed_arith_operand (rtx op, enum machine_mode mode)
 {
   return (register_operand (op, mode) || signed_literal (op, mode));
 }
@@ -241,7 +244,7 @@ signed_arith_operand (rtx op, enum machine_mode mode)
    range constraining immediate operands in three-address insns.  */
 
 int
-literal (rtx op, enum machine_mode )
+i960_literal (rtx op, enum machine_mode )
 {
   return ((GET_CODE (op) == CONST_INT) && INTVAL(op) >= 0 && INTVAL(op) < 32);
 }
@@ -249,7 +252,7 @@ literal (rtx op, enum machine_mode )
 /* Return true if OP is a float constant of 1.  */
 
 int
-fp_literal_one (rtx op, enum machine_mode mode)
+i960_fp_literal_one (rtx op, enum machine_mode mode)
 {
   return (TARGET_NUMERICS && mode == GET_MODE (op) && op == CONST1_RTX (mode));
 }
@@ -257,7 +260,7 @@ fp_literal_one (rtx op, enum machine_mode mode)
 /* Return true if OP is a float constant of 0.  */
 
 int
-fp_literal_zero (rtx op, enum machine_mode mode)
+i960_fp_literal_zero (rtx op, enum machine_mode mode)
 {
   return (TARGET_NUMERICS && mode == GET_MODE (op) && op == CONST0_RTX (mode));
 }
@@ -265,7 +268,7 @@ fp_literal_zero (rtx op, enum machine_mode mode)
 /* Return true if OP is a valid floating point literal.  */
 
 int
-fp_literal(rtx op, enum machine_mode mode)
+i960_fp_literal(rtx op, enum machine_mode mode)
 {
   return fp_literal_zero (op, mode) || fp_literal_one (op, mode);
 }
@@ -273,7 +276,7 @@ fp_literal(rtx op, enum machine_mode mode)
 /* Return true if OP is a valid signed immediate constant.  */
 
 int
-signed_literal(rtx op, enum machine_mode )
+i960_signed_literal(rtx op, enum machine_mode )
 {
   return ((GET_CODE (op) == CONST_INT) && INTVAL(op) > -32 && INTVAL(op) < 32);
 }
@@ -282,7 +285,7 @@ signed_literal(rtx op, enum machine_mode )
    operand of mode MODE.  */
 
 int
-symbolic_memory_operand (rtx op, enum machine_mode)
+i960_symbolic_memory_operand (rtx op, enum machine_mode)
 {
   if (GET_CODE (op) == SUBREG)
     op = SUBREG_REG (op);
@@ -296,7 +299,7 @@ symbolic_memory_operand (rtx op, enum machine_mode)
 /* Return truth value of whether OP is EQ or NE.  */
 
 int
-eq_or_neq (rtx op, enum machine_mode)
+i960_eq_or_neq (rtx op, enum machine_mode)
 {
   return (GET_CODE (op) == EQ || GET_CODE (op) == NE);
 }
@@ -533,7 +536,7 @@ i960_address_cost (rtx x, machine_mode, addr_space_t, bool);
    normally.  */
 
 int
-emit_move_sequence (rtx* operands, enum machine_mode mode)
+i960_emit_move_sequence (rtx* operands, enum machine_mode mode)
 {
   /* We can only store registers to memory.  */
   
@@ -1403,8 +1406,8 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 
       /* Now, emulate a little bit of reload.  We want to turn 'min_stack'
 	 into an arith_operand.  Use register 20 as the temporary.  */
-      if (legitimate_address_p (Pmode, min_stack, 1) 
-	  && !arith_operand (min_stack, Pmode))
+      if (i960_legitimate_address_p (Pmode, min_stack, 1) 
+	  && !i960_arith_operand (min_stack, Pmode))
 	{
 	  rtx tmp = gen_rtx_MEM (Pmode, min_stack);
 	  fputs ("\tlda\t", file);
@@ -2306,9 +2309,10 @@ i960_function_arg_advance (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree ty
 /* Return the register that the argument described by MODE and TYPE is
    passed in, or else return 0 if it is passed on the stack.  */
 
-rtx
-i960_function_arg (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree type, int named)
+rtx*
+i960_function_arg (CUMULATIVE_ARGS cum,/* enum machine_mode mode, tree type, int named*/ const function_args_info&)
 {
+#if 0
   rtx ret;
   int size, align;
 
@@ -2331,6 +2335,10 @@ i960_function_arg (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree type, int 
     }
 
   return ret;
+#else
+  return 0;
+#warning "reimplement i960_function_arg!"
+#endif
 }
 
 /* Return the number of bits that an object of size N bytes is aligned to.  */
@@ -2949,36 +2957,36 @@ i960_function_arg_boundary (machine_mode mode, const_tree type) {
 //#define TARGET_STARTING_FRAME_OFFSET 64
 static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 
-//#undef  TARGET_OPTION_OVERRIDE
-//#define TARGET_OPTION_OVERRIDE i960_option_override
-//#undef TARGET_HARD_REGNO_NREGS
-//#define TARGET_HARD_REGNO_NREGS i960_hard_regno_nregs
-//#undef TARGET_HARD_REGNO_MODE_OK
-//#define TARGET_HARD_REGNO_MODE_OK i960_hard_regno_mode_ok
-//#undef TARGET_MODES_TIEABLE_P
-//#define TARGET_MODES_TIEABLE_P i960_modes_tieable_p
-//#undef TARGET_LEGITIMIZE_ADDRESS 
-//#define TARGET_LEGITIMIZE_ADDRESS i960_legitimize_address
-//#undef TARGET_TRULY_NOOP_TRUNCATION 
-//#define TARGET_TRULY_NOOP_TRUNCATION i960_truly_noop_truncation
-//#undef TARGET_LEGITIMATE_CONSTANT_P 
-//#define TARGET_LEGITIMATE_CONSTANT_P i960_legitimate_constant_p
-//#undef TARGET_CONSTANT_ALIGNMENT
-//#define TARGET_CONSTANT_ALIGNMENT i960_constant_alignment
-//#undef TARGET_SETUP_INCOMING_VARARGS
-//#define TARGET_SETUP_INCOMING_VARARGS i960_setup_incoming_varargs
-//#undef TARGET_FUNCTION_ARG_ADVANCE
-//#define TARGET_FUNCTION_ARG_ADVANCE i960_function_arg_advance
-//#undef TARGET_FUNCTION_ARG 
-//#define TARGET_FUNCTION_ARG i960_function_arg
-//#undef TARGET_FUNCTION_ARG_BOUNDARY
-//#define TARGET_FUNCTION_ARG_BOUNDARY i960_function_arg_boundary
-//#undef TARGET_EXPAND_BUILTIN_VA_START
-//#define TARGET_EXPAND_BUILTIN_VA_START i960_va_start
-//#undef TARGET_STARTING_FRAME_OFFSET
-//#define TARGET_STARTING_FRAME_OFFSET i960_starting_frame_offset
-//#undef TARGET_ASM_ALIGNED_SI_OP
-//#define TARGET_ASM_ALIGNED_SI_OP "\t.word\t"
+#undef  TARGET_OPTION_OVERRIDE
+#define TARGET_OPTION_OVERRIDE i960_option_override
+#undef TARGET_HARD_REGNO_NREGS
+#define TARGET_HARD_REGNO_NREGS i960_hard_regno_nregs
+#undef TARGET_HARD_REGNO_MODE_OK
+#define TARGET_HARD_REGNO_MODE_OK i960_hard_regno_mode_ok
+#undef TARGET_MODES_TIEABLE_P
+#define TARGET_MODES_TIEABLE_P i960_modes_tieable_p
+#undef TARGET_LEGITIMIZE_ADDRESS 
+#define TARGET_LEGITIMIZE_ADDRESS i960_legitimize_address
+#undef TARGET_TRULY_NOOP_TRUNCATION 
+#define TARGET_TRULY_NOOP_TRUNCATION i960_truly_noop_truncation
+#undef TARGET_LEGITIMATE_CONSTANT_P 
+#define TARGET_LEGITIMATE_CONSTANT_P i960_legitimate_constant_p
+#undef TARGET_CONSTANT_ALIGNMENT
+#define TARGET_CONSTANT_ALIGNMENT i960_constant_alignment
+#undef TARGET_SETUP_INCOMING_VARARGS
+#define TARGET_SETUP_INCOMING_VARARGS i960_setup_incoming_varargs
+#undef TARGET_FUNCTION_ARG_ADVANCE
+#define TARGET_FUNCTION_ARG_ADVANCE i960_function_arg_advance
+#undef TARGET_FUNCTION_ARG 
+#define TARGET_FUNCTION_ARG i960_function_arg
+#undef TARGET_FUNCTION_ARG_BOUNDARY
+#define TARGET_FUNCTION_ARG_BOUNDARY i960_function_arg_boundary
+#undef TARGET_EXPAND_BUILTIN_VA_START
+#define TARGET_EXPAND_BUILTIN_VA_START i960_va_start
+#undef TARGET_STARTING_FRAME_OFFSET
+#define TARGET_STARTING_FRAME_OFFSET i960_starting_frame_offset
+#undef TARGET_ASM_ALIGNED_SI_OP
+#define TARGET_ASM_ALIGNED_SI_OP "\t.word\t"
 #undef TARGET_ASM_FUNCTION_PROLOGUE
 #define TARGET_ASM_FUNCTION_PROLOGUE i960_output_function_prologue
 #undef TARGET_ASM_FUNCTION_EPILOGUE
@@ -2989,8 +2997,8 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_RTX_COSTS i960_rtx_costs
 #undef TARGET_ADDRESS_COST
 #define TARGET_ADDRESS_COST i960_address_cost
-//#undef TARGET_BUILD_BUILTIN_VA_LIST
-//#define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
+#undef TARGET_BUILD_BUILTIN_VA_LIST
+#define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
 
 struct gcc_target targetm = TARGET_INITIALIZER;
 #include "gt-i960.h"

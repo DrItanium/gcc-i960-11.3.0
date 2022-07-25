@@ -553,7 +553,7 @@ extern int target_flags;
    the frame.  */
 
 #define INITIAL_ELIMINATION_OFFSET(FROM, TO, OFFSET)			\
-  do { (OFFSET) = - (64 + compute_frame_size (get_frame_size ())); } while (0)
+  do { (OFFSET) = - (64 + i960_compute_frame_size (get_frame_size ())); } while (0)
 
 /* Base register for access to arguments of the function.  */
 #define ARG_POINTER_REGNUM 14
@@ -894,14 +894,12 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 /* Output the label for a function definition.
   This handles leaf functions and a few other things for the i960.  */
 
-#define ASM_DECLARE_FUNCTION_NAME(FILE, NAME, DECL)	\
-  i960_function_name_declare (FILE, NAME, DECL)
+#define ASM_DECLARE_FUNCTION_NAME(FILE, NAME, DECL)	i960_function_name_declare (FILE, NAME, DECL)
 
 /* Output assembler code to FILE to increment profiler label # LABELNO
    for profiling a function entry.  */
 
-#define FUNCTION_PROFILER(FILE, LABELNO)	\
-  output_function_profiler ((FILE), (LABELNO));
+#define FUNCTION_PROFILER(FILE, LABELNO)	i960_output_function_profiler ((FILE), (LABELNO));
 
 /* EXIT_IGNORE_STACK should be nonzero if, when returning from a function,
    the stack pointer does not matter.  The value is tested only in
@@ -1009,10 +1007,10 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 
 #ifdef REG_OK_STRICT
 #define GO_IF_LEGITIMATE_ADDRESS(MODE, X, ADDR) \
-  { if (legitimate_address_p (MODE, X, 1)) goto ADDR; }
+  { if (i960_legitimate_address_p (MODE, X, 1)) goto ADDR; }
 #else
 #define GO_IF_LEGITIMATE_ADDRESS(MODE, X, ADDR) \
-  { if (legitimate_address_p (MODE, X, 0)) goto ADDR; }
+  { if (i960_legitimate_address_p (MODE, X, 0)) goto ADDR; }
 #endif
 
 #if 0

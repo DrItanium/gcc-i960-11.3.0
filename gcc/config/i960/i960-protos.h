@@ -25,6 +25,7 @@ Boston, MA 02111-1307, USA.  */
 #ifndef GCC_I960_PROTOS_H
 #define GCC_I960_PROTOS_H
 
+#if 0
 #ifdef RTX_CODE
 extern struct rtx_def *legitimize_address (rtx, rtx, enum machine_mode);
 /* Define the function that build the compare insn for scc and bcc.  */
@@ -41,36 +42,8 @@ extern const char *i960_output_move_double_zero (rtx);
 extern const char *i960_output_move_quad (rtx, rtx);
 extern const char *i960_output_move_quad_zero (rtx);
 
-extern int literal (rtx, enum machine_mode);
-extern int hard_regno_mode_ok (int, enum machine_mode);
-extern int fp_literal (rtx, enum machine_mode);
-extern int signed_literal (rtx, enum machine_mode);
-extern int legitimate_address_p (enum machine_mode, rtx, int);
-extern void i960_print_operand (FILE *, rtx, int);
-extern int fpmove_src_operand (rtx, enum machine_mode);
-extern int arith_operand (rtx, enum machine_mode);
-extern int logic_operand (rtx, enum machine_mode);
-extern int fp_arith_operand (rtx, enum machine_mode);
-extern int signed_arith_operand (rtx, enum machine_mode);
-extern int fp_literal_one (rtx, enum machine_mode);
-extern int fp_literal_zero (rtx, enum machine_mode);
-extern int symbolic_memory_operand (rtx, enum machine_mode);
-extern int eq_or_neq (rtx, enum machine_mode);
-extern int arith32_operand (rtx, enum machine_mode);
-extern int power2_operand (rtx, enum machine_mode);
-extern int cmplpower2_operand (rtx, enum machine_mode);
-extern enum machine_mode select_cc_mode (RTX_CODE, rtx);
-extern int emit_move_sequence (rtx *, enum machine_mode);
-extern int i960_bypass (rtx, rtx, rtx, int);
-extern void i960_print_operand_addr (FILE *, rtx);
-extern int i960_expr_alignment (rtx, int);
-extern int i960_improve_align (rtx, rtx, int);
-extern int i960_si_ti (rtx, rtx);
-extern int i960_si_di (rtx, rtx);
 #ifdef TREE_CODE
-extern struct rtx_def *i960_function_arg (CUMULATIVE_ARGS *,
-					  enum machine_mode,
-					  tree, int);
+extern struct rtx_def *i960_function_arg (CUMULATIVE_ARGS, const class function_arg_info&);
 extern rtx i960_va_arg (tree, tree);
 extern void i960_va_start (tree, rtx);
 #endif /* TREE_CODE */
@@ -82,21 +55,51 @@ extern void i960_function_name_declare (FILE *, const char *, tree);
 extern void i960_function_arg_advance (CUMULATIVE_ARGS *, enum machine_mode, tree, int);
 extern int i960_round_align (int, tree);
 extern void i960_setup_incoming_varargs (CUMULATIVE_ARGS *, enum machine_mode, tree, int *, int);
-extern int i960_final_reg_parm_stack_space (int, tree);
-extern int i960_reg_parm_stack_space (tree);
 #endif /* TREE_CODE */
 
 extern int process_pragma (int(*)(void), void(*)(int), const char *);
 extern int i960_object_bytes_bitalign (int);
 extern void i960_initialize (void);
-extern int bitpos (unsigned int);
-extern int is_mask (unsigned int);
-extern int bitstr (unsigned int, int *, int *);
-extern int compute_frame_size (poly_int64);
-extern void output_function_profiler (FILE *, int);
-extern void i960_scan_opcode (const char *);
 
+#else
+
+extern int i960_si_ti (rtx, rtx);
+extern int i960_si_di (rtx, rtx);
+#ifdef RTX_CODE
+extern machine_mode select_cc_mode (RTX_CODE, rtx);
+extern int i960_literal (rtx, enum machine_mode);
+extern int i960_hard_regno_mode_ok (int, enum machine_mode);
+extern int i960_fp_literal (rtx, enum machine_mode);
+extern int i960_signed_literal (rtx, enum machine_mode);
+extern int i960_legitimate_address_p (enum machine_mode, rtx, int);
+extern void i960_print_operand (FILE *, rtx, int);
+extern int i960_fpmove_src_operand (rtx, enum machine_mode);
+extern int i960_arith_operand (rtx, enum machine_mode);
+extern int i960_logic_operand (rtx, enum machine_mode);
+extern int i960_fp_arith_operand (rtx, enum machine_mode);
+extern int i960_signed_arith_operand (rtx, enum machine_mode);
+extern int i960_fp_literal_one (rtx, enum machine_mode);
+extern int i960_fp_literal_zero (rtx, enum machine_mode);
+extern int i960_symbolic_memory_operand (rtx, enum machine_mode);
+extern int i960_eq_or_neq (rtx, enum machine_mode);
+extern int i960_arith32_operand (rtx, enum machine_mode);
+extern int i960_power2_operand (rtx, enum machine_mode);
+extern int i960_cmplpower2_operand (rtx, enum machine_mode);
+extern int i960_emit_move_sequence (rtx *, enum machine_mode);
+extern int i960_bypass (rtx, rtx, rtx, int);
+extern void i960_print_operand_addr (FILE *, rtx);
+extern int i960_expr_alignment (rtx, int);
+extern int i960_improve_align (rtx, rtx, int);
+#endif
+extern int i960_final_reg_parm_stack_space (int, tree);
+extern int i960_reg_parm_stack_space (tree);
+extern void i960_output_function_profiler (FILE *, int);
+extern void i960_scan_opcode (const char *);
 extern void i960_pr_align (struct cpp_reader *);
 extern void i960_pr_noalign (struct cpp_reader *);
-
+extern int i960_compute_frame_size (poly_int64);
+extern int i960_bitpos (unsigned int);
+extern int i960_is_mask (unsigned int);
+extern int i960_bitstr (unsigned int, int *, int *);
+#endif
 #endif /* ! GCC_I960_PROTOS_H  */
