@@ -42,14 +42,8 @@ Boston, MA 02111-1307, USA.  */
 
 /* Name to predefine in the preprocessor for processor variations.
    -mic* options make characters signed by default.  */
-#define	CPP_SPEC "%{mic*:-D__i960 -fsigned-char\
-			%{mka:-D__i960KA}%{mkb:-D__i960KB}\
-			%{mja:-D__i960JA}%{mjd:-D__i960JD}%{mjf:-D__i960JF}\
-			%{mrp:-D__i960RP}\
-			%{msa:-D__i960SA}%{msb:-D__i960SB}\
-			%{mmc:-D__i960MC}\
-			%{mca:-D__i960CA}%{mcc:-D__i960CC}\
-			%{mcf:-D__i960CF}}\
+#undef CPP_SPEC
+#define	CPP_SPEC "\
 	%{msoft-float:-D_SOFT_FLOAT}\
 	%{mka:-D__i960KA__ -D__i960_KA__}\
 	%{mkb:-D__i960KB__ -D__i960_KB__}\
@@ -60,23 +54,21 @@ Boston, MA 02111-1307, USA.  */
 	%{mcc:-D__i960CC__ -D__i960_CC__}\
 	%{mcf:-D__i960CF__ -D__i960_CF__}\
 	%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:\
-		%{!mcc:%{!mcf:-D__i960_KB -D__i960KB__ %{mic*:-D__i960KB}}}}}}}}}\
+		%{!mcc:%{!mcf:-D__i960_KB -D__i960KB__}}}}}}}}\
 	%{mlong-double-64:-D__LONG_DOUBLE_64__}"
 
 /* Specs for the compiler, to handle processor variations. 
    If the user gives an explicit -gstabs or -gcoff option, then do not
    try to add an implicit one, as this will fail. 
    -mic* options make characters signed by default.  */
+#undef CC1_SPEC
 #define CC1_SPEC \
-	"%{mic*:-fsigned-char}\
-%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:%{!mcc:%{!mcf:%{!mja:%{!mjd:%{!mjf:%{!mrp:-mka}}}}}}}}}}}}\
-	 %{!gs*:%{!gc*:%{mbout:%{g*:-gstabs}}\
-		       %{mcoff:%{g*:-gcoff}}\
-		       %{!mbout:%{!mcoff:%{g*:-gstabs}}}}}"
+	"%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:%{!mcc:%{!mcf:%{!mja:%{!mjd:%{!mjf:%{!mrp:-mka}}}}}}}}}}}}"
 
 /* Specs for the assembler, to handle processor variations.
    For compatibility with Intel's gnu960 tool chain, pass -A options to
    the assembler.  */
+#undef ASM_SPEC
 #define ASM_SPEC \
 	"%{mka:-AKA}%{mkb:-AKB}%{msa:-ASA}%{msb:-ASB}\
 	%{mmc:-AMC}%{mca:-ACA}%{mcc:-ACC}%{mcf:-ACF}\
@@ -87,6 +79,7 @@ Boston, MA 02111-1307, USA.  */
 /* Specs for the linker, to handle processor variations.
    For compatibility with Intel's gnu960 tool chain, pass -F and -A options
    to the linker.  */
+#undef LINK_SPEC
 #define LINK_SPEC \
 	"%{mka:-AKA}%{mkb:-AKB}%{msa:-ASA}%{msb:-ASB}\
 	%{mmc:-AMC}%{mca:-ACA}%{mcc:-ACC}%{mcf:-ACF}\
@@ -96,6 +89,7 @@ Boston, MA 02111-1307, USA.  */
 
 /* Specs for the libraries to link with, to handle processor variations.
    Compatible with Intel's gnu960 tool chain.  */
+#undef LIB_SPEC
 #define LIB_SPEC "%{!nostdlib:-lcg %{p:-lprof}%{pg:-lgprof}\
 	  %{mka:-lfpg}%{msa:-lfpg}%{mca:-lfpg}%{mcf:-lfpg} -lgnu}"
 
