@@ -2251,7 +2251,9 @@ x86_64-*-fuchsia*)
 	;;
 i960*-*-elf*)
 	tm_file="${tm_file} dbxelf.h elfos.h newlib-stdint.h"
-	tmake_file="i960/t-i960"
+	tmake_file="i960/t-i960bare"
+#c_target_objs="i960-c.o"
+#	cxx_target_objs="i960-c.o"
 	target_cpu_default="0"
 	if test x$gas = xyes
 	then
