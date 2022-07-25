@@ -2885,6 +2885,11 @@ i960_legitimate_constant_p (machine_mode, rtx x)
 static HOST_WIDE_INT
 i960_constant_alignment (const_tree exp, HOST_WIDE_INT basic_align)
 {
+//#define TARGET_CONSTANT_ALIGNMENT(EXP, ALIGN) \
+//  (TREE_CODE (EXP) == STRING_CST	\
+//   && i960_object_bytes_bitalign (int_size_in_bytes (TREE_TYPE (EXP))) > (int)(ALIGN) \
+//   ? i960_object_bytes_bitalign (int_size_in_bytes (TREE_TYPE (EXP)))	    \
+//   : (int)(ALIGN))
 /* Specify alignment for string literals (which might be higher than the
    base type's minimal alignment requirement.  This allows strings to be
    aligned on word boundaries, and optimizes calls to the str* and mem*

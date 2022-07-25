@@ -420,15 +420,6 @@ extern int target_flags;
    when given unaligned data.
    80960 will work even with unaligned data, but it is slow.  */
 #define STRICT_ALIGNMENT TARGET_STRICT_ALIGN
-/* Specify alignment for string literals (which might be higher than the
-   base type's minimal alignment requirement.  This allows strings to be
-   aligned on word boundaries, and optimizes calls to the str* and mem*
-   library functions.  */
-#define TARGET_CONSTANT_ALIGNMENT(EXP, ALIGN) \
-  (TREE_CODE (EXP) == STRING_CST	\
-   && i960_object_bytes_bitalign (int_size_in_bytes (TREE_TYPE (EXP))) > (int)(ALIGN) \
-   ? i960_object_bytes_bitalign (int_size_in_bytes (TREE_TYPE (EXP)))	    \
-   : (int)(ALIGN))
 
 /* Macros to determine size of aggregates (structures and unions
    in C).  Normally, these may be defined to simply return the maximum
