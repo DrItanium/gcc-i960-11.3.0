@@ -29,10 +29,11 @@ Boston, MA 02111-1307, USA.  */
 #include "tm.h"
 #include "cpplib.h"
 #include "tree.h"
-#include "c-pragma.h"
+#include "c-family/c-pragma.h"
 #include "toplev.h"
 #include "ggc.h"
 #include "tm_p.h"
+#include "diagnostic-core.h"
 
 /* Handle pragmas for compatibility with Intel's compilers.  */
 
@@ -60,17 +61,17 @@ i960_pr_align (cpp_reader* pfile)
   enum cpp_ttype type;
   int align;
 
-  type = c_lex (&number);
+  type = pragma_lex (&number);
   if (type == CPP_OPEN_PAREN)
-    type = c_lex (&number);
+    type = pragma_lex (&number);
   if (type == CPP_NAME)
     {
-      warning ("sorry, not implemented: #pragma align NAME=SIZE");
+      warning (0, "sorry, not implemented: #pragma align NAME=SIZE");
       return;
     }
   if (type != CPP_NUMBER)
     {
-      warning ("malformed #pragma align - ignored");
+      warning (0, "malformed #pragma align - ignored");
       return;
     }
 
@@ -102,12 +103,12 @@ i960_pr_noalign (cpp_reader* pfile)
   enum cpp_ttype type;
   tree number;
 
-  type = c_lex (&number);
+  type = pragma_lex (&number);
   if (type == CPP_OPEN_PAREN)
-    type = c_lex (&number);
+    type = pragma_lex (&number);
   if (type == CPP_NAME)
     {
-      warning ("sorry, not implemented: #pragma noalign NAME");
+      warning (0, "sorry, not implemented: #pragma noalign NAME");
       return;
     }
 

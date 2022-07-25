@@ -60,6 +60,7 @@ Boston, MA 02111-1307, USA.  */
 #include "tree-pass.h"
 #include "print-rtl.h"
 #include "rtl-iter.h"
+#include "diagnostic-core.h"
 // include last
 #include "target-def.h"
 
