@@ -66,11 +66,11 @@ Boston, MA 02111-1307, USA.  */
 #warning "HARD_REGNO_MODE_OK needs to be reimplemented in gcc11 terms"
 #endif
 static unsigned int i960_function_arg_boundary (machine_mode, const_tree);
-static void i960_output_function_prologue (FILE *, HOST_WIDE_INT);
-static void i960_output_function_epilogue (FILE *, HOST_WIDE_INT);
+static void i960_output_function_prologue (FILE * /*, HOST_WIDE_INT*/);
+static void i960_output_function_epilogue (FILE * /*, HOST_WIDE_INT*/);
 static void i960_output_mi_thunk (FILE *, tree, HOST_WIDE_INT,
 				  HOST_WIDE_INT, tree);
-static bool i960_rtx_costs (rtx, int, int, int *);
+static bool i960_rtx_costs (rtx, machine_mode, int, int, int *, bool);
 static int i960_address_cost (rtx);
 static tree i960_build_builtin_va_list (void);
 /* Per-function machine data.  */
@@ -147,7 +147,6 @@ static int ret_label = 0;
 #undef TARGET_BUILD_BUILTIN_VA_LIST
 #define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
 
-struct gcc_target targetm = TARGET_INITIALIZER;
 /* Zero initialization is OK for all current fields.  */
 
 static struct machine_function *
@@ -594,6 +593,43 @@ emit_move_sequence (rtx* operands, enum machine_mode mode)
   return 0;
 }
 
+/* Get reg_class from a letter such as appears in the machine description.
+   'f' is a floating point register (fp0..fp3)
+   'l' is a local register (r0-r15)
+   'b' is a global register (g0-g15)
+   'd' is any local or global register
+   'r' or 'g' are pre-defined to the class GENERAL_REGS.  */
+/* 'l' and 'b' are probably never used.  Note that 'd' and 'r' are *not*
+   the same thing, since 'r' may include the fp registers.  */
+//#define REG_CLASS_FROM_LETTER(C) \
+//  (((C) == 'f') && (TARGET_NUMERICS) ? FP_REGS : ((C) == 'l' ? LOCAL_REGS : \
+//    (C) == 'b' ? GLOBAL_REGS : ((C) == 'd' ? LOCAL_OR_GLOBAL_REGS : NO_REGS)))
+/* The letters I, J, K, L and M in a register constraint string
+   can be used to stand for particular ranges of immediate operands.
+   This macro defines what the ranges are.
+   C is the letter, and VALUE is a constant value.
+   Return 1 if VALUE is in the range specified by C.
+
+   For 80960:
+	'I' is used for literal values 0..31
+   	'J' means literal 0
+	'K' means 0..-31.  */
+
+#define TARGET_CONST_OK_FOR_LETTER_P(VALUE, C)  				\
+  ((C) == 'I' ? (((unsigned) (VALUE)) <= 31)				\
+   : (C) == 'J' ? ((VALUE) == 0)					\
+   : (C) == 'K' ? ((VALUE) >= -31 && (VALUE) <= 0)			\
+   : (C) == 'M' ? ((VALUE) >= -32 && (VALUE) <= 0)			\
+   : 0)
+
+/* Similar, but for floating constants, and defining letters G and H.
+   Here VALUE is the CONST_DOUBLE rtx itself.
+   For the 80960, G is 0.0 and H is 1.0.  */
+
+#define TARGET_CONST_DOUBLE_OK_FOR_LETTER_P(VALUE, C)				\
+  ((TARGET_NUMERICS) &&							\
+   (((C) == 'G' && (VALUE) == CONST0_RTX (GET_MODE (VALUE)))		\
+    || ((C) == 'H' && ((VALUE) == CONST1_RTX (GET_MODE (VALUE))))))
 /* Output assembler to move a double word value.  */
 
 const char *
@@ -1275,8 +1311,9 @@ i960_split_reg_group (reg_group* reg_groups, int nw, int subgroup_length)
 /* Output code for the function prologue.  */
 
 static void
-i960_output_function_prologue (FILE* file, HOST_WIDE_INT size)
+i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 {
+#if 0
   int i, j, nr;
   int n_saved_regs = 0;
   int n_remaining_saved_regs;
@@ -1471,6 +1508,9 @@ i960_output_function_prologue (FILE* file, HOST_WIDE_INT size)
     fprintf (file, "\t#  Register Save Size: %d regs, %d bytes\n",
 	     n_saved_regs, n_saved_regs * 4);
   fprintf (file, "\t#End Prologue#\n");
+#else
+#warning "REIMPLEMENT THIS FUNCTION!"
+#endif
 }
 
 /* Output code for the function profiler.  */
@@ -1553,8 +1593,9 @@ output_function_profiler (FILE* file, int labelno)
 /* Output code for the function epilogue.  */
 
 static void
-i960_output_function_epilogue (FILE* file, HOST_WIDE_INT size)
+i960_output_function_epilogue (FILE* file/*, HOST_WIDE_INT size*/)
 {
+#if 0
   if (i960_leaf_ret_reg >= 0)
     {
       fprintf (file, "Li960R%d:	ret\n", ret_label);
@@ -1609,6 +1650,9 @@ i960_output_function_epilogue (FILE* file, HOST_WIDE_INT size)
 
   fprintf (file, "\tret\n");
   fprintf (file, "\t#End Epilogue#\n");
+#else
+#warning "REIMPLEMENT i960_output_function_epilogue"
+#endif
 }
 
 /* Output code for a call insn.  */
@@ -2226,7 +2270,7 @@ i960_arg_size_and_align (enum machine_mode mode, tree type, int* size_out, int* 
      formal alignment requirement to be its size in words.  */
 
   if (mode == BLKmode) {
-      size = ((int_size_in_bytes (type).to_constant() + UNITS_PER_WORD - 1)) / UNITS_PER_WORD;
+      size = ((int_size_in_bytes (type) + UNITS_PER_WORD - 1)) / UNITS_PER_WORD;
   } else if (mode == VOIDmode) {
       /* End of parm list.  */
       if (type == 0 || TYPE_MODE (type) != VOIDmode) {
@@ -2664,7 +2708,7 @@ i960_output_mi_thunk (FILE* file, tree /*thunk*/, HOST_WIDE_INT delta, HOST_WIDE
 }
 
 static bool
-i960_rtx_costs (rtx x, int code, int outer_code, int* total)
+i960_rtx_costs (rtx x, machine_mode, int code, int outer_code, int* total, bool)
 {
   switch (code)
     {
@@ -2948,5 +2992,8 @@ i960_function_arg_boundary (machine_mode mode, const_tree type) {
 #define TARGET_FUNCTION_ARG i960_function_arg
 #undef TARGET_FUNCTION_ARG_BOUNDARY
 #define TARGET_FUNCTION_ARG_BOUNDARY i960_function_arg_boundary
+#undef TARGET_EXPAND_BUILTIN_VA_START
+#define TARGET_EXPAND_BUILTIN_VA_START i960_va_start
 
+struct gcc_target targetm = TARGET_INITIALIZER;
 #include "gt-i960.h"

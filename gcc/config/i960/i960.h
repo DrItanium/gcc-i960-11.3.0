@@ -654,7 +654,6 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 #define REG_CLASS_FROM_LETTER(C) \
   (((C) == 'f') && (TARGET_NUMERICS) ? FP_REGS : ((C) == 'l' ? LOCAL_REGS : \
     (C) == 'b' ? GLOBAL_REGS : ((C) == 'd' ? LOCAL_OR_GLOBAL_REGS : NO_REGS)))
-#endif
 /* The letters I, J, K, L and M in a register constraint string
    can be used to stand for particular ranges of immediate operands.
    This macro defines what the ranges are.
@@ -682,6 +681,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    (((C) == 'G' && (VALUE) == CONST0_RTX (GET_MODE (VALUE)))		\
     || ((C) == 'H' && ((VALUE) == CONST1_RTX (GET_MODE (VALUE))))))
 
+#endif
 /* Given an rtx X being reloaded into a reg required to be
    in class CLASS, return the class of reg to actually use.
    In general this is just CLASS; but on some machines
@@ -738,8 +738,10 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    allocated for it.  However, when args are passed in the
    stack, space is allocated for every register parameter.  */
 #define TARGET_MAYBE_REG_PARM_STACK_SPACE 48
+#if 0
 #define TARGET_FINAL_REG_PARM_STACK_SPACE(CONST_SIZE, VAR_SIZE)	\
   i960_final_reg_parm_stack_space (CONST_SIZE, VAR_SIZE);
+#endif
 #define REG_PARM_STACK_SPACE(DECL) i960_reg_parm_stack_space (DECL)
 #define OUTGOING_REG_PARM_STACK_SPACE
 
@@ -788,7 +790,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 #define TARGET_SETUP_INCOMING_VARARGS(CUM,MODE,TYPE,PRETEND_SIZE,NO_RTL) \
   i960_setup_incoming_varargs(&CUM,MODE,TYPE,&PRETEND_SIZE,NO_RTL)
 #endif
-
+#if 0
 /* Implement `va_start' for varargs and stdarg.  */
 #define EXPAND_BUILTIN_VA_START(valist, nextarg) \
   i960_va_start (valist, nextarg)
@@ -796,6 +798,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 /* Implement `va_arg'.  */
 #define TARGET_EXPAND_BUILTIN_VA_ARG(valist, type) \
   i960_va_arg (valist, type)
+#endif
 
 /* Define a data type for recording info about an argument list
    during the scan of that argument list.  This data type should
@@ -883,8 +886,9 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 /* For an arg passed partly in registers and partly in memory,
    this is the number of registers used.
    This never happens on 80960.  */
-
+#if 0
 #define TARGET_FUNCTION_ARG_PARTIAL_NREGS(CUM, MODE, TYPE, NAMED) 0
+#endif
 
 /* Output the label for a function definition.
   This handles leaf functions and a few other things for the i960.  */
@@ -1010,11 +1014,12 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
   { if (legitimate_address_p (MODE, X, 0)) goto ADDR; }
 #endif
 
-
+#if 0
 /* Go to LABEL if ADDR (a legitimate address expression)
    has an effect that depends on the machine mode it is used for.
    On the 960 this is never true.  */
 #define TARGET_GO_IF_MODE_DEPENDENT_ADDRESS(ADDR,LABEL)
+#endif
 
 /* Specify the machine mode that this machine uses
    for the index in the tablejump instruction.  */
@@ -1282,6 +1287,7 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
    available.  */
 #define SETUP_FRAME_ADDRESSES()		\
   emit_insn (gen_flush_register_windows ())
+#if 0
 #define TARGET_BUILTIN_SETJMP_FRAME_VALUE hard_frame_pointer_rtx
 
 /* Promote char and short arguments to ints, when want compatibility with
@@ -1292,7 +1298,7 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
 #define TARGET_PROMOTE_PROTOTYPES	TARGET_CLEAN_LINKAGE
 /* ??? This does not exist.  */
 //#define TARGET_PROMOTE_FUNCTION_RETURN		TARGET_CLEAN_LINKAGE
-
+#endif
 /* Instruction type definitions.  Used to alternate instructions types for
    better performance on the C series chips.  */
 
