@@ -745,6 +745,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 
 /* Keep the stack pointer constant throughout the function.  */
 #define ACCUMULATE_OUTGOING_ARGS 1
+#if 0
 /* Value is 1 if returning from a function call automatically
    pops the arguments described by the number-of-args field in the call.
    FUNDECL is the declaration node of the function (as a tree),
@@ -752,6 +753,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    or for a library call it is an identifier node for the subroutine name.  */
 
 #define TARGET_RETURN_POPS_ARGS(FUNDECL,FUNTYPE,SIZE) 0
+#endif
 
 /* Define how to find the value returned by a library function
    assuming the value has mode MODE.  */
@@ -769,6 +771,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 
 #define FUNCTION_ARG_REGNO_P(N) ((N) < 12)
 
+#if 0
 /* Perform any needed actions needed for a function that is receiving a
    variable number of arguments. 
 
@@ -782,9 +785,9 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 
    Normally, this macro will push all remaining incoming registers on the
    stack and set PRETEND_SIZE to the length of the registers pushed.  */
-
 #define TARGET_SETUP_INCOMING_VARARGS(CUM,MODE,TYPE,PRETEND_SIZE,NO_RTL) \
   i960_setup_incoming_varargs(&CUM,MODE,TYPE,&PRETEND_SIZE,NO_RTL)
+#endif
 
 /* Implement `va_start' for varargs and stdarg.  */
 #define EXPAND_BUILTIN_VA_START(valist, nextarg) \
@@ -824,7 +827,7 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 
 #define INIT_CUMULATIVE_ARGS(CUM, FNTYPE, LIBNAME, INDIRECT, N_NAMED_ARGS) \
   ((CUM).ca_nregparms = 0, (CUM).ca_nstackparms = 0)
-
+#if 0
 /* Update the data in CUM to advance over an argument
    of mode MODE and data type TYPE.
    CUM should be advanced to align with the data type accessed and
@@ -859,7 +862,7 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
 
 #define TARGET_FUNCTION_ARG(CUM, MODE, TYPE, NAMED)	\
   i960_function_arg(&CUM, MODE, TYPE, NAMED)
-
+#endif
 /* Define how to find the value returned by a function.
    VALTYPE is the data type of the value (as a tree).
    If the precise function being called is known, FUNC is its FUNCTION_DECL;

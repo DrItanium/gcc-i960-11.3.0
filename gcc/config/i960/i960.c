@@ -65,6 +65,7 @@ Boston, MA 02111-1307, USA.  */
 #ifdef compat_HARD_REGNO_MODE_OK
 #warning "HARD_REGNO_MODE_OK needs to be reimplemented in gcc11 terms"
 #endif
+static unsigned int i960_function_arg_boundary (machine_mode, const_tree);
 static void i960_output_function_prologue (FILE *, HOST_WIDE_INT);
 static void i960_output_function_epilogue (FILE *, HOST_WIDE_INT);
 static void i960_output_mi_thunk (FILE *, tree, HOST_WIDE_INT,
@@ -2900,6 +2901,22 @@ i960_constant_alignment (const_tree exp, HOST_WIDE_INT basic_align)
         return basic_align;
     }
 }
+static unsigned int 
+i960_function_arg_boundary (machine_mode mode, const_tree type) {
+/* Indicate the alignment boundary for an argument of the specified mode and
+   type.  */
+    /// @todo fix this to be normal code
+#define X(MODE, TYPE)				\
+  (((TYPE) != 0)							\
+   ? ((TYPE_ALIGN (TYPE) <= PARM_BOUNDARY)				\
+      ? PARM_BOUNDARY							\
+      : TYPE_ALIGN (TYPE))						\
+   : ((GET_MODE_ALIGNMENT (MODE) <= PARM_BOUNDARY)			\
+      ? PARM_BOUNDARY							\
+      : GET_MODE_ALIGNMENT (MODE)))
+    return X(mode, type);
+#undef X
+}
 /* Return the maximum number of consecutive registers
    needed to represent mode MODE in a register of class CLASS.  */
 /* On 80960, this is the size of MODE in words,
@@ -2923,3 +2940,13 @@ i960_constant_alignment (const_tree exp, HOST_WIDE_INT basic_align)
 #define TARGET_LEGITIMATE_CONSTANT_P i960_legitimate_constant_p
 #undef TARGET_CONSTANT_ALIGNMENT
 #define TARGET_CONSTANT_ALIGNMENT i960_constant_alignment
+#undef TARGET_SETUP_INCOMING_VARARGS
+#define TARGET_SETUP_INCOMING_VARARGS i960_setup_incoming_varargs
+#undef TARGET_FUNCTION_ARG_ADVANCE
+#define TARGET_FUNCTION_ARG_ADVANCE i960_function_arg_advance
+#undef TARGET_FUNCTION_ARG 
+#define TARGET_FUNCTION_ARG i960_function_arg
+#undef TARGET_FUNCTION_ARG_BOUNDARY
+#define TARGET_FUNCTION_ARG_BOUNDARY i960_function_arg_boundary
+
+#include "gt-i960.h"
