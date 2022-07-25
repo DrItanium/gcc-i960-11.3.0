@@ -22,41 +22,44 @@ along with GCC; see the file COPYING.  If not, write to
 the Free Software Foundation, 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.  */
 
+#define IN_TARGET_CODE 1
+
 #include "config.h"
 #include "system.h"
+#include "intl.h"
 #include "coretypes.h"
-#include "tm.h"
-#include <math.h>
-#include "rtl.h"
-#include "regs.h"
-#include "hard-reg-set.h"
-#include "real.h"
-#include "insn-config.h"
-#include "conditions.h"
-#include "output.h"
-#include "insn-attr.h"
-#include "flags.h"
-#include "tree.h"
-#include "expr.h"
-#include "except.h"
-#include "explow.h"
-#include "function.h"
-#include "recog.h"
-#include "toplev.h"
-#include "tm_p.h"
+#include "backend.h"
 #include "target.h"
-#include "errors.h"
+#include "rtl.h"
+#include "tree.h"
 #include "stringpool.h"
 #include "attribs.h"
-#include "builtins.h"
-#include "calls.h"
-#include "targhooks.h"
+#include "cgraph.h"
+#include "c-family/c-common.h"
+#include "cfghooks.h"
+#include "df.h"
 #include "memmodel.h"
+#include "tm_p.h"
+#include "optabs.h"
+#include "regs.h"
 #include "emit-rtl.h"
-#include "target.h"
+#include "recog.h"
+#include "conditions.h"
+#include "insn-attr.h"
+#include "reload.h"
 #include "varasm.h"
-#include "fold-const.h"
-#include "real.h"
+#include "calls.h"
+#include "stor-layout.h"
+#include "output.h"
+#include "explow.h"
+#include "expr.h"
+#include "langhooks.h"
+#include "cfgrtl.h"
+#include "builtins.h"
+#include "context.h"
+#include "tree-pass.h"
+#include "print-rtl.h"
+#include "rtl-iter.h"
 // include last
 #include "target-def.h"
 
@@ -158,15 +161,15 @@ void
 i960_initialize ()
 {
     if (TARGET_K_SERIES && TARGET_C_SERIES) {
-        warning ("conflicting architectures defined - using C series");
+        warning (0, "conflicting architectures defined - using C series");
         target_flags &= ~TARGET_FLAG_K_SERIES;
     }
     if (TARGET_K_SERIES && TARGET_MC) {
-        warning ("conflicting architectures defined - using K series");
+        warning (0, "conflicting architectures defined - using K series");
         target_flags &= ~TARGET_FLAG_MC;
     }
     if (TARGET_C_SERIES && TARGET_MC) {
-        warning ("conflicting architectures defined - using C series");
+        warning (0, "conflicting architectures defined - using C series");
         target_flags &= ~TARGET_FLAG_MC;
     }
     if (TARGET_IC_COMPAT3_0) {
@@ -174,7 +177,7 @@ i960_initialize ()
         flag_signed_char = 1;
         target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
         if (TARGET_IC_COMPAT2_0) {
-            warning ("iC2.0 and iC3.0 are incompatible - using iC3.0");
+            warning (0, "iC2.0 and iC3.0 are incompatible - using iC3.0");
             target_flags &= ~TARGET_FLAG_IC_COMPAT2_0;
         }
     }
@@ -561,7 +564,7 @@ i960_emit_move_sequence (rtx* operands, enum machine_mode mode)
   /* ??? We must also handle stores to pseudos here, because the pseudo may be
      replaced with a MEM later.  This would be cleaner if we didn't have
      a separate pattern for unaligned DImode/TImode stores.  */
-  if (GET_MODE_SIZE(mode).to_constant() > UNITS_PER_WORD
+  if (GET_MODE_SIZE(mode) > UNITS_PER_WORD
       && (GET_CODE (operands[0]) == MEM
 	  || (GET_CODE (operands[0]) == REG
 	      && REGNO (operands[0]) >= FIRST_PSEUDO_REGISTER))
@@ -1045,7 +1048,7 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
 {
   int i, j;
   int leaf_proc_ok;
-  rtx insn;
+  rtx_insn* insn;
 
   /* Increment global return label.  */
 
@@ -1115,7 +1118,7 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
 
   if (leaf_proc_ok)
     for (i = 0, j = 0; i < FIRST_PSEUDO_REGISTER; i++)
-      if (regs_ever_live[i]
+      if (df_regs_ever_live_p(i)
 	  && ((! call_used_regs[i]) || (i > 7 && i < 12)))
 	{
 	  /* Global registers.  */
@@ -1134,10 +1137,10 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
   if (optimize && leaf_proc_ok)
     {
       for (i960_leaf_ret_reg = -1, i = 0; i < 8; i++)
-	if (regs_ever_live[i] == 0)
+	if (!df_regs_ever_live_p(i))
 	  {
 	    i960_leaf_ret_reg = i;
-	    regs_ever_live[i] = 1;
+        df_set_regs_ever_live (i, true);
 	    break;
 	  }
     }
@@ -1149,18 +1152,18 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
   fprintf (file, "\t#  Registers used: ");
 
   for (i = 0, j = 0; i < FIRST_PSEUDO_REGISTER; i++)
-    {
-      if (regs_ever_live[i])
-	{
-	  fprintf (file, "%s%s ", reg_names[i], call_used_regs[i] ? "" : "*");
+  {
+      if (df_regs_ever_live_p(i))
+      {
+          fprintf (file, "%s%s ", reg_names[i], call_used_regs[i] ? "" : "*");
 
-	  if (i > 15 && j == 0)
-	    {
-	      fprintf (file,"\n\t#\t\t   ");
-	      j++;
-            }
-        }
-    }
+          if (i > 15 && j == 0)
+          {
+              fprintf (file,"\n\t#\t\t   ");
+              j++;
+          }
+      }
+  }
 
   fprintf (file, "\n");
 
@@ -1203,8 +1206,7 @@ int
 compute_frame_size (int size)
 {
   int actual_fsize;
-  //int outgoing_args_size = current_function_outgoing_args_size;
-  int outgoing_args_size = (cfun->outgoing_args_size);
+  int outgoing_args_size = crtl->outgoing_args_size;
 
   /* The STARTING_FRAME_OFFSET is totally hidden to us as far
      as size is concerned.  */
@@ -1322,7 +1324,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 
 
   for (i = 0; i < FIRST_PSEUDO_REGISTER; i++)
-    if (regs_ever_live[i]
+    if (df_regs_ever_live_p(i)
 	&& ((! call_used_regs[i]) || (i > 7 && i < 12))
 	/* No need to save the static chain pointer.  */
 	&& ! (i == STATIC_CHAIN_REGNUM && current_function_needs_context))
@@ -1344,7 +1346,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
       /* When profiling, we may use registers 20 to 27 to save arguments, so
 	 they can't be used here for saving globals.  J is the number of
 	 argument registers the mcount call will save.  */
-      for (j = 7; j >= 0 && ! regs_ever_live[j]; j--)
+      for (j = 7; j >= 0 && ! df_regs_ever_live_p(j); j--)
 	;
 
       for (i = 20; i <= j + 20; i++)
@@ -1379,7 +1381,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 	    {
 	      regs [i + g->start_reg] = 1;
 	      regs [i + l->start_reg] = -1;
-	      regs_ever_live [i + l->start_reg] = 1;
+	      set_regs_ever_live (i + l->start_reg, true);
 	    }
 	  g++;
 	  l++;
@@ -1524,7 +1526,7 @@ output_function_profiler (FILE* file, int labelno)
      for preserved call-saved global registers.  */
 
   for (last_parm_reg = 7;
-       last_parm_reg >= 0 && ! regs_ever_live[last_parm_reg];
+       last_parm_reg >= 0 && ! def_regs_ever_live_p(last_parm_reg);
        last_parm_reg--)
     ;
 
@@ -2268,7 +2270,7 @@ i960_arg_size_and_align (enum machine_mode mode, tree type, int* size_out, int* 
       }
       size = 1;
   } else {
-      size = ((GET_MODE_SIZE (mode) + UNITS_PER_WORD - 1)).to_constant() / UNITS_PER_WORD;
+      size = ((GET_MODE_SIZE (mode) + UNITS_PER_WORD - 1)) / UNITS_PER_WORD;
   }
 
   if (type == 0) {
@@ -2772,7 +2774,7 @@ i960_hard_regno_nregs (unsigned int regno, machine_mode mode)
         if (mode == VOIDmode) {
             return 1;
         } else {
-            return ((GET_MODE_SIZE(mode).to_constant() + UNITS_PER_WORD - 1) / UNITS_PER_WORD);
+            return ((GET_MODE_SIZE(mode) + UNITS_PER_WORD - 1) / UNITS_PER_WORD);
         }
     } else {
         if (regno < FIRST_PSEUDO_REGISTER) {
