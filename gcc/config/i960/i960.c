@@ -2586,7 +2586,7 @@ i960_reg_parm_stack_space (tree fndecl)
    NO_REGS is returned.  */
 
 enum reg_class
-secondary_reload_class (enum reg_class theClass, enum machine_mode mode, rtx in)
+i960_secondary_reload_class (enum reg_class theClass, enum machine_mode mode, rtx in)
 {
   int regno = -1;
 

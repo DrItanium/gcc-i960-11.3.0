@@ -1075,7 +1075,7 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
    should be used.  CC_NOOVmode should be used when the first operand is a
    PLUS, MINUS, or NEG.  CCmode should be used when no special processing is
    needed.  */
-#define SELECT_CC_MODE(OP,X,Y) select_cc_mode (OP, X)
+#define SELECT_CC_MODE(OP,X,Y) i960_select_cc_mode (OP, X)
 
 /* A function address in a call instruction is a byte address
    (for indexing purposes) so give the MEM rtx a byte's mode.  */

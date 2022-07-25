@@ -25,15 +25,12 @@ Boston, MA 02111-1307, USA.  */
 #ifndef GCC_I960_PROTOS_H
 #define GCC_I960_PROTOS_H
 
-#if 0
+
 #ifdef RTX_CODE
-extern struct rtx_def *legitimize_address (rtx, rtx, enum machine_mode);
+extern struct rtx_def *i960_legitimize_address (rtx, rtx, enum machine_mode);
 /* Define the function that build the compare insn for scc and bcc.  */
-
-extern struct rtx_def *gen_compare_reg (enum rtx_code, rtx, rtx);
-
+extern struct rtx_def *i960_gen_compare_reg (enum rtx_code, rtx, rtx);
 /* Define functions in i960.c and used in insn-output.c.  */
-
 extern const char *i960_output_ldconst (rtx, rtx);
 extern const char *i960_output_call_insn (rtx, rtx, rtx, rtx);
 extern const char *i960_output_ret_insn (rtx);
@@ -41,32 +38,7 @@ extern const char *i960_output_move_double (rtx, rtx);
 extern const char *i960_output_move_double_zero (rtx);
 extern const char *i960_output_move_quad (rtx, rtx);
 extern const char *i960_output_move_quad_zero (rtx);
-
-#ifdef TREE_CODE
-extern struct rtx_def *i960_function_arg (CUMULATIVE_ARGS, const class function_arg_info&);
-extern rtx i960_va_arg (tree, tree);
-extern void i960_va_start (tree, rtx);
-#endif /* TREE_CODE */
-extern enum reg_class secondary_reload_class (enum reg_class, enum machine_mode, rtx);
-#endif /* RTX_CODE */
-
-#ifdef TREE_CODE
-extern void i960_function_name_declare (FILE *, const char *, tree);
-extern void i960_function_arg_advance (CUMULATIVE_ARGS *, enum machine_mode, tree, int);
-extern int i960_round_align (int, tree);
-extern void i960_setup_incoming_varargs (CUMULATIVE_ARGS *, enum machine_mode, tree, int *, int);
-#endif /* TREE_CODE */
-
-extern int process_pragma (int(*)(void), void(*)(int), const char *);
-extern int i960_object_bytes_bitalign (int);
-extern void i960_initialize (void);
-
-#else
-
-extern int i960_si_ti (rtx, rtx);
-extern int i960_si_di (rtx, rtx);
-#ifdef RTX_CODE
-extern machine_mode select_cc_mode (RTX_CODE, rtx);
+extern machine_mode i960_select_cc_mode (RTX_CODE, rtx);
 extern int i960_literal (rtx, enum machine_mode);
 extern int i960_hard_regno_mode_ok (int, enum machine_mode);
 extern int i960_fp_literal (rtx, enum machine_mode);
@@ -90,7 +62,17 @@ extern int i960_bypass (rtx, rtx, rtx, int);
 extern void i960_print_operand_addr (FILE *, rtx);
 extern int i960_expr_alignment (rtx, int);
 extern int i960_improve_align (rtx, rtx, int);
+extern struct rtx_def *i960_function_arg (CUMULATIVE_ARGS, const class function_arg_info&);
+extern rtx i960_va_arg (tree, tree);
+extern void i960_va_start (tree, rtx);
+extern enum reg_class i960_secondary_reload_class (enum reg_class, enum machine_mode, rtx);
+extern int i960_si_ti (rtx, rtx);
+extern int i960_si_di (rtx, rtx);
 #endif
+extern int i960_round_align (int, tree);
+extern void i960_function_name_declare (FILE *, const char *, tree);
+extern void i960_function_arg_advance (CUMULATIVE_ARGS *, enum machine_mode, tree, int);
+extern void i960_setup_incoming_varargs (CUMULATIVE_ARGS *, enum machine_mode, tree, int *, int);
 extern int i960_final_reg_parm_stack_space (int, tree);
 extern int i960_reg_parm_stack_space (tree);
 extern void i960_output_function_profiler (FILE *, int);
@@ -101,5 +83,7 @@ extern int i960_compute_frame_size (poly_int64);
 extern int i960_bitpos (unsigned int);
 extern int i960_is_mask (unsigned int);
 extern int i960_bitstr (unsigned int, int *, int *);
-#endif
+extern int i960_process_pragma (int(*)(void), void(*)(int), const char *);
+extern int i960_object_bytes_bitalign (int);
+extern void i960_initialize (void);
 #endif /* ! GCC_I960_PROTOS_H  */
