@@ -39,6 +39,7 @@ Boston, MA 02111-1307, USA.  */
 #include "tree.h"
 #include "expr.h"
 #include "except.h"
+#include "explow.h"
 #include "function.h"
 #include "recog.h"
 #include "toplev.h"
@@ -52,6 +53,9 @@ Boston, MA 02111-1307, USA.  */
 #include "targhooks.h"
 #include "memmodel.h"
 #include "emit-rtl.h"
+#include "target.h"
+#include "varasm.h"
+#include "fold-const.h"
 // include last
 #include "target-def.h"
 
@@ -65,7 +69,6 @@ Boston, MA 02111-1307, USA.  */
 #ifdef compat_HARD_REGNO_MODE_OK
 #warning "HARD_REGNO_MODE_OK needs to be reimplemented in gcc11 terms"
 #endif
-static rtx* i960_function_arg (CUMULATIVE_ARGS cum,/* enum machine_mode mode, tree type, int named*/ const class function_args_info&);
 static unsigned int i960_function_arg_boundary (machine_mode, const_tree);
 static void i960_output_function_prologue (FILE * /*, HOST_WIDE_INT*/);
 static void i960_output_function_epilogue (FILE * /*, HOST_WIDE_INT*/);
@@ -75,7 +78,9 @@ static bool i960_rtx_costs (rtx, machine_mode, int, int, int *, bool);
 static int i960_address_cost (rtx, machine_mode, addr_space_t, bool);
 static tree i960_build_builtin_va_list (void);
 static void i960_option_override (void);
-static void i960_function_arg_advance (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree type, int named);
+static struct rtx_def *i960_function_arg (cumulative_args_t, const class function_arg_info&);
+static void i960_function_arg_advance (cumulative_args_t, const class function_arg_info&);
+static void i960_setup_incoming_varargs (cumulative_args_t, const class function_arg_info&, int *, int);
 /* Per-function machine data.  */
 struct GTY(()) machine_function
 {
@@ -270,7 +275,7 @@ i960_fp_literal_zero (rtx op, enum machine_mode mode)
 int
 i960_fp_literal(rtx op, enum machine_mode mode)
 {
-  return fp_literal_zero (op, mode) || fp_literal_one (op, mode);
+  return i960_fp_literal_zero (op, mode) || fp_literal_one (op, mode);
 }
 
 /* Return true if OP is a valid signed immediate constant.  */
@@ -481,7 +486,7 @@ gen_compare_reg (enum rtx_code code, rtx x, rtx y)
 /* ??? Try using just RTX_COST, i.e. not defining ADDRESS_COST.  */
 
 static int 
-i960_address_cost (rtx x, machine_mode, addr_space_t, bool);
+i960_address_cost (rtx x, machine_mode, addr_space_t, bool)
 {
   if (GET_CODE (x) == REG)
     return 1;
@@ -2286,9 +2291,10 @@ i960_arg_size_and_align (enum machine_mode mode, tree type, int* size_out, int* 
 
 /* Update CUM to advance past an argument described by MODE and TYPE.  */
 
-void
-i960_function_arg_advance (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree type, int named)
+void 
+i960_function_arg_advance (cumulative_args_t cat, const class function_arg_info&)
 {
+#if 0
   int size, align;
 
   i960_arg_size_and_align (mode, type, &size, &align);
@@ -2304,13 +2310,16 @@ i960_function_arg_advance (CUMULATIVE_ARGS* cum, enum machine_mode mode, tree ty
     }
   else
     cum->ca_nregparms = ROUND_PARM (cum->ca_nregparms, align) + size;
+#else
+#warning "REIMPLEMENT i960_function_arg_advance"
+#endif
 }
 
 /* Return the register that the argument described by MODE and TYPE is
    passed in, or else return 0 if it is passed on the stack.  */
 
-rtx*
-i960_function_arg (CUMULATIVE_ARGS cum,/* enum machine_mode mode, tree type, int named*/ const function_args_info&)
+rtx
+i960_function_arg (cumulative_args_t cat,/* enum machine_mode mode, tree type, int named*/ const function_arg_info&)
 {
 #if 0
   rtx ret;
@@ -2391,8 +2400,9 @@ i960_round_align (int align, tree type)
    all register parameters to memory.  */
 
 void 
-i960_setup_incoming_varargs (CUMULATIVE_ARGS *, const class function_arg_info& arg, int * pretend_size, int no_rtl);
+i960_setup_incoming_varargs (cumulative_args_t cum, const class function_arg_info& arg, int * pretend_size, int no_rtl)
 {
+#if 0
   /* Note: for a varargs fn with only a va_alist argument, this is 0.  */
   int first_reg = cum->ca_nregparms;
 
@@ -2439,6 +2449,9 @@ i960_setup_incoming_varargs (CUMULATIVE_ARGS *, const class function_arg_info& a
       move_block_from_reg (first_reg, regblock,
 			   NPARM_REGS - first_reg);
     }
+#else
+#warning implement "i960_setup_incoming_varargs"
+#endif
 }
 
 /* Define the `__builtin_va_list' type for the ABI.  */
@@ -2501,7 +2514,7 @@ i960_va_arg (tree valist, tree type)
 		       TYPE_SIZE_UNIT (TREE_TYPE (valist))));
 
   /* Round up sizeof(type) to a word.  */
-  siz = (int_size_in_bytes (type).to_constant() + UNITS_PER_WORD - 1) & -UNITS_PER_WORD;
+  siz = (int_size_in_bytes (type) + UNITS_PER_WORD - 1) & -UNITS_PER_WORD;
 
   /* Round up alignment to a word.  */
   ali = TYPE_ALIGN (type);

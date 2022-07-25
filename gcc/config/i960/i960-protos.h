@@ -62,7 +62,6 @@ extern int i960_bypass (rtx, rtx, rtx, int);
 extern void i960_print_operand_addr (FILE *, rtx);
 extern int i960_expr_alignment (rtx, int);
 extern int i960_improve_align (rtx, rtx, int);
-extern struct rtx_def *i960_function_arg (CUMULATIVE_ARGS, const class function_arg_info&);
 extern rtx i960_va_arg (tree, tree);
 extern void i960_va_start (tree, rtx);
 extern enum reg_class i960_secondary_reload_class (enum reg_class, enum machine_mode, rtx);
@@ -71,8 +70,6 @@ extern int i960_si_di (rtx, rtx);
 #endif
 extern int i960_round_align (int, tree);
 extern void i960_function_name_declare (FILE *, const char *, tree);
-extern void i960_function_arg_advance (CUMULATIVE_ARGS *, const class function_arg_info&);
-extern void i960_setup_incoming_varargs (CUMULATIVE_ARGS *, const class function_arg_info&, int *, int);
 extern int i960_final_reg_parm_stack_space (int, tree);
 extern int i960_reg_parm_stack_space (tree);
 extern void i960_output_function_profiler (FILE *, int);

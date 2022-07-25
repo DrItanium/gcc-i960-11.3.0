@@ -810,9 +810,9 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    On 80960, this is two integers, which count the number of register
    parameters and the number of stack parameters seen so far.  */
 
-struct cum_args { int ca_nregparms; int ca_nstackparms; };
+struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
 
-#define CUMULATIVE_ARGS struct cum_args
+#define CUMULATIVE_ARGS struct i960_cumulative_args_t
 
 /* Define the number of registers that can hold parameters.
    This macro is used only in macro definitions below and/or i960.c.  */
@@ -828,7 +828,6 @@ struct cum_args { int ca_nregparms; int ca_nstackparms; };
    For a library call, FNTYPE is 0.
 
    On 80960, the offset always starts at 0; the first parm reg is g0.  */
-
 #define INIT_CUMULATIVE_ARGS(CUM, FNTYPE, LIBNAME, INDIRECT, N_NAMED_ARGS) \
   ((CUM).ca_nregparms = 0, (CUM).ca_nstackparms = 0)
 #if 0
