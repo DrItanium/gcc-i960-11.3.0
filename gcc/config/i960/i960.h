@@ -115,6 +115,19 @@
 
 #define FIRST_PSEUDO_REGISTER 38
 
+/* renumber registers for dbx and gdb, 
+ * according to the old code g0..g15 are registers 16..31
+ * In the "960" encoding. Save this for now
+ * */
+#define DBX_REGISTER_NUMBER(X) \
+    (((X) < 16) ? ((X) + 16) \
+     : (((X) > 31) ? (X) : ((X) - 16)))
+#define REGISTER_NAMES { \
+    "g0", "g1", "g2", "g3", "g4", "g5", "g6", "g7", \
+    "g8", "g9", "g10", "g11", "g12", "g13", "g14", "fp", \
+    "pfp", "sp", "rip", "r3", "r4", "r5", "r6", "r7", \
+    "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15", \
+    "fp0", "fp1", "fp2", "fp3", "cc", "fake" }
 /* 1 for registers that have pervasive standard uses and are not available
    for the register allocator.  On i960, this includes the frame pointer
    (g15), the previous FP (r0), the stack pointer (r1), the return
@@ -156,6 +169,17 @@
   1, 1, 1, 0, 0, 0, 0, 0,	\
   0, 0, 0, 0, 0, 0, 0, 0,	\
   1, 1, 1, 1, 1, 1}
+
+/* The order in which to allocate registers.  */
+
+#define	REG_ALLOC_ORDER	\
+{  4, 5, 6, 7, 0, 1, 2, 3, 13,	 /* g4, g5, g6, g7, g0, g1, g2, g3, g13  */ \
+  20, 21, 22, 23, 24, 25, 26, 27,/* r4, r5, r6, r7, r8, r9, r10, r11  */    \
+  28, 29, 30, 31, 19, 8, 9, 10,	 /* r12, r13, r14, r15, r3, g8, g9, g10  */ \
+  11, 12,			 /* g11, g12  */			    \
+  32, 33, 34, 35,		 /* fp0, fp1, fp2, fp3  */		    \
+  /* We can't actually allocate these.  */				    \
+  16, 17, 18, 14, 15, 36, 37}	 /* r0, r1, r2, g14, g15, cc  */
 
 /* Define the classes of registers for register constraints in the
    machine description.  Also define ranges of constants.
