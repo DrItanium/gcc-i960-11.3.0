@@ -213,8 +213,31 @@ enum reg_class {
     FP_REGS, 
     ALL_REGS, 
     /// @todo add support for including floating point registers in the general set if numerics
+    /// @todo support for special function registers? Don't really think so but an interesting thought
     LIM_REG_CLASSES 
 };
 
 #define N_REG_CLASSES (int) LIM_REG_CLASSES
+#define REG_CLASS_NAMES { \
+    "NO_REGS",  \
+    "GLOBAL_REGS", \
+    "LOCAL_REGS", \
+    "LOCAL_OR_GLOBAL_REGS", \
+    "FP_REGS", \
+    "ALL_REGS" \
+}
+/*
+ * Bit patterns which denote which of the n ( in this case 37 ) registers
+ * apply to each register class. For the i960 we need two 32-bit words to store
+ * everything. In the older implementation the FP registers were given
+ * everything in the upper half... thats not right. I've fixed this
+ */
+#define REG_CLASS_CONTENTS { \
+    { 0x00000000, 0x00000000 }, \
+    { 0x0000FFFF, 0x00000000 }, \
+    { 0xFFFF0000, 0x00000000 }, \
+    { 0xFFFFFFFF, 0x00000000 }, \
+    { 0x00000000, 0x0000000F }, \
+    { 0xFFFFFFFF, 0x0000003F }, \
+}
 #endif

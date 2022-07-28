@@ -64,6 +64,7 @@ Boston, MA 02111-1307, USA.  */
 // include last
 #include "target-def.h"
 
+#if 0
 #define current_function_args_size (crtl->args.size.to_constant())
 #define current_function_args_info (crtl->args_info)
 #define current_function_stdarg (cfun->stdarg)
@@ -94,7 +95,6 @@ struct GTY(()) machine_function
   HOST_WIDE_INT args_size;
 
 };
-#if 0
 /* Save the operands last given to a compare for use when we
    generate a scc or bcc insn.  */
 
