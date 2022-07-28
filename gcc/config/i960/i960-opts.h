@@ -24,7 +24,7 @@
 
 #ifndef I960_OPTS_H
 #define I960_OPTS_H
-
+#if 0
 /* Run-time compilation parameters selecting different hardware subsets.  */
 
 /* 960 architecture with floating-point.  */
@@ -53,7 +53,7 @@
 /* Nonzero if we should generate code for the CA processor.
    Enables different optimization strategies.  */
 #define	TARGET_FLAG_C_SERIES	0x10
-//#define	TARGET_C_SERIES 	(target_flags & TARGET_FLAG_C_SERIES)
+#define	TARGET_C_SERIES 	(target_flags & TARGET_FLAG_C_SERIES)
 
 /* Nonzero if we should generate leaf-procedures when we find them.
    You may not want to do this because leaf-proc entries are
@@ -98,19 +98,22 @@
 
 /* If no unaligned accesses are to be permitted.  */
 #define	TARGET_FLAG_STRICT_ALIGN 0x2000
-//#define	TARGET_STRICT_ALIGN	(target_flags & TARGET_FLAG_STRICT_ALIGN)
+#define	TARGET_STRICT_ALIGN	(target_flags & TARGET_FLAG_STRICT_ALIGN)
 
 /* For compatibility with iC960 assembler.  */
 #define	TARGET_FLAG_ASM_COMPAT	0x4000
-//#define	TARGET_ASM_COMPAT	(target_flags & TARGET_FLAG_ASM_COMPAT)
+#define	TARGET_ASM_COMPAT	(target_flags & TARGET_FLAG_ASM_COMPAT)
 
 /* For compatibility with the gcc960 v1.2 compiler.  Use the old structure
    alignment rules.  Also, turns on STRICT_ALIGNMENT.  */
 #define TARGET_FLAG_OLD_ALIGN	0x8000
-//#define TARGET_OLD_ALIGN	(target_flags & TARGET_FLAG_OLD_ALIGN)
+#define TARGET_OLD_ALIGN	(target_flags & TARGET_FLAG_OLD_ALIGN)
 
 /* Nonzero if long doubles are to be 64 bits.  Useful for soft-float targets
    if 80 bit long double support is missing.  */
 #define TARGET_FLAG_LONG_DOUBLE_64	0x10000
-//#define TARGET_LONG_DOUBLE_64	(target_flags & TARGET_FLAG_LONG_DOUBLE_64)
+#define TARGET_LONG_DOUBLE_64	(target_flags & TARGET_FLAG_LONG_DOUBLE_64)
+
+
+#endif
 #endif
