@@ -94,11 +94,11 @@ struct GTY(()) machine_function
   HOST_WIDE_INT args_size;
 
 };
-
+#if 0
 /* Save the operands last given to a compare for use when we
    generate a scc or bcc insn.  */
 
-rtx i960_compare_op0, i960_compare_op1;
+//rtx i960_compare_op0, i960_compare_op1;
 
 /* Used to implement #pragma align/noalign.  Initialized by OVERRIDE_OPTIONS
    macro in i960.h.  */
@@ -2992,6 +2992,7 @@ i960_function_arg_boundary (machine_mode mode, const_tree type) {
 //  ((CLASS) == FP_REGS ? 1 : TARGET_HARD_REGNO_NREGS (0, (MODE)))
 //#define TARGET_STARTING_FRAME_OFFSET 64
 static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
+#endif
 
 #undef  TARGET_OPTION_OVERRIDE
 #define TARGET_OPTION_OVERRIDE i960_option_override
