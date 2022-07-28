@@ -35,6 +35,7 @@ Boston, MA 02111-1307, USA.  */
 #include "tm_p.h"
 #include "diagnostic-core.h"
 
+#if 0
 /* Handle pragmas for compatibility with Intel's compilers.  */
 
 /* NOTE: ic960 R3.0 pragma align definition:
@@ -115,3 +116,4 @@ i960_pr_noalign (cpp_reader* pfile)
   i960_last_maxbitalignment = i960_maxbitalignment;
   i960_maxbitalignment = 8;
 }
+#endif

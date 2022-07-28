@@ -25,6 +25,7 @@ Boston, MA 02111-1307, USA.  */
 #ifndef GCC_I960_H
 #define GCC_I960_H
 #include "config/i960/i960-opts.h"
+#if 0
 /* Note that some other tm.h files may include this one and then override
    many of the definitions that relate to assembler syntax.  */
 /* Target CPU builtins.  */
@@ -1259,4 +1260,62 @@ extern enum insn_types i960_last_insn_type;
 /* Defined in reload.c, and used in insn-recog.c.  */
 
 //extern int rtx_equal_function_value_matters;
+#endif
+/* Standard register usage.  */
+
+/* Number of actual hardware registers.
+   The hardware registers are assigned numbers for the compiler
+   from 0 to just below FIRST_PSEUDO_REGISTER.
+   All registers that the compiler knows about must be given numbers,
+   even those that are not normally considered general registers.
+
+   Registers 0-15 are the global registers (g0-g15).
+   Registers 16-31 are the local registers (r0-r15).
+   Register 32-35 are the fp registers (fp0-fp3).
+   Register 36 is the condition code register.
+   Register 37 is unused.  */
+
+#define FIRST_PSEUDO_REGISTER 38
+
+/* 1 for registers that have pervasive standard uses and are not available
+   for the register allocator.  On 80960, this includes the frame pointer
+   (g15), the previous FP (r0), the stack pointer (r1), the return
+   instruction pointer (r2), and the argument pointer (g14).  */
+#define FIXED_REGISTERS  \
+ {0, 0, 0, 0, 0, 0, 0, 0,	\
+  0, 0, 0, 0, 0, 0, 1, 1,	\
+  1, 1, 1, 0, 0, 0, 0, 0,	\
+  0, 0, 0, 0, 0, 0, 0, 0,	\
+  0, 0, 0, 0, 1, 1}
+
+/* 1 for registers not available across function calls.
+   These must include the FIXED_REGISTERS and also any
+   registers that can be used without being saved.
+   The latter must include the registers where values are returned
+   and the register where structure-value addresses are passed.
+   Aside from that, you can include as many other registers as you like.  */
+
+/* On the 80960, note that:
+	g0..g3 are used for return values,
+	g0..g7 may always be used for parameters,
+	g8..g11 may be used for parameters, but are preserved if they aren't,
+	g12 is the static chain if needed, otherwise is preserved
+	g13 is the struct return ptr if used, or temp, but may be trashed,
+	g14 is the leaf return ptr or the arg block ptr otherwise zero,
+		must be reset to zero before returning if it was used,
+	g15 is the frame pointer,
+	r0 is the previous FP,
+	r1 is the stack pointer,
+	r2 is the return instruction pointer,
+	r3-r15 are always available,
+	r3 is clobbered by calls in functions that use the arg pointer
+	r4-r11 may be clobbered by the mcount call when profiling
+	r4-r15 if otherwise unused may be used for preserving global registers
+	fp0..fp3 are never available.  */
+#define CALL_USED_REGISTERS  \
+ {1, 1, 1, 1, 1, 1, 1, 1,	\
+  0, 0, 0, 0, 0, 1, 1, 1,	\
+  1, 1, 1, 0, 0, 0, 0, 0,	\
+  0, 0, 0, 0, 0, 0, 0, 0,	\
+  1, 1, 1, 1, 1, 1}
 #endif

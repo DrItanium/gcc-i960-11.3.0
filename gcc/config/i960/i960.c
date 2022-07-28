@@ -2992,7 +2992,6 @@ i960_function_arg_boundary (machine_mode mode, const_tree type) {
 //  ((CLASS) == FP_REGS ? 1 : TARGET_HARD_REGNO_NREGS (0, (MODE)))
 //#define TARGET_STARTING_FRAME_OFFSET 64
 static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
-#endif
 
 #undef  TARGET_OPTION_OVERRIDE
 #define TARGET_OPTION_OVERRIDE i960_option_override
@@ -3036,6 +3035,8 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_ADDRESS_COST i960_address_cost
 #undef TARGET_BUILD_BUILTIN_VA_LIST
 #define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
+
+#endif
 
 struct gcc_target targetm = TARGET_INITIALIZER;
 #include "gt-i960.h"
