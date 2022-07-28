@@ -243,8 +243,8 @@ extern int i960_last_maxbitalignment;
 #define TARGET_LONG_DOUBLE_64	(target_flags & TARGET_FLAG_LONG_DOUBLE_64)
 
 #if 0
+
 extern int target_flags;
-#endif
 /* Macro to define tables used to set the flags.
    This is a list in braces of pairs in braces,
    each pair being { "NAME", VALUE }
@@ -347,7 +347,6 @@ extern int target_flags;
     SUBTARGET_SWITCHES                                                  \
     { "", TARGET_DEFAULT,						\
 	NULL}}
-#if 0
 /* This are meant to be redefined in the host dependent files */
 #define SUBTARGET_SWITCHES
 

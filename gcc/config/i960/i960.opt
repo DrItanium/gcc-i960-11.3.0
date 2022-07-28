@@ -1,0 +1,64 @@
+; Options for the i960 port of the compiler.
+
+; Copyright (C) 2022 Joshua Scoggins
+;
+; This file is part of GCC.
+;
+; GCC is free software; you can redistribute it and/or modify it under
+; the terms of the GNU General Public License as published by the Free
+; Software Foundation; either version 3, or (at your option) any later
+; version.
+;
+; GCC is distributed in the hope that it will be useful, but WITHOUT ANY
+; WARRANTY; without even the implied warranty of MERCHANTABILITY or
+; FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+; for more details.
+;
+; You should have received a copy of the GNU General Public License
+; along with GCC; see the file COPYING3.  If not see
+; <http://www.gnu.org/licenses/>.
+
+HeaderInclude
+config/i960/i960-opts.h
+
+mnumerics
+Target Mask(NUMERICS)
+Enable i960 Numerics Extensions (hardware floating point + BCD)
+
+msoft-float
+Target RejectNegative InverseMask(TARGET_FLAG_NUMERICS)
+
+mprotected
+Target Mask(PROTECTED)
+Enable i960 Protected Extensions (OS Scheduling + String operations)
+
+mno-protected
+Target InverseMask(PROTECTED)
+Enable i960 Protected Extensions
+
+mka
+Target Mask(K_SERIES) Mask(COMPLEX_ADDR)
+Target i960 KA CPU
+
+mkb
+Target Mask(K_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS)
+Target i960 KB CPU
+
+mkb
+Target Mask(K_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS) Mask(PROTECTED)
+Target i960 KC CPU (Not real)
+
+msa
+Target Mask(K_SERIES) Mask(COMPLEX_ADDR)
+Target i960 SA CPU
+
+msb
+Target Mask(K_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS)
+Target i960 SB CPU
+
+msc
+Target Mask(K_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS) Mask(PROTECTED)
+Target i960 SC CPU
+
+
+; @todo add support for other cpus (MC, Cx, Jx, Hx, Rx, Vx)
