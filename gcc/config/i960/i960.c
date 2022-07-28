@@ -161,39 +161,39 @@ i960_option_override (void)
 void
 i960_initialize ()
 {
-    if (TARGET_K_SERIES && TARGET_C_SERIES) {
-        warning (0, "conflicting architectures defined - using C series");
-        target_flags &= ~TARGET_FLAG_K_SERIES;
-    }
-    if (TARGET_K_SERIES && TARGET_MC) {
-        warning (0, "conflicting architectures defined - using K series");
-        target_flags &= ~TARGET_FLAG_MC;
-    }
-    if (TARGET_C_SERIES && TARGET_MC) {
-        warning (0, "conflicting architectures defined - using C series");
-        target_flags &= ~TARGET_FLAG_MC;
-    }
-    if (TARGET_IC_COMPAT3_0) {
-        flag_short_enums = 1;
-        flag_signed_char = 1;
-        target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
-        if (TARGET_IC_COMPAT2_0) {
-            warning (0, "iC2.0 and iC3.0 are incompatible - using iC3.0");
-            target_flags &= ~TARGET_FLAG_IC_COMPAT2_0;
-        }
-    }
-    if (TARGET_IC_COMPAT2_0) {
-        flag_signed_char = 1;
-        target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
-    }
+    //if (TARGET_K_SERIES && TARGET_C_SERIES) {
+    //    warning (0, "conflicting architectures defined - using C series");
+    //    target_flags &= ~TARGET_FLAG_K_SERIES;
+    //}
+    //if (TARGET_K_SERIES && TARGET_MC) {
+    //    warning (0, "conflicting architectures defined - using K series");
+    //    target_flags &= ~TARGET_FLAG_MC;
+    //}
+    //if (TARGET_C_SERIES && TARGET_MC) {
+    //    warning (0, "conflicting architectures defined - using C series");
+    //    target_flags &= ~TARGET_FLAG_MC;
+    //}
+    //if (TARGET_IC_COMPAT3_0) {
+    //    flag_short_enums = 1;
+    //    flag_signed_char = 1;
+    //    target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
+    //    if (TARGET_IC_COMPAT2_0) {
+    //        warning (0, "iC2.0 and iC3.0 are incompatible - using iC3.0");
+    //        target_flags &= ~TARGET_FLAG_IC_COMPAT2_0;
+    //    }
+    //}
+    //if (TARGET_IC_COMPAT2_0) {
+    //    flag_signed_char = 1;
+    //    target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
+    //}
 
-    if (TARGET_IC_COMPAT2_0) {
-        i960_maxbitalignment = 8;
-        i960_last_maxbitalignment = 128;
-    } else {
-        i960_maxbitalignment = 128;
-        i960_last_maxbitalignment = 8;
-    }
+    //if (TARGET_IC_COMPAT2_0) {
+    //    i960_maxbitalignment = 8;
+    //    i960_last_maxbitalignment = 128;
+    //} else {
+    //    i960_maxbitalignment = 128;
+    //    i960_last_maxbitalignment = 8;
+    //}
 }
 
 /* Return true if OP can be used as the source of an fp move insn.  */
@@ -926,16 +926,20 @@ i960_output_ldconst (rtx dst, rtx src)
       /* ldconst	0..31,X		-> 	mov	0..31,X  */
       if (rsrc1 < 32)
 	{
+#if 0
 	  if (i960_last_insn_type == I_TYPE_REG && TARGET_C_SERIES)
 	    return "lda	%1,%0";
+#endif
 	  return "mov	%1,%0";
 	}
 
       /* ldconst	32..63,X	->	add	31,nn,X  */
       if (rsrc1 < 63)
 	{
+#if 0
 	  if (i960_last_insn_type == I_TYPE_REG && TARGET_C_SERIES)
 	    return "lda	%1,%0";
+#endif
 	  operands[1] = GEN_INT (rsrc1 - 31);
 	  output_asm_insn ("addo\t31,%1,%0\t# ldconst %3,%0", operands);
 	  return "";
@@ -1182,7 +1186,7 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
       fprintf (file, "\tlda    Li960R%d,g14\n", ret_label);
       fprintf (file, "%s.lf:\n", (name[0] == '*' ? &name[1] : name));
       fprintf (file, "\tmov    g14,g%d\n", i960_leaf_ret_reg);
-
+#if 0
       if (TARGET_C_SERIES)
 	{
 	  fprintf (file, "\tlda    0,g14\n");
@@ -1190,9 +1194,13 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
 	}
       else
 	{
+#endif
 	  fprintf (file, "\tmov    0,g14\n");
 	  i960_last_insn_type = I_TYPE_REG;
+#if 0
 	}
+#endif
+
     }
   else
     {
@@ -1805,9 +1813,12 @@ i960_print_operand (FILE* file, rtx x, int code)
     {
     case 'B':
       /* Branch or jump, depending on assembler.  */
+#if 0
       if (TARGET_ASM_COMPAT)
 	fputs ("j", file);
       else
+#endif
+          // only support binutils
 	fputs ("b", file);
       break;
 
@@ -1854,6 +1865,8 @@ i960_print_operand (FILE* file, rtx x, int code)
       else abort ();
       break;
 
+      /// @todo support branch prediction hints
+#if 0
     case '+':
       /* For conditional branches, substitute ".t" or ".f".  */
       if (TARGET_BRANCH_PREDICT)
@@ -1866,6 +1879,7 @@ i960_print_operand (FILE* file, rtx x, int code)
 	    }
 	}
       break;
+#endif
 
     case 0:
       output_addr_const (file, x);
@@ -2220,10 +2234,13 @@ i960_improve_align (rtx base, rtx offset, int size)
 
   /* We know the size of the request.  If strict align is not enabled, we
      can guess that the alignment is OK for the requested size.  */
-
+// strict align is always on so ignore this
+/// @todo fix this if we go back to supporting non strict alignment
+#if 0
   if (! TARGET_STRICT_ALIGN)
     if ((j = (i960_object_bytes_bitalign (size) / BITS_PER_UNIT)) > i)
       i = j;
+#endif
 
   return (i >= size);
 }
@@ -2377,8 +2394,8 @@ i960_round_align (int align, tree type)
   int new_align;
   tree tsize;
 
-  if (TARGET_OLD_ALIGN || TYPE_PACKED (type))
-    return align;
+  //if (TARGET_OLD_ALIGN || TYPE_PACKED (type))
+  //  return align;
   if (TREE_CODE (type) != RECORD_TYPE)
     return align;
   tsize = TYPE_SIZE (type);
@@ -2742,7 +2759,8 @@ i960_rtx_costs (rtx x, machine_mode, int code, int outer_code, int* total, bool)
     case CONST:
     case LABEL_REF:
     case SYMBOL_REF:
-      *total = (TARGET_C_SERIES ? 6 : 8);
+      //*total = (TARGET_C_SERIES ? 6 : 8);
+      *total = 8;
       return true;
 
     case CONST_DOUBLE:
