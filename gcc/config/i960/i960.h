@@ -89,6 +89,16 @@
 
 #undef WCHAR_TYPE
 #define WCHAR_TYPE "int"
+
+/* number of bytes we can move from memory to memory in one instruction */
+/* movq */
+#define MOVE_MAX 16
+
+/* Documentation in the old port states that it is set to one after reports of
+ * slowness. This does not surprise me since the i960Kx has a 32-bit data bus
+ * and the i960Sx has a 16-bit data bus. These two chips use a multiplexed bus
+ * design so accessing individual bytes from RAM is _SLOW_.*/
+#define SLOW_BYTE_ACCESS 1
 /* Standard register usage.  */
 
 /* Number of actual hardware registers.
@@ -132,9 +142,9 @@
 	g14 is the leaf return ptr or the arg block ptr otherwise zero,
 		must be reset to zero before returning if it was used,
 	g15 is the frame pointer,
-	r0 is the previous FP,
-	r1 is the stack pointer,
-	r2 is the return instruction pointer,
+	r0 is the previous FP,(pfp)
+	r1 is the stack pointer, (sp)
+	r2 is the return instruction pointer, (rip)
 	r3-r15 are always available,
 	r3 is clobbered by calls in functions that use the arg pointer
 	r4-r11 may be clobbered by the mcount call when profiling
