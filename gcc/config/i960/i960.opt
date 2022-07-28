@@ -18,8 +18,10 @@
 ; along with GCC; see the file COPYING3.  If not see
 ; <http://www.gnu.org/licenses/>.
 
+; this is a separate file to include
+; @TODO add this
 HeaderInclude
-config/i960/i960-opts.h
+config/i960/i960-opts.h 
 
 mnumerics
 Target Mask(NUMERICS)
