@@ -56,6 +56,10 @@
 /* Boundary (in *bits*) on which stack pointer should be aligned.  */
 /* On the i960 it depends on the implementation when performing a call */
 #define STACK_BOUNDARY 128
+/* Unsure what the difference is */
+#define PREFERRED_STACK_BOUNDARY 128
+/* The widest mode that BLKmode objects can be promoted to. */
+#define MAX_FIXED_MODE_SIZE 64
 /*
  * While the Sx and Kx chips support unaligned accesses, I do not want the
  * compiler to generate such things. The i960 has to generate extra word
@@ -64,6 +68,27 @@
  */
 #define STRICT_ALIGNMENT 1
 
+
+// source language data types 
+// taken from gcc 3.4.6 black box testing
+#define INT_TYPE_SIZE 32
+#define SHORT_TYPE_SIZE 16
+#define LONG_TYPE_SIZE 32
+#define LONG_LONG_TYPE_SIZE 64
+#define FLOAT_TYPE_SIZE 32
+#define DOUBLE_TYPE_SIZE 64
+#define LONG_DOUBLE_TYPE_SIZE 128
+#define WCHAR_TYPE_SIZE 32
+
+// once again, taken through observation
+#undef SIZE_TYPE
+#define SIZE_TYPE "unsigned long"
+
+#undef PTRDIFF_TYPE
+#define PTRDIFF_TYPE "long int"
+
+#undef WCHAR_TYPE
+#define WCHAR_TYPE "int"
 /* Standard register usage.  */
 
 /* Number of actual hardware registers.
