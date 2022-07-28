@@ -1,5 +1,5 @@
 /* Target Definitions for Intel i960 
-   Copyright (C) 2022 Joshua Scoggins
+   Copyright (C) 2022 Joshua Scoggins (with values taken from gcc 3.4.6 version)
 
    This file is part of GCC.
 
@@ -16,28 +16,34 @@
    You should have received a copy of the GNU General Public License
    along with GCC; see the file COPYING3.  If not see
    <http://www.gnu.org/licenses/>.  */
-
+         
 #ifndef GCC_I960_H
 #define GCC_I960_H
 #include "config/i960/i960-opts.h"
+#define TARET_CPU_CPP_BUILTINS() \
+    do  \
+{ \
+    builtin_define("__i960__"); \
+    if (TARGET_NUMERICS) { \
+        builtin_define("__i960_numerics__"); \
+    } \
+    if (TARGET_PROTECTED) { \
+        builtin_define("__i960_protected__"); \
+    } \
+    if (TARGET_CORE_EXTENDED) { \
+        builtin_define("__i960_core_extended__"); \
+    } \
+    builtin_assert ("cpu=i960"); \
+    builtin_assert ("machine=i960"); \
+} \
+        while (0)
 /* Target machine storage layout.  */
 
-/* Define this as 1 if `char' should by default be signed; else as 0.  */
 #define DEFAULT_SIGNED_CHAR 0
-
-/* Define this if most significant bit is lowest numbered
-   in instructions that operate on numbered bit-fields.  */
 #define BITS_BIG_ENDIAN 0
-
-/* Define this if most significant byte of a word is the lowest numbered.
-   The i960 case be either big endian or little endian.  We only support
-   little endian, which is the most common.  */
-#define BYTES_BIG_ENDIAN 0
-
-/* Define this if most significant word of a multiword number is lowest
-   numbered.  */
+// while the i960 supports big endian, I will never support that feature
+#define BYTES_BIG_ENDIAN 0 
 #define WORDS_BIG_ENDIAN 0
-
 #define BITS_PER_WORD 32
 #define UNITS_PER_WORD 4
 #define POINTER_SIZE 32
@@ -47,7 +53,6 @@
 #define FUNCTION_BOUNDARY 128
 /* Allocation boundary (in *bits*) for storing arguments in argument list.  */
 #define PARM_BOUNDARY 32
-
 /* Boundary (in *bits*) on which stack pointer should be aligned.  */
 /* On the i960 it depends on the implementation when performing a call */
 #define STACK_BOUNDARY 128
@@ -76,7 +81,7 @@
 #define FIRST_PSEUDO_REGISTER 38
 
 /* 1 for registers that have pervasive standard uses and are not available
-   for the register allocator.  On 80960, this includes the frame pointer
+   for the register allocator.  On i960, this includes the frame pointer
    (g15), the previous FP (r0), the stack pointer (r1), the return
    instruction pointer (r2), and the argument pointer (g14).  */
 #define FIXED_REGISTERS  \
@@ -93,7 +98,7 @@
    and the register where structure-value addresses are passed.
    Aside from that, you can include as many other registers as you like.  */
 
-/* On the 80960, note that:
+/* On the i960, note that:
 	g0..g3 are used for return values,
 	g0..g7 may always be used for parameters,
 	g8..g11 may be used for parameters, but are preserved if they aren't,
@@ -137,7 +142,7 @@
    For any two classes, it is very desirable that there be another
    class that represents their union.  */
    
-/* The 80960 has four kinds of registers, global, local, floating point,
+/* The i960 has four kinds of registers, global, local, floating point,
    and condition code.  The cc register is never allocated, so no class
    needs to be defined for it.  */
 
@@ -148,12 +153,9 @@ enum reg_class {
     LOCAL_OR_GLOBAL_REGS,
     FP_REGS, 
     ALL_REGS, 
+    /// @todo add support for including floating point registers in the general set if numerics
     LIM_REG_CLASSES 
 };
-
-/* 'r' includes floating point registers if TARGET_NUMERICS.  'd' never
-   does.  */
-#define	GENERAL_REGS	((TARGET_NUMERICS) ? ALL_REGS : LOCAL_OR_GLOBAL_REGS)
 
 #define N_REG_CLASSES (int) LIM_REG_CLASSES
 #endif
