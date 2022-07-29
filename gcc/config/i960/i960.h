@@ -300,4 +300,7 @@ struct i960CumulativeArguments {
  * Base register for access to arguments of the function  (g14)
  */
 #define ARG_POINTER_REGNUM 14
+
+/* According to the calling convention, g0-g11 are function arguments */
+#define FUNCTION_ARG_REGNO_P(N) ((N) < 12)
 #endif
