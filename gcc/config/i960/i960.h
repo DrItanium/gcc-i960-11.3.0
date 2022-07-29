@@ -353,4 +353,15 @@ struct i960CumulativeArguments {
  */
 #define FIRST_PARM_OFFSET(FNDECL) (0)
 
+/*
+ * Make sure we align to 2**LOG bytes. The old code just used .align but since
+ * I'm only supporting gas, we should just use .p2align
+ */
+#define ASM_OUTPUT_ALIGN(FILE, LOG) \
+    do { \
+        if ((LOG) != 0) { \
+            fprintf(FILE, "\t.p2align %d\n", (LOG)); \
+        } \
+    } while (0)
+
 #endif // end file
