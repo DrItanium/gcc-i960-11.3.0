@@ -292,4 +292,12 @@ struct i960CumulativeArguments {
  * memory address (abase and index). 
  */
 #define MAX_REGS_PER_ADDRESS 2
+
+/* Base register for access to local variables of the function.  */
+#define FRAME_POINTER_REGNUM 15
+
+/* 
+ * Base register for access to arguments of the function  (g14)
+ */
+#define ARG_POINTER_REGNUM 14
 #endif
