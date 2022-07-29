@@ -25,7 +25,7 @@ Boston, MA 02111-1307, USA.  */
 #ifndef GCC_I960_PROTOS_H
 #define GCC_I960_PROTOS_H
 
-
+#if 0
 #ifdef RTX_CODE
 //extern struct rtx_def *i960_legitimize_address (rtx, rtx, enum machine_mode);
 /* Define the function that build the compare insn for scc and bcc.  */
@@ -83,4 +83,5 @@ extern int i960_bitstr (unsigned int, int *, int *);
 extern int i960_process_pragma (int(*)(void), void(*)(int), const char *);
 extern int i960_object_bytes_bitalign (int);
 extern void i960_initialize (void);
+#endif
 #endif /* ! GCC_I960_PROTOS_H  */

@@ -20,7 +20,7 @@
 #ifndef GCC_I960_H
 #define GCC_I960_H
 #include "config/i960/i960-opts.h"
-#define TARET_CPU_CPP_BUILTINS() \
+#define TARGET_CPU_CPP_BUILTINS() \
     do  \
 { \
     builtin_define("__i960__"); \
@@ -240,4 +240,40 @@ enum reg_class {
     { 0x00000000, 0x0000000F }, \
     { 0xFFFFFFFF, 0x0000003F }, \
 }
+
+/* The same information, inverted:
+   Return the class number of the smallest class containing
+   reg number REGNO.  This could be a conditional expression
+   or could index an array.  */
+
+#define REGNO_REG_CLASS(REGNO)	\
+  ((REGNO) < 16 ? GLOBAL_REGS	\
+   : (REGNO) < 32 ? LOCAL_REGS	\
+   : (REGNO) < 36 ? FP_REGS	\
+   : NO_REGS)
+
+/* In 3.4.6, the cumulative args was a structure which kept track of the number
+ * of stack and register parameters seen so far.
+ * 
+ */ 
+struct i960CumulativeArguments {
+    int NumberOfRegisterParameters;
+    int NumberOfStackParameters;
+};
+#define CUMULATIVE_ARGS i960CumulativeArguments
+
+#define INIT_CUMULATIVE_ARGS(CUM, FNTYPE, LIBNAME, FNDECL, N_NAMED_ARGS) \
+    do { \
+        (CUM).NumberOfRegisterParameters = 0; \
+        (CUM).NumberOfStackParameters = 0; \
+    } while (0)
+
+/*
+ * Length in units of the trampoline for entering a nested function
+ */
+#define TRAMPOLINE_SIZE 20
+
+/* Register to use for pushing function arguments */
+#define STACK_POINTER_REGNUM 17
+
 #endif
