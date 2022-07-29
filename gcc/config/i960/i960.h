@@ -364,4 +364,37 @@ struct i960CumulativeArguments {
         } \
     } while (0)
 
+/*
+ * Specify the machine mode that this machine uses for the index in the
+ * tablejump instruction.
+ */
+#define CASE_VECTOR_MODE SImode
+
+/*
+ * Output to assembler file text saying following lines may contain character
+ * constants, extra white space, comments, etc.
+ *
+ * We are not going to be using this
+ */
+#define ASM_APP_ON ""
+
+/*
+ * Output to assembler file text saying following lines no longer contain
+ * unusual constructs.
+ */
+
+#define ASM_APP_OFF ""
+
+/*
+ * Define the offset between two registers, one to be eliminated, and the other
+ * its replacement, at the start of a routine.
+ *
+ * Since the stack grows upweard on the i960, this must be a negative number.
+ * This includes the 64 byte hardware register save area and the size of the
+ * frame
+ */
+#define INITIAL_ELIMINATION_OFFSET(FROM, TO, OFFSET) \
+    do { \
+        (OFFSET) = i960_initial_elimination_offset((FROM), (TO)); \
+    } while (0)
 #endif // end file

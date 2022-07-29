@@ -1209,21 +1209,6 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
     }
 }
 
-/* Compute and return the frame size.  */
-
-int
-i960_compute_frame_size (poly_int64 size)
-{
-  int actual_fsize;
-  int outgoing_args_size = crtl->outgoing_args_size;
-
-  /* The STARTING_FRAME_OFFSET is totally hidden to us as far
-     as size is concerned.  */
-  actual_fsize = (size + 15) & -16;
-  actual_fsize += (outgoing_args_size + 15) & -16;
-
-  return actual_fsize;
-}
 
 /* Here register group is range of registers which can be moved by
    one i960 instruction.  */
@@ -3037,6 +3022,26 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
 
 #endif
+/* Compute and return the frame size.  */
+
+int
+i960_compute_frame_size (poly_int64 size)
+{
+  int actual_fsize;
+  int outgoing_args_size = crtl->outgoing_args_size;
+
+  /* The STARTING_FRAME_OFFSET is totally hidden to us as far
+     as size is concerned.  */
+  actual_fsize = (size + 15) & -16;
+  actual_fsize += (outgoing_args_size + 15) & -16;
+
+  return actual_fsize;
+}
+
+HOST_WIDE_INT 
+i960_initial_elimination_offset(int from, int to) {
+    return -(64 + i960_compute_frame_size(get_frame_size()));
+}
 
 struct gcc_target targetm = TARGET_INITIALIZER;
 #include "gt-i960.h"

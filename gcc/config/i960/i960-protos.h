@@ -84,4 +84,6 @@ extern int i960_process_pragma (int(*)(void), void(*)(int), const char *);
 extern int i960_object_bytes_bitalign (int);
 extern void i960_initialize (void);
 #endif
+extern HOST_WIDE_INT i960_initial_elimination_offset(int, int);
+extern int i960_compute_frame_size (poly_int64);
 #endif /* ! GCC_I960_PROTOS_H  */
