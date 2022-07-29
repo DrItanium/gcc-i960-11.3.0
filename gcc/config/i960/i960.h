@@ -251,7 +251,7 @@ enum reg_class {
    : (REGNO) < 32 ? LOCAL_REGS	\
    : (REGNO) < 36 ? FP_REGS	\
    : NO_REGS)
-
+#define GENERAL_REGS ((TARGET_NUMERICS) ? ALL_REGS : LOCAL_OR_GLOBAL_REGS)
 /* In 3.4.6, the cumulative args was a structure which kept track of the number
  * of stack and register parameters seen so far.
  * 
@@ -276,4 +276,20 @@ struct i960CumulativeArguments {
 /* Register to use for pushing function arguments */
 #define STACK_POINTER_REGNUM 17
 
+/*
+ * Specify the machine mode that pointer have. After RTL generation, the
+ * compiler makes no further distinction between pointers and any other objects
+ * of this machine mode.
+ *
+ * Taken from 3.4.6
+ */
+#define Pmode SImode
+
+/*
+ * Maximum number of registers that can appear in a valid memory address.
+ * As I understand it, this is a reference to MEM type instructions and how
+ * MEMB format operations can use up to two registers to generate a 32-bit
+ * memory address (abase and index). 
+ */
+#define MAX_REGS_PER_ADDRESS 2
 #endif
