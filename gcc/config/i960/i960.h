@@ -322,5 +322,35 @@ struct i960CumulativeArguments {
  */
 #define FUNCTION_MODE SImode
 
+#define BASE_REG_CLASS LOCAL_OR_GLOBAL_REGS
 
-#endif
+/*
+ * According to the old code, this is the same as the BASE_REG_CLASS for future
+ * purposes. But! If you look in the i960 manuals, you'll see that you can use
+ * any register as an "index" register. You can use any register for abase as
+ * well. Thus I am going to make them the same.
+ */
+#define INDEX_REG_CLASS LOCAL_OR_GLOBAL_REGS
+
+/* These assume that REGNO is a hard or pseudo reg number.
+   They give nonzero only if REGNO is a hard reg of the suitable class
+   or a pseudo reg currently allocated to a suitable hard reg.
+   Since they use reg_renumber, they are safe only once reg_renumber
+   has been allocated, which happens in reginfo.c during register allocation. 
+
+   Taken from the 3.4.6 implementation with extra and accurate documentation.
+   */
+
+#define REGNO_OK_FOR_INDEX_P(REGNO) \
+  ((REGNO) < 32 || (unsigned) reg_renumber[REGNO] < 32)
+#define REGNO_OK_FOR_BASE_P(REGNO) \
+  ((REGNO) < 32 || (unsigned) reg_renumber[REGNO] < 32)
+#define REGNO_OK_FOR_FP_P(REGNO) \
+  ((REGNO) < 36 || (unsigned) reg_renumber[REGNO] < 36)
+
+/* 
+ * offset of the first parameter from the argument pointer register value
+ */
+#define FIRST_PARM_OFFSET(FNDECL) (0)
+
+#endif // end file
