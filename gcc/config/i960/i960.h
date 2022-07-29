@@ -303,4 +303,24 @@ struct i960CumulativeArguments {
 
 /* According to the calling convention, g0-g11 are function arguments */
 #define FUNCTION_ARG_REGNO_P(N) ((N) < 12)
+
+/* 
+ * Register elimination definitions 
+ *
+ * An array of structures. Each structure initializes one pair of eliminable
+ * registers. The "from" register number is given first, followed by "to."
+ * Eliminations of the same "from" register are listed in order of preference.
+ *
+ * In this case, it is the frame pointer being replaced with references to the
+ * stack pointer.
+ */
+#define ELIMINABLE_REGS {{ FRAME_POINTER_REGNUM, STACK_POINTER_REGNUM }}
+
+/*
+ * A function address in a call instruction is a byte address so give the MEM
+ * rtx a byte's mode (from 3.4.6 impl)
+ */
+#define FUNCTION_MODE SImode
+
+
 #endif
