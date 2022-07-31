@@ -20,7 +20,7 @@
 #ifndef GCC_I960_H
 #define GCC_I960_H
 #include "config/i960/i960-opts.h"
-#if 0
+
 #define TARGET_CPU_CPP_BUILTINS() \
     do  \
 { \
@@ -38,19 +38,6 @@
     builtin_assert ("machine=i960"); \
 } \
         while (0)
-#else
-#define TARGET_CPU_CPP_BUILTINS() \
-    do  \
-{ \
-    builtin_define("__i960__"); \
-    if (TARGET_NUMERICS) { \
-        builtin_define("__i960_numerics__"); \
-    } \
-    builtin_assert ("cpu=i960"); \
-    builtin_assert ("machine=i960"); \
-} \
-        while (0)
-#endif
 /* Target machine storage layout.  */
 
 #define DEFAULT_SIGNED_CHAR 0
@@ -419,4 +406,8 @@ struct i960CumulativeArguments {
 #define FUNCTION_PROFILER(STREAM, LABELNO) i960_output_function_profiler(STREAM, LABELNO)
 
 #define GLOBAL_ASM_OP "\t.global\t"
+#define TEXT_SECTION_ASM_OP "\t.text"
+#define DATA_SECTION_ASM_OP "\t.data"
+#define BSS_SECTION_ASM_OP "\t.bss"
+#define SBSS_SECTION_ASM_OP "\t.sbss"
 #endif // end file
