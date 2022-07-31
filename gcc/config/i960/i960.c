@@ -224,11 +224,6 @@ i960_legitimate_address_p (machine_mode mode, rtx addr, bool strict_p)
     }
 }
 
-void 
-i960_expand_move (machine_mode mode, rtx op0, rtx op1) {
-    if ((GET_CODE(op0) == MEM) && (GET_CODE(op1) != REG) 
-            && (op1 != const0_rtx || 
-}
 
 #undef TARGET_FUNCTION_VALUE 
 #define TARGET_FUNCTION_VALUE i960_function_value
