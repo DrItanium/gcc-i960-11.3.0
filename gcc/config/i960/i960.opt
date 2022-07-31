@@ -23,10 +23,10 @@
 HeaderInclude
 config/i960/i960-opts.h
 
-; mnumerics
-; Target RejectNegative Mask(NUMERICS)
-; Enable i960 Numerics Extensions (hardware floating point + BCD)
-; 
+mnumerics
+Target RejectNegative Mask(NUMERICS)
+Enable i960 Numerics Extensions (hardware floating point + BCD)
+ 
 ; mnew-core
 ; Target RejectNegative Mask(CORE_EXTENDED)
 ; Enable Newer i960 Core Instructions (Not supported on Sx/Kx series CPUs)

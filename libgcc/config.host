@@ -130,7 +130,7 @@ i[34567]86-*-*)
 x86_64-*-*)
 	cpu_type=i386
 	;;
-i960-*-*)
+i960-*-*) cpu_type=i960
 	;;
 ia64-*-*)
 	;;
@@ -894,8 +894,7 @@ x86_64-*-mingw*)
 	fi
 	;;
 i960*-*-elf*)
-	cpu_type=i960
-	tmake_file="${tmake_file} i960/t-i960 t-softfp-sfdf t-softfp"
+	tmake_file="t-softfp-sfdf t-softfp i960/t-i960"
 	;;
 ia64*-*-elf*)
 	extra_parts="$extra_parts crtbeginS.o crtendS.o crtfastmath.o"

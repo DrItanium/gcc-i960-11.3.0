@@ -17,8 +17,8 @@
 # along with GCC; see the file COPYING3.  If not see
 # <http://www.gnu.org/licenses/>.
 
-#LIB1ASMSRC = 
-#LIB1ASMFUNCS = 
+LIB1ASMSRC = 
+LIB1ASMFUNCS = 
 #MULTILIB_OPTIONS=mnumerics/msoft-float mlong-double-64
 #MULTILIB_DIRNAMES=float soft-float ld64
 #MULTILIB_MATCHES=mnumerics=msb mnumerics=msc mnumerics=mkb mnumerics=mkc mnumerics=mmc mnumerics=mcb mnumerics=mcc mnumerics=mjf msoft-float=msa msoft-float=mka msoft-float=mca msoft-float=mcf
@@ -26,7 +26,7 @@
 #LIBGCC = stmp-multilib
 #INSTALL_LIBGCC = install-multilib
 #
-LIB2ADD = fp-bit.c dp-bit.c xp-bit.c
+LIB2ADD += fp-bit.c dp-bit.c xp-bit.c
 
 dp-bit.c: $(srcdir)/config/fp-bit.c
 	echo '#define FLOAT_BIT_ORDER_MISMATCH' > dp-bit.c

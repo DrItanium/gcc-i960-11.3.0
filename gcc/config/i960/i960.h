@@ -43,6 +43,9 @@
     do  \
 { \
     builtin_define("__i960__"); \
+    if (TARGET_NUMERICS) { \
+        builtin_define("__i960_numerics__"); \
+    } \
     builtin_assert ("cpu=i960"); \
     builtin_assert ("machine=i960"); \
 } \
