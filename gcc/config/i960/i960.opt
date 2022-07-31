@@ -23,23 +23,23 @@
 HeaderInclude
 config/i960/i960-opts.h
 
-mnumerics
-Target Mask(NUMERICS)
-Enable i960 Numerics Extensions (hardware floating point + BCD)
+; mnumerics
+; Target RejectNegative Mask(NUMERICS)
+; Enable i960 Numerics Extensions (hardware floating point + BCD)
+; 
+; mnew-core
+; Target RejectNegative Mask(CORE_EXTENDED)
+; Enable Newer i960 Core Instructions (Not supported on Sx/Kx series CPUs)
+; 
+; mprotected
+; Target Mask(PROTECTED)
+; Enable i960 Protected Extensions (OS Scheduling + String operations)
 
-mnew-core
-Target Mask(CORE_EXTENDED)
-Enable Newer i960 Core Instructions (Not supported on Sx/Kx series CPUs)
-
-mprotected
-Target Mask(PROTECTED)
-Enable i960 Protected Extensions (OS Scheduling + String operations)
-
-mtail-call
-Target Mask(TAILCALL)
-
-mleaf-procedures
-Target Mask(LEAFPROC)
+; mtail-call
+; Target Mask(TAILCALL)
+; 
+; mleaf-procedures
+; Target Mask(LEAFPROC)
 
 ;mka
 ;Target Mask(K_SERIES) Mask(COMPLEX_ADDR)

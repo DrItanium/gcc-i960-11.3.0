@@ -20,6 +20,7 @@
 #ifndef GCC_I960_H
 #define GCC_I960_H
 #include "config/i960/i960-opts.h"
+#if 0
 #define TARGET_CPU_CPP_BUILTINS() \
     do  \
 { \
@@ -37,6 +38,16 @@
     builtin_assert ("machine=i960"); \
 } \
         while (0)
+#else
+#define TARGET_CPU_CPP_BUILTINS() \
+    do  \
+{ \
+    builtin_define("__i960__"); \
+    builtin_assert ("cpu=i960"); \
+    builtin_assert ("machine=i960"); \
+} \
+        while (0)
+#endif
 /* Target machine storage layout.  */
 
 #define DEFAULT_SIGNED_CHAR 0
