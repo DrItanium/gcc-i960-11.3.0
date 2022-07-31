@@ -266,28 +266,10 @@ i960_hard_regno_mode_ok(int num, machine_mode mode) {
 } 
 
 //#define __HARD_REGNO_MODE_OK(REGNO, MODE) i960_hard_regno_mode_ok ((REGNO), (MODE))
-bool
-i960_expand_move (machine_mode mode, rtx op0, rtx op1) {
-    if ((GET_CODE(operands[0]) == MEM) && (GET_CODE(operands[1]) != REG) 
-            && (operands[1] != const0_rtx || crtl->args.size.to_constant()
-                || cfun->stdarg || currently_expanding_to_rtl)) {
-        operands[1] = force_reg (mode, operands[1]);
-    }
-    if (GET_MODE_SIZE(mode) > UNITS_PER_WORD 
-            && (GET_CODE(operands[0]) == MEM
-            || (GET_CODE(operands[0]) == REG 
-            && REGNO(operands[0]) >= FIRST_PSEUDO_REGISTER))
-            && GET_CODE (operands[1]) < FIRST_PSEUDO_REGISTER
-            && ! i960_hard_regno_mode_ok(REGNO (operands[1]), mode)) {
-
-        emit_insn (gen_rtx_PARALLEL(VOIDmode, 
-                    gen_rtvec (2,
-                        gen_rtx_SET (VOIDmode, operands[0], operands[1]),
-                        gen_rtx_CLOBBER (VOIDmode,
-                            gen_rtx_SCRATCH (Pmode)))));
-        return true;
-    }
-    return false;
+void
+i960_expand_move (machine_mode mode, rtx* operands) {
+#if 0
+#endif
 }
 
 #undef TARGET_FUNCTION_VALUE 
