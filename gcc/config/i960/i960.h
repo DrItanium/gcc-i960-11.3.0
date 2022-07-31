@@ -82,7 +82,7 @@
 
 // once again, taken through observation
 #undef SIZE_TYPE
-#define SIZE_TYPE "unsigned long"
+#define SIZE_TYPE "long unsigned int"
 
 #undef PTRDIFF_TYPE
 #define PTRDIFF_TYPE "long int"
