@@ -42,7 +42,7 @@
 
 
 (define_constraint "M"
- "Defined in i960.h -32...0 ????"
+ "Defined in i960.h -32...0 ???? Used for complements"
  (and (match_code "const_int")
       (match_test "((ival) >= -32) && ((ival) <= 0)")))
 
