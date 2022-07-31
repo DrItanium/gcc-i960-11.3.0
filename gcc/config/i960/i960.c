@@ -223,7 +223,72 @@ i960_legitimate_address_p (machine_mode mode, rtx addr, bool strict_p)
         return false;
     }
 }
+bool
+i960_hard_regno_mode_ok(int num, machine_mode mode) {
+    if (num < 32) {
+        switch (mode) {
+            case CCmode:
+            case CC_UNSmode:
+            case CC_CHKmode:
+                return false;
+            case DImode:
+            case DFmode:
+                return (num & 1) == 0; // double registers
+            case TImode:
+            case TFmode:
+                return (num & 3) == 0; // quad registers
+            default:
+                return true;
+        }
+    } else if (num >= 32 && num < 36) {
+        switch (mode) {
+            case SFmode:
+            case DFmode:
+            case TFmode:
+            case SCmode:
+            case DCmode:
+                return true;
+            default:
+                return false;
+        }
+    } else if (regno == 36) {
+        switch (mode) {
+            case CCmode:
+            case CC_UNSmode:
+            case CC_CHKmode:
+                return true;
+            default:
+                return false;
+        }
+    } else {
+        return false;
+    }
+} 
 
+//#define __HARD_REGNO_MODE_OK(REGNO, MODE) i960_hard_regno_mode_ok ((REGNO), (MODE))
+bool
+i960_expand_move (machine_mode mode, rtx op0, rtx op1) {
+    if ((GET_CODE(operands[0]) == MEM) && (GET_CODE(operands[1]) != REG) 
+            && (operands[1] != const0_rtx || crtl->args.size.to_constant()
+                || cfun->stdarg || currently_expanding_to_rtl)) {
+        operands[1] = force_reg (mode, operands[1]);
+    }
+    if (GET_MODE_SIZE(mode) > UNITS_PER_WORD 
+            && (GET_CODE(operands[0]) == MEM
+            || (GET_CODE(operands[0]) == REG 
+            && REGNO(operands[0]) >= FIRST_PSEUDO_REGISTER))
+            && GET_CODE (operands[1]) < FIRST_PSEUDO_REGISTER
+            && ! i960_hard_regno_mode_ok(REGNO (operands[1]), mode)) {
+
+        emit_insn (gen_rtx_PARALLEL(VOIDmode, 
+                    gen_rtvec (2,
+                        gen_rtx_SET (VOIDmode, operands[0], operands[1]),
+                        gen_rtx_CLOBBER (VOIDmode,
+                            gen_rtx_SCRATCH (Pmode)))));
+        return true;
+    }
+    return false;
+}
 
 #undef TARGET_FUNCTION_VALUE 
 #define TARGET_FUNCTION_VALUE i960_function_value

@@ -87,5 +87,6 @@ extern void i960_initialize (void);
 extern HOST_WIDE_INT i960_initial_elimination_offset(int, int);
 extern int i960_compute_frame_size (poly_int64);
 extern void i960_output_function_profiler(FILE* file, int labelNumber);
-//extern void i960_expand_move (machine_mode, rtx, rtx);
+extern bool i960_expand_move (machine_mode, rtx, rtx);
+extern bool i960_hard_regno_mode_ok (int, machine_mode);
 #endif /* ! GCC_I960_PROTOS_H  */
