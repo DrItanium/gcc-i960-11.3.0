@@ -403,4 +403,6 @@ struct i960CumulativeArguments {
  * PROFILE_HOOK but it is still required. Yet avr uses this macro */
 
 #define FUNCTION_PROFILER(STREAM, LABELNO) i960_output_function_profiler(STREAM, LABELNO)
+
+#define GLOBAL_ASM_OP "\t.global\t"
 #endif // end file

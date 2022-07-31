@@ -3046,7 +3046,7 @@ i960_initial_elimination_offset(int from, int to) {
 void
 i960_output_function_profiler(FILE* file, int labelNo) {
     /// @todo implement the full function profiler at some point, 
-    fprintf(FILE, "/* profiler %d */", labelNo);
+    fprintf(file, "/* profiler %d */", labelNo);
 }
 
 struct gcc_target targetm = TARGET_INITIALIZER;
