@@ -86,4 +86,5 @@ extern void i960_initialize (void);
 #endif
 extern HOST_WIDE_INT i960_initial_elimination_offset(int, int);
 extern int i960_compute_frame_size (poly_int64);
+extern void i960_output_function_prfiler(FILE* file, int labelNumber);
 #endif /* ! GCC_I960_PROTOS_H  */

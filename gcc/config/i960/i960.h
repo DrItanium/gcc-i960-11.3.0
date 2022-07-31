@@ -397,4 +397,10 @@ struct i960CumulativeArguments {
     do { \
         (OFFSET) = i960_initial_elimination_offset((FROM), (TO)); \
     } while (0)
+
+/* Output assembler code to FILE to increment profiler lable # LABELNO for
+ * profiling a function entry. According to or1k impl, this is handled by
+ * PROFILE_HOOK but it is still required. Yet avr uses this macro */
+
+#define FUNCTION_PROFILER(STREAM, LABELNO) i960_output_function_profiler(STREAM, LABELNO)
 #endif // end file
