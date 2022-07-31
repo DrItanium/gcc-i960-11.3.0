@@ -3043,5 +3043,11 @@ i960_initial_elimination_offset(int from, int to) {
     return -(64 + i960_compute_frame_size(get_frame_size()));
 }
 
+void
+i960_output_function_profiler(FILE* file, int labelNo) {
+    /// @todo implement the full function profiler at some point, 
+    fprintf(FILE, "/* profiler %d */", labelNo);
+}
+
 struct gcc_target targetm = TARGET_INITIALIZER;
 #include "gt-i960.h"
