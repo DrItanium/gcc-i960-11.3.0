@@ -114,12 +114,124 @@ i960_function_value(const_tree valtype, const_tree, bool) {
     /// @todo is zero right?
     return gen_rtx_REG(TYPE_MODE(valtype), 0);
 }
+static bool rtxOkayForBaseP(rtx x, bool strict) {
+    switch (GET_CODE(x)) {
+        case REG:
+            return strict ? REG_OK_FOR_BASE_P_STRICT(x) : REG_OK_FOR_BASE_P(x); 
+        case SUBREG:
+            return ((GET_CODE(SUBREG_REG(x)) == REG) && 
+                    (strict ? REG_OK_FOR_BASE_P_STRICT (SUBREG_REG(x)) :
+                     REG_OK_FOR_BASE_P (SUBREG_REG(x))));
+        default:
+            return false;
+    }
+}
+
+static bool rtxOkayForIndexP(rtx x, bool strict) {
+    switch (GET_CODE(x)) {
+        case REG:
+            return strict ? REG_OK_FOR_INDEX_P_STRICT(x) : REG_OK_FOR_INDEX_P(x); 
+        case SUBREG:
+            return ((GET_CODE(SUBREG_REG(x)) == REG) && 
+                    (strict ? REG_OK_FOR_INDEX_P_STRICT (SUBREG_REG(x)) :
+                     REG_OK_FOR_INDEX_P (SUBREG_REG(x))));
+        default:
+            return false;
+    }
+}
+static bool
+scaleTermIsValid(rtx x) {
+    if (GET_CODE(x) == CONST_INT) {
+        switch (INTVAL(x)) {
+            case 1:
+            case 2:
+            case 4:
+            case 8:
+            case 16:
+                return true;
+            default:
+                return false;
+        }
+    } else {
+        return false;
+    }
+}
+static bool
+i960_legitimate_address_p (machine_mode mode, rtx addr, bool strict_p)
+{
+    // ported over from 3.4.6 with very little modification, this code is very
+    // gross...
+    if (rtxOkayForBaseP(addr, strict_p)) {
+        return true;
+    } else if (CONSTANT_P (addr)) {
+        return true;
+    } else if (GET_CODE(addr) == PLUS) {
+        if (!reload_completed) {
+            return false;
+        }
+        rtx op0 = XEXP(addr, 0);
+        rtx op1 = XEXP(addr, 1);
+        if (rtxOkayForBaseP(op0, strict_p)) {
+            if (rtxOkayForIndexP(op1, strict_p)) {
+                return true;
+            } else if (CONSTANT_P(op1)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (GET_CODE(op0) == PLUS) {
+            if (GET_CODE(XEXP(op0, 0)) == MULT) {
+                if (!(rtxOkayForIndexP(XEXP(XEXP(op0, 0), 0), strict_p)
+                            && scaleTermIsValid(XEXP(XEXP(op0,0), 1)))) {
+                    return false;
+                }
+                if (rtxOkayForBaseP(XEXP(op0, 0), strict_p) && CONSTANT_P(op1)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if (rtxOkayForBaseP(XEXP(op0, 0), strict_p)) {
+                if (rtxOkayForIndexP(XEXP(op0, 1), strict_p) && CONSTANT_P(op1)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        } else if (GET_CODE(op0) == MULT) {
+            if (!(rtxOkayForIndexP(XEXP(op0, 0), strict_p) && 
+                        scaleTermIsValid(XEXP(op0, 1)))) {
+                return false;
+            }
+            if (rtxOkayForBaseP (op1, strict_p)) {
+                return true;
+            } else if (CONSTANT_P(op1)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    } else if (GET_CODE(addr) == MULT) {
+        if (!reload_completed) {
+            return false;
+        }
+        return (rtxOkayForIndexP(XEXP(addr, 0), strict_p) && scaleTermIsValid(XEXP(addr, 1)));
+    } else {
+        return false;
+    }
+}
 
 #undef TARGET_FUNCTION_VALUE 
 #define TARGET_FUNCTION_VALUE i960_function_value
 
 #undef  TARGET_OPTION_OVERRIDE
 #define TARGET_OPTION_OVERRIDE i960_option_override
+
+#undef  TARGET_LEGITIMATE_ADDRESS_P
+#define TARGET_LEGITIMATE_ADDRESS_P i960_legitimate_address_p
 
 struct gcc_target targetm = TARGET_INITIALIZER;
 #include "gt-i960.h"

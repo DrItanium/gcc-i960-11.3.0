@@ -410,4 +410,9 @@ struct i960CumulativeArguments {
 #define DATA_SECTION_ASM_OP "\t.data"
 #define BSS_SECTION_ASM_OP "\t.bss"
 #define SBSS_SECTION_ASM_OP "\t.sbss"
+
+#define REG_OK_FOR_INDEX_P(X) (REGNO(X) < 32 || REGNO(X) >= FIRST_PSEUDO_REGISTER)
+#define REG_OK_FOR_BASE_P(X) (REGNO(X) < 32 || REGNO(X) >= FIRST_PSEUDO_REGISTER)
+#define REG_OK_FOR_BASE_P_STRICT(X) REGNO_OK_FOR_BASE_P(REGNO(X))
+#define REG_OK_FOR_INDEX_P_STRICT(X) REGNO_OK_FOR_INDEX_P(REGNO(X))
 #endif // end file
