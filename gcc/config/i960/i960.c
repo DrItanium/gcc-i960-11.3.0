@@ -223,6 +223,7 @@ i960_legitimate_address_p (machine_mode mode, rtx addr, bool strict_p)
         return false;
     }
 }
+#if 0
 bool
 i960_hard_regno_mode_ok(int num, machine_mode mode) {
     if (num < 32) {
@@ -251,7 +252,7 @@ i960_hard_regno_mode_ok(int num, machine_mode mode) {
             default:
                 return false;
         }
-    } else if (regno == 36) {
+    } else if (num == 36) {
         switch (mode) {
             case CCmode:
             case CC_UNSmode:
@@ -271,6 +272,7 @@ i960_expand_move (machine_mode mode, rtx* operands) {
 #if 0
 #endif
 }
+#endif
 
 #undef TARGET_FUNCTION_VALUE 
 #define TARGET_FUNCTION_VALUE i960_function_value
