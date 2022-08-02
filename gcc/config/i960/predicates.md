@@ -34,3 +34,8 @@
 
 (define_predicate "arith32_operand"
  (match_code "subreg,reg,label_ref,symbol_ref,const_int,const_double,const"))
+
+
+(define_predicate "const_zero_operand"
+ (and (match_code "const_int,const_double")
+  (match_test "op == CONST0_RTX (mode)")))

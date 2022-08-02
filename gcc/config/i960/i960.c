@@ -2141,12 +2141,6 @@ i960_alignment (int size, int align)
 #endif
 
 
-int
-hard_regno_mode_ok (int regno, enum machine_mode mode)
-{
-}
-
-
 /* Return the minimum alignment of an expression rtx X in bytes.  This takes
    advantage of machine specific facts, such as knowing that the frame pointer
    is always 16 byte aligned.  */
