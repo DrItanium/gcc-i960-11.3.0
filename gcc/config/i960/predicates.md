@@ -17,25 +17,47 @@
 ;; along with GCC; see the file COPYING3.  If not see
 ;; <http://www.gnu.org/licenses/>.
 
-(define_predicate "arith_operand" (match_code "const_int,subreg,reg"))
-(define_predicate "logic_operand" (match_code "const_int,subreg,reg"))
-(define_predicate "signed_arith_operand" (match_code "const_int,subreg,reg"))
-(define_predicate "fp_arith_operand" (match_code "subreg,reg,const_double"))
-(define_predicate "literal" (match_code "const_int"))
-(define_predicate "power2_operand" (match_code "const_int"))
-(define_predicate "cmplpower2_operand" (match_code "const_int"))
-(define_predicate "fp_literal" (match_code "const_double"))
-(define_predicate "fp_literal_double" (match_code "const_double"))
-(define_predicate "fp_literal_one" (match_code "const_double"))
-(define_predicate "signed_literal" (match_code "const_int"))
-
 (define_predicate "fpmove_src_operand"
- (match_code "const_int,const_double,const,symbol_ref,label_ref,subreg,reg,mem"))
+    (ior (match_code "const_double")
+         (match_operand 0 "general_operand")))
+(define_predicate "literal"
+    (and (match_code "const_int")
+         (match_test "INTVAL(op) >= 0 && INTVAL(op) < 32")))
+(define_predicate "fp_literal_one"
+    (and (match_test "TARGET_NUMERICS")
+         (and (match_code "const_double")
+              (match_test "op == CONST1_RTX(mode)"))))
+
+(define_predicate "fp_literal_zero"
+    (and (match_test "TARGET_NUMERICS")
+         (and (match_code "const_double")
+              (match_test "op == CONST0_RTX(mode)"))))
+(define_predicate "fp_literal"
+    (ior (match_operand 0 "fp_literal_zero")
+         (match_operand 0 "fp_literal_one")))
+ (define_predicate "signed_literal"
+    (and (match_code "const_int")
+         (match_test "INTVAL(op) > -32 && INTVAL(op) < 32")))
+(define_predicate "arith_operand"
+    (ior (match_operand 0 "register_operand")
+         (match_operand 0 "literal")))
+(define_predicate "logic_operand"
+    (ior (match_operand 0 "register_operand")
+         (and (match_code "const_int")
+              (match_test "INTVAL(op) >= -32 && INTVAL(op) < 32"))))
+(define_predicate "fp_arith_operand"
+    (ior (match_operand 0 "register_operand")
+         (match_operand 0 "fp_literal")))
+(define_predicate "signed_arith_operand"
+    (ior (match_operand 0 "register_operand")
+         (match_operand 0 "signed_literal")))
+(define_predicate "power2_operand"
+    (and (match_code "const_int")
+         (match_test "exact_log2(INTVAL(op)) >= 0")))
+
+(define_predicate "cmplpower2_operand"
+    (and (match_code "const_int")
+         (match_test "(~exact_log2(INTVAL(op))) >= 0")))
 
 (define_predicate "arith32_operand"
- (match_code "subreg,reg,label_ref,symbol_ref,const_int,const_double,const"))
-
-
-(define_predicate "const_zero_operand"
- (and (match_code "const_int,const_double")
-  (match_test "op == CONST0_RTX (mode)")))
+     (match_code "subreg,reg,label_ref,symbol_ref,const_int,const_double,const"))
