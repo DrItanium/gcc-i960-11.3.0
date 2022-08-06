@@ -1593,11 +1593,11 @@ i960_output_function_epilogue (FILE* file/*, HOST_WIDE_INT size*/)
 
   if (*epilogue_string == 0)
     {
-      rtx tmp;
+      //rtx tmp;
 	
       /* Emit a return insn, but only if control can fall through to here.  */
 
-      tmp = get_last_insn ();
+      rtx_insn* tmp = get_last_insn ();
       while (tmp)
 	{
 	  if (GET_CODE (tmp) == BARRIER)
@@ -2291,15 +2291,15 @@ i960_arg_size_and_align (enum machine_mode mode, tree type, int* size_out, int* 
 /* Update CUM to advance past an argument described by MODE and TYPE.  */
 
 void 
-i960_function_arg_advance (cumulative_args_t cat, const class function_arg_info&)
+i960_function_arg_advance (cumulative_args_t cat, const class function_arg_info& info)
 {
   int size, align;
+  i960_arg_size_and_align (info.mode, info.type, &size, &align);
 
-  i960_arg_size_and_align (mode, type, &size, &align);
-
-  if (size > 4 || cum->ca_nstackparms != 0
+CUMULATIVE_ARGS *cum = get_cumulative_args (cat);
+if (size > 4 || cum->ca_nstackparms != 0
       || (size + ROUND_PARM (cum->ca_nregparms, align)) > NPARM_REGS
-      || TARGET_MUST_PASS_IN_STACK (mode, type))
+      || TARGET_MUST_PASS_IN_STACK (info))
     {
       /* Indicate that all the registers are in use, even if all are not,
 	 so va_start will compute the right value.  */
