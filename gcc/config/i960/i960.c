@@ -3029,6 +3029,9 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_ADDRESS_COST i960_address_cost
 #undef TARGET_BUILD_BUILTIN_VA_LIST
 #define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
+// still use the old condition code stuff in the .md file so disable LRA
+#undef TARGET_LRA_P
+#define TARGET_LRA_P hook_bool_void_false
 
 struct gcc_target targetm = TARGET_INITIALIZER;
 #include "gt-i960.h"
