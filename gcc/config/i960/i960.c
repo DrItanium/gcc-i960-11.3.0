@@ -1011,11 +1011,11 @@ i960_output_ldconst (rtx dst, rtx src)
 int
 i960_bypass (rtx_insn* insn, rtx op1, rtx op2, int cmpbr_flag)
 {
-#if 0
   rtx prev_insn, prev_dest;
-
+#if 0
   if (TARGET_C_SERIES)
     return 0;
+#endif
 
   /* Can't do this if op1 isn't a register.  */
   if (! REG_P (op1))
@@ -1038,10 +1038,6 @@ i960_bypass (rtx_insn* insn, rtx op1, rtx op2, int cmpbr_flag)
 	return 1;
     }
   return 0;
-#else
-#warning "reimplement i960_bypass"
-  return 0;
-#endif
 }
 
 /* Output the code which declares the function name.  This also handles
@@ -1314,7 +1310,6 @@ i960_split_reg_group (reg_group* reg_groups, int nw, int subgroup_length)
 static void
 i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 {
-#if 0
   int i, j, nr;
   int n_saved_regs = 0;
   int n_remaining_saved_regs;
@@ -1336,7 +1331,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
     if (df_regs_ever_live_p(i)
 	&& ((! call_used_regs[i]) || (i > 7 && i < 12))
 	/* No need to save the static chain pointer.  */
-	&& ! (i == STATIC_CHAIN_REGNUM && current_function_needs_context))
+	&& ! (i == STATIC_CHAIN_REGNUM && cfun->static_chain_decl))
       {
 	regs[i] = -1;
         /* Count global registers that need saving.  */
@@ -1350,7 +1345,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 
   epilogue_string[0] = '\0';
 
-  if (current_function_profile)
+  if (crtl->profile)
     {
       /* When profiling, we may use registers 20 to 27 to save arguments, so
 	 they can't be used here for saving globals.  J is the number of
@@ -1390,7 +1385,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 	    {
 	      regs [i + g->start_reg] = 1;
 	      regs [i + l->start_reg] = -1;
-	      set_regs_ever_live (i + l->start_reg, true);
+	      df_set_regs_ever_live (i + l->start_reg, true);
 	    }
 	  g++;
 	  l++;
@@ -1403,7 +1398,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 	lnw = i960_split_reg_group (l, lnw, g->length);
     }
 
-  actual_fsize = compute_frame_size (size) + 4 * n_remaining_saved_regs;
+  actual_fsize = i960_compute_frame_size (get_frame_size()) + 4 * n_remaining_saved_regs;
 #if 0
   /* ??? The 1.2.1 compiler does this also.  This is meant to round the frame
      size up to the nearest multiple of 16.  I don't know whether this is
@@ -1417,7 +1412,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 #endif
 
   /* Check stack limit if necessary.  */
-  if (current_function_limit_stack)
+  if (crtl->limit_stack)
     {
       rtx min_stack = stack_limit_rtx;
       if (actual_fsize != 0)
@@ -1434,30 +1429,27 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 	  fputs (",r4\n", file);
 	  min_stack = gen_rtx_REG (Pmode, 20);
 	}
-      if (arith_operand (min_stack, Pmode))
-	{
-	  fputs ("\tcmpo\tsp,", file);
-	  i960_print_operand (file, min_stack, 0);
-	  fputs ("\n\tfaultge.f\n", file);
-	}
-      else
-	warning ("stack limit expression is not supported");
+        if (arith_operand (min_stack, Pmode)) {
+            fputs ("\tcmpo\tsp,", file);
+            i960_print_operand (file, min_stack, 0);
+            fputs ("\n\tfaultge.f\n", file);
+        } else {
+            warning (0, "stack limit expression is not supported");
+        }
     }
 
   /* Allocate space for register save and locals.  */
-  if (actual_fsize > 0)
-    {
-      if (actual_fsize < 32)
-	fprintf (file, "\taddo	" HOST_WIDE_INT_PRINT_DEC ",sp,sp\n",
-		 actual_fsize);
-      else
-	fprintf (file, "\tlda\t" HOST_WIDE_INT_PRINT_DEC "(sp),sp\n",
-		 actual_fsize);
+    if (actual_fsize > 0) {
+        if (actual_fsize < 32) {
+            fprintf (file, "\taddo	" HOST_WIDE_INT_PRINT_DEC ",sp,sp\n", actual_fsize);
+        } else {
+            fprintf(file, "\tlda\t" HOST_WIDE_INT_PRINT_DEC "(sp),sp\n", actual_fsize);
+        }
     }
 
   /* Take hardware register save area created by the call instruction
      into account, but store them before the argument block area.  */
-  lvar_size = actual_fsize - compute_frame_size (0) - n_remaining_saved_regs * 4;
+  lvar_size = actual_fsize - i960_compute_frame_size (0) - n_remaining_saved_regs * 4;
   offset = compat_STARTING_FRAME_OFFSET + lvar_size;
   /* Save registers on stack if needed.  */
   /* ??? Is it worth to use the same algorithm as one for saving
@@ -1509,9 +1501,6 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
     fprintf (file, "\t#  Register Save Size: %d regs, %d bytes\n",
 	     n_saved_regs, n_saved_regs * 4);
   fprintf (file, "\t#End Prologue#\n");
-#else
-#warning "REIMPLEMENT THIS FUNCTION!"
-#endif
 }
 
 /* Output code for the function profiler.  */
@@ -1596,7 +1585,6 @@ i960_output_function_profiler (FILE* file, int labelno)
 static void
 i960_output_function_epilogue (FILE* file/*, HOST_WIDE_INT size*/)
 {
-#if 0
   if (i960_leaf_ret_reg >= 0)
     {
       fprintf (file, "Li960R%d:	ret\n", ret_label);
@@ -1651,9 +1639,6 @@ i960_output_function_epilogue (FILE* file/*, HOST_WIDE_INT size*/)
 
   fprintf (file, "\tret\n");
   fprintf (file, "\t#End Epilogue#\n");
-#else
-#warning "REIMPLEMENT i960_output_function_epilogue"
-#endif
 }
 
 /* Output code for a call insn.  */
@@ -2308,7 +2293,6 @@ i960_arg_size_and_align (enum machine_mode mode, tree type, int* size_out, int* 
 void 
 i960_function_arg_advance (cumulative_args_t cat, const class function_arg_info&)
 {
-#if 0
   int size, align;
 
   i960_arg_size_and_align (mode, type, &size, &align);
@@ -2324,9 +2308,6 @@ i960_function_arg_advance (cumulative_args_t cat, const class function_arg_info&
     }
   else
     cum->ca_nregparms = ROUND_PARM (cum->ca_nregparms, align) + size;
-#else
-#warning "REIMPLEMENT i960_function_arg_advance"
-#endif
 }
 
 /* Return the register that the argument described by MODE and TYPE is
@@ -2335,7 +2316,6 @@ i960_function_arg_advance (cumulative_args_t cat, const class function_arg_info&
 rtx
 i960_function_arg (cumulative_args_t cat,/* enum machine_mode mode, tree type, int named*/ const function_arg_info&)
 {
-#if 0
   rtx ret;
   int size, align;
 
@@ -2358,10 +2338,6 @@ i960_function_arg (cumulative_args_t cat,/* enum machine_mode mode, tree type, i
     }
 
   return ret;
-#else
-  return 0;
-#warning "reimplement i960_function_arg!"
-#endif
 }
 
 /* Return the number of bits that an object of size N bytes is aligned to.  */
@@ -2416,7 +2392,6 @@ i960_round_align (int align, tree type)
 void 
 i960_setup_incoming_varargs (cumulative_args_t cum, const class function_arg_info& arg, int * pretend_size, int no_rtl)
 {
-#if 0
   /* Note: for a varargs fn with only a va_alist argument, this is 0.  */
   int first_reg = cum->ca_nregparms;
 
@@ -2463,9 +2438,6 @@ i960_setup_incoming_varargs (cumulative_args_t cum, const class function_arg_inf
       move_block_from_reg (first_reg, regblock,
 			   NPARM_REGS - first_reg);
     }
-#else
-#warning implement "i960_setup_incoming_varargs"
-#endif
 }
 
 /* Define the `__builtin_va_list' type for the ABI.  */
@@ -2482,7 +2454,6 @@ i960_build_builtin_va_list ()
 void
 i960_va_start (tree valist, rtx nextarg)
 {
-#if 0
   tree s, t, base, num;
   rtx fake_arg_pointer_rtx;
 
@@ -2506,14 +2477,10 @@ i960_va_start (tree valist, rtx nextarg)
   t = build (MODIFY_EXPR, unsigned_type_node, num, s);
   TREE_SIDE_EFFECTS (t) = 1;
   expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-#else
-#warning "reimplement i960_va_start"
-#endif
 }
 
 /* Implement `va_arg'.  */
 
-#if 0
 rtx
 i960_va_arg (tree valist, tree type)
 {
@@ -2572,7 +2539,6 @@ i960_va_arg (tree valist, tree type)
   
   return addr_rtx;
 }
-#endif
 
 /* Calculate the final size of the reg parm stack space for the current
    function, based on how many bytes would be allocated on the stack.  */
