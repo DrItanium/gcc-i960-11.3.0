@@ -1742,63 +1742,73 @@ i960_output_ret_insn (rtx_insn* insn)
 void
 i960_print_operand (FILE* file, rtx x, int code)
 {
-    if (x) {
-        enum rtx_code rtxcode = GET_CODE(x);
+  enum rtx_code rtxcode = GET_CODE (x);
 
-        if (rtxcode == REG) {
-            switch (code) {
-                case 'D':
-                    /* Second reg of a double or quad.  */
-                    fprintf(file, "%s", reg_names[REGNO(x) + 1]);
-                    break;
+  if (rtxcode == REG)
+    {
+      switch (code)
+	{
+	case 'D':
+	  /* Second reg of a double or quad.  */
+	  fprintf (file, "%s", reg_names[REGNO (x)+1]);
+	  break;
 
-                case 'E':
-                    /* Third reg of a quad.  */
-                    fprintf(file, "%s", reg_names[REGNO(x) + 2]);
-                    break;
+	case 'E':
+	  /* Third reg of a quad.  */
+	  fprintf (file, "%s", reg_names[REGNO (x)+2]);
+	  break;
 
-                case 'F':
-                    /* Fourth reg of a quad.  */
-                    fprintf(file, "%s", reg_names[REGNO(x) + 3]);
-                    break;
+	case 'F':
+	  /* Fourth reg of a quad.  */
+	  fprintf (file, "%s", reg_names[REGNO (x)+3]);
+	  break;
 
-                case 0:
-                    fprintf(file, "%s", reg_names[REGNO(x)]);
-                    break;
+	case 0:
+	  fprintf (file, "%s", reg_names[REGNO (x)]);
+	  break;
 
-                default:
-                    abort();
-            }
-            return;
-        } else if (rtxcode == MEM) {
-            /// @todo is VOIDmode right?
-            output_address(VOIDmode, XEXP(x, 0));
-            return;
-        } else if (rtxcode == CONST_INT) {
-            HOST_WIDE_INT val = INTVAL(x);
-            if (code == 'C')
-                val = ~val;
-            if (val > 9999 || val < -999)
-                fprintf(file, HOST_WIDE_INT_PRINT_HEX, val);
-            else
-                fprintf(file, HOST_WIDE_INT_PRINT_DEC, val);
-            return;
-        } else if (rtxcode == CONST_DOUBLE) {
-            char dstr[30];
-
-            if (x == CONST0_RTX(GET_MODE(x))) {
-                fprintf(file, "0f0.0");
-                return;
-            } else if (x == CONST1_RTX(GET_MODE(x))) {
-                fprintf(file, "0f1.0");
-                return;
-            }
-
-            real_to_decimal(dstr, CONST_DOUBLE_REAL_VALUE(x), sizeof(dstr), 0, 1);
-            fprintf(file, "0f%s", dstr);
-            return;
-        }
+	default:
+	  abort ();
+	}
+      return;
     }
+  else if (rtxcode == MEM)
+    {
+        /// @todo is VOIDmode right?
+      output_address (VOIDmode, XEXP (x, 0));
+      return;
+    }
+  else if (rtxcode == CONST_INT)
+    {
+      HOST_WIDE_INT val = INTVAL (x);
+      if (code == 'C')
+	val = ~val;
+      if (val > 9999 || val < -999)
+	fprintf (file, HOST_WIDE_INT_PRINT_HEX, val);
+      else
+	fprintf (file, HOST_WIDE_INT_PRINT_DEC, val);
+      return;
+    }
+  else if (rtxcode == CONST_DOUBLE)
+    {
+      char dstr[30];
+
+      if (x == CONST0_RTX (GET_MODE (x)))
+	{
+	  fprintf (file, "0f0.0");
+	  return;
+	}
+      else if (x == CONST1_RTX (GET_MODE (x)))
+	{
+	  fprintf (file, "0f1.0");
+	  return;
+	}
+
+      real_to_decimal (dstr, CONST_DOUBLE_REAL_VALUE (x), sizeof (dstr), 0, 1);
+      fprintf (file, "0f%s", dstr);
+      return;
+    }
+
   switch(code)
     {
     case 'B':
