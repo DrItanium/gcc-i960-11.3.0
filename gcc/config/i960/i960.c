@@ -65,7 +65,7 @@ Boston, MA 02111-1307, USA.  */
 #include "target-def.h"
 
 #define current_function_args_size (crtl->args.size.to_constant())
-#define current_function_args_info (crtl->args_info)
+#define current_function_args_info (crtl->args.info)
 #define current_function_stdarg (cfun->stdarg)
 #define compat_STARTING_FRAME_OFFSET 64
 #ifdef compat_CONST_OK_FOR_LETTER_P 
@@ -2314,19 +2314,20 @@ if (size > 4 || cum->ca_nstackparms != 0
    passed in, or else return 0 if it is passed on the stack.  */
 
 rtx
-i960_function_arg (cumulative_args_t cat,/* enum machine_mode mode, tree type, int named*/ const function_arg_info&)
+i960_function_arg (cumulative_args_t cat,/* enum machine_mode mode, tree type, int named*/ const function_arg_info& info)
 {
   rtx ret;
   int size, align;
 
-  if (mode == VOIDmode)
+  if (info.mode == VOIDmode)
     return 0;
 
-  i960_arg_size_and_align (mode, type, &size, &align);
+  i960_arg_size_and_align (info.mode, info.type, &size, &align);
 
+CUMULATIVE_ARGS *cum = get_cumulative_args (cat);
   if (size > 4 || cum->ca_nstackparms != 0
       || (size + ROUND_PARM (cum->ca_nregparms, align)) > NPARM_REGS
-      || TARGET_MUST_PASS_IN_STACK (mode, type))
+      || TARGET_MUST_PASS_IN_STACK (info))
     {
       cum->ca_nstackparms = ROUND_PARM (cum->ca_nstackparms, align);
       ret = 0;
@@ -2334,7 +2335,7 @@ i960_function_arg (cumulative_args_t cat,/* enum machine_mode mode, tree type, i
   else
     {
       cum->ca_nregparms = ROUND_PARM (cum->ca_nregparms, align);
-      ret = gen_rtx_REG (mode, cum->ca_nregparms);
+      ret = gen_rtx_REG (info.mode, cum->ca_nregparms);
     }
 
   return ret;
@@ -2390,9 +2391,10 @@ i960_round_align (int align, tree type)
    all register parameters to memory.  */
 
 void 
-i960_setup_incoming_varargs (cumulative_args_t cum, const class function_arg_info& arg, int * pretend_size, int no_rtl)
+i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_info& info, int * pretend_size, int no_rtl)
 {
   /* Note: for a varargs fn with only a va_alist argument, this is 0.  */
+  CUMULATIVE_ARGS *cum = get_cumulative_args (cat);
   int first_reg = cum->ca_nregparms;
 
   /* Copy only unnamed register arguments to memory.  If there are
@@ -2425,14 +2427,14 @@ i960_setup_incoming_varargs (cumulative_args_t cum, const class function_arg_inf
 			      stack_pointer_rtx));
       emit_insn (gen_rtx_SET (stack_pointer_rtx,
 			      memory_address (SImode,
-					      plus_constant (stack_pointer_rtx,
-							     48))));
+					      plus_constant (info.mode,
+                                         stack_pointer_rtx, 48))));
       emit_label (label);
 
       /* ??? Note that we unnecessarily store one extra register for stdarg
 	 fns.  We could optimize this, but it's kept as for now.  */
       regblock = gen_rtx_MEM (BLKmode,
-			      plus_constant (arg_pointer_rtx, first_reg * 4));
+			      plus_constant (info.mode, arg_pointer_rtx, first_reg * 4));
       set_mem_alias_set (regblock, get_varargs_alias_set ());
       set_mem_align (regblock, BITS_PER_WORD);
       move_block_from_reg (first_reg, regblock,
@@ -2454,29 +2456,32 @@ i960_build_builtin_va_list ()
 void
 i960_va_start (tree valist, rtx nextarg)
 {
-  tree s, t, base, num;
-  rtx fake_arg_pointer_rtx;
+#if 0
+    tree s, t, base, num;
+    rtx fake_arg_pointer_rtx;
 
-  /* The array type always decays to a pointer before we get here, so we
-     can't use ARRAY_REF.  */
-  base = build1 (INDIRECT_REF, unsigned_type_node, valist);
-  num = build1 (INDIRECT_REF, unsigned_type_node,
-		build (PLUS_EXPR, unsigned_type_node, valist,
-		       TYPE_SIZE_UNIT (TREE_TYPE (valist))));
+    /* The array type always decays to a pointer before we get here, so we
+       can't use ARRAY_REF.  */
+    base = build1 (INDIRECT_REF, unsigned_type_node, valist);
+    num = build1 (INDIRECT_REF, unsigned_type_node,
+                  build_nt (PLUS_EXPR, unsigned_type_node, valist,
+                            TYPE_SIZE_UNIT (TREE_TYPE (valist))));
 
-  /* Use a different rtx than arg_pointer_rtx so that cse and friends
-     can go on believing that the argument pointer can never be zero.  */
-  fake_arg_pointer_rtx = gen_raw_REG (Pmode, ARG_POINTER_REGNUM);
-  s = make_tree (unsigned_type_node, fake_arg_pointer_rtx);
-  t = build (MODIFY_EXPR, unsigned_type_node, base, s);
-  TREE_SIDE_EFFECTS (t) = 1;
-  expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-
-  s = build_int_2 ((current_function_args_info.ca_nregparms
-		    + current_function_args_info.ca_nstackparms) * 4, 0);
-  t = build (MODIFY_EXPR, unsigned_type_node, num, s);
-  TREE_SIDE_EFFECTS (t) = 1;
-  expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
+    /* Use a different rtx than arg_pointer_rtx so that cse and friends
+       can go on believing that the argument pointer can never be zero.  */
+    fake_arg_pointer_rtx = gen_raw_REG (Pmode, ARG_POINTER_REGNUM);
+    s = make_tree (unsigned_type_node, fake_arg_pointer_rtx);
+    t = build_nt (MODIFY_EXPR, unsigned_type_node, base, s);
+    TREE_SIDE_EFFECTS (t) = 1;
+    expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
+    s = build_int_2 ((current_function_args_info.ca_nregparms
+                      + current_function_args_info.ca_nstackparms) * 4, 0);
+    t = build_nt (MODIFY_EXPR, unsigned_type_node, num, s);
+    TREE_SIDE_EFFECTS (t) = 1;
+    expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
+#else
+#warning "PLEASE IMPLEMENT VA_START"
+#endif
 }
 
 /* Implement `va_arg'.  */
@@ -2484,6 +2489,7 @@ i960_va_start (tree valist, rtx nextarg)
 rtx
 i960_va_arg (tree valist, tree type)
 {
+#if 0
   HOST_WIDE_INT siz, ali;
   tree base, num, pad, next, this_, t1, t2, int48;
   rtx addr_rtx;
@@ -2492,7 +2498,7 @@ i960_va_arg (tree valist, tree type)
      can't use ARRAY_REF.  */
   base = build1 (INDIRECT_REF, unsigned_type_node, valist);
   num = build1 (INDIRECT_REF, unsigned_type_node,
-		build (PLUS_EXPR, unsigned_type_node, valist,
+		build_nt (PLUS_EXPR, unsigned_type_node, valist,
 		       TYPE_SIZE_UNIT (TREE_TYPE (valist))));
 
   /* Round up sizeof(type) to a word.  */
@@ -2538,6 +2544,10 @@ i960_va_arg (tree valist, tree type)
   expand_expr (t1, const0_rtx, VOIDmode, EXPAND_NORMAL);
   
   return addr_rtx;
+#else
+#warning "IMPLEMENT VA_START SUPPORT!"
+return NULL;
+#endif
 }
 
 /* Calculate the final size of the reg parm stack space for the current
@@ -2977,8 +2987,9 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_FUNCTION_ARG i960_function_arg
 #undef TARGET_FUNCTION_ARG_BOUNDARY
 #define TARGET_FUNCTION_ARG_BOUNDARY i960_function_arg_boundary
-#undef TARGET_EXPAND_BUILTIN_VA_START
-#define TARGET_EXPAND_BUILTIN_VA_START i960_va_start
+/// @todo reactivate
+//#undef TARGET_EXPAND_BUILTIN_VA_START
+//#define TARGET_EXPAND_BUILTIN_VA_START i960_va_start
 #undef TARGET_STARTING_FRAME_OFFSET
 #define TARGET_STARTING_FRAME_OFFSET i960_starting_frame_offset
 #undef TARGET_ASM_ALIGNED_SI_OP
