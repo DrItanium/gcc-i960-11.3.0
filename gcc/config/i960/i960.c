@@ -640,15 +640,15 @@ i960_output_move_double (rtx dst, rtx src)
                 return "mov	%1,%0\n\tmov	%D1,%D0";
             }
         } else {
-            return "movl	%1,%0";
+            return "movl	%1,%0 # m4";
         }
     } else if (GET_CODE (dst) == REG
             && GET_CODE (src) == CONST_INT
             && TARGET_CONST_OK_FOR_LETTER_P (INTVAL (src), 'I')) {
         if (REGNO (dst) & 1) {
-            return "mov	%1,%0\n\tmov	0,%D0";
+            return "mov	%1,%0\n\tmov	0,%D0 #m5.0";
         } else {
-            return "movl	%1,%0";
+            return "movl	%1,%0 #m5.1";
         }
     } else if (GET_CODE (dst) == REG
             && GET_CODE (src) == MEM) {
@@ -663,7 +663,7 @@ i960_output_move_double (rtx dst, rtx src)
             operands[4] = adjust_address (operands[3], word_mode,
                     UNITS_PER_WORD);
             output_asm_insn
-                ("lda	%1,%2\n\tld	%3,%0\n\tld	%4,%D0", operands);
+                ("lda	%1,%2 #lda 1\n\tld	%3,%0\n\tld	%4,%D0", operands);
             return "";
         } else {
             return "ldl	%1,%0";
@@ -747,7 +747,7 @@ i960_output_move_quad (rtx dst, rtx src)
               = adjust_address (operands[4], word_mode, UNITS_PER_WORD);
           operands[6]
               = adjust_address (operands[5], word_mode, UNITS_PER_WORD);
-          output_asm_insn ("lda	%1,%2\n\tld	%3,%0\n\tld	%4,%D0\n\tld	%5,%E0\n\tld	%6,%F0", operands);
+          output_asm_insn ("lda	%1,%2 #lda2\n\tld	%3,%0\n\tld	%4,%D0\n\tld	%5,%E0\n\tld	%6,%F0", operands);
           return "";
       } else {
           return "ldq	%1,%0";
@@ -840,7 +840,7 @@ i960_output_ldconst (rtx dst, rtx src)
       rtx first, second;
 
       if (i960_fp_literal_zero (src, DFmode))
-	return "movl	0,%0";
+	return "movl	0,%0 #m6";
 
       split_double (src, &first, &second);
 
@@ -897,7 +897,7 @@ i960_output_ldconst (rtx dst, rtx src)
       /* Numbers from 0 to 31 can be handled with a single insn.  */
       rsrc1 = INTVAL (lowerhalf);
       if (upperhalf == const0_rtx && rsrc1 >= 0 && rsrc1 < 32)
-	return "movl	%1,%0";
+	return "movl	%1,%0 #m7";
 
       /* Output the upper half with a recursive call.  */
       xoperands[0] = gen_rtx_REG (SImode, REGNO (dst) + 1);
@@ -928,7 +928,7 @@ i960_output_ldconst (rtx dst, rtx src)
 	{
 #if 0
 	  if (i960_last_insn_type == I_TYPE_REG && TARGET_C_SERIES)
-	    return "lda	%1,%0";
+	    return "lda	%1,%0 #lda3";
 #endif
 	  return "mov	%1,%0";
 	}
@@ -1179,7 +1179,7 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
       assemble_name (file, name);
       fprintf (file, ",%s.lf\n", (name[0] == '*' ? &name[1] : name));
       ASM_OUTPUT_LABEL (file, name);
-      fprintf (file, "\tlda    Li960R%d,g14\n", ret_label);
+      fprintf (file, "\tlda    Li960R%d,g14 #lda4\n", ret_label);
       fprintf (file, "%s.lf:\n", (name[0] == '*' ? &name[1] : name));
       fprintf (file, "\tmov    g14,g%d\n", i960_leaf_ret_reg);
 #if 0
@@ -1426,7 +1426,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 	  rtx tmp = gen_rtx_MEM (Pmode, min_stack);
 	  fputs ("\tlda\t", file);
 	  i960_print_operand (file, tmp, 0);
-	  fputs (",r4\n", file);
+	  fputs (",r4 #lda5\n", file);
 	  min_stack = gen_rtx_REG (Pmode, 20);
 	}
         if (arith_operand (min_stack, Pmode)) {
@@ -1443,7 +1443,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
         if (actual_fsize < 32) {
             fprintf (file, "\taddo	" HOST_WIDE_INT_PRINT_DEC ",sp,sp\n", actual_fsize);
         } else {
-            fprintf(file, "\tlda\t" HOST_WIDE_INT_PRINT_DEC "(sp),sp\n", actual_fsize);
+            fprintf(file, "\tlda\t" HOST_WIDE_INT_PRINT_DEC "(sp),sp #lda6\n", actual_fsize);
         }
     }
 
@@ -1554,7 +1554,7 @@ i960_output_function_profiler (FILE* file, int labelno)
 
   /* Load location address into g0 and call mcount.  */
 
-  fprintf (file, "\tlda\tLP%d,g0\n\tcallx\tmcount\n", labelno);
+  fprintf (file, "\tlda\tLP%d,g0 #lda7\n\tcallx\tmcount\n", labelno);
 
   /* If this function uses the arg pointer, restore it.  */
 
@@ -1659,7 +1659,7 @@ i960_output_call_insn (rtx target, rtx argsize_rtx, rtx arg_pointer, rtx_insn* i
     output_asm_insn ("mov	g14,r3", operands);
 
   if (argsize > 48)
-    output_asm_insn ("lda	%a1,g14", operands);
+    output_asm_insn ("lda	%a1,g14 #lda8", operands);
   else if (current_function_args_size != 0 || varargs_stdarg_function)
     output_asm_insn ("mov	0,g14", operands);
 

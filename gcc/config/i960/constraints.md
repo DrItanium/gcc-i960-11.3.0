@@ -27,7 +27,7 @@
 (define_constraint "I" 
  "Literal values [0, 31]"
  (and (match_code "const_int")
-      (match_test "((unsigned) (ival)) <= 31")))
+      (match_test "((unsigned) (ival) >= 0) && ((unsigned) (ival)) < 32")))
 
 (define_constraint "J"
  "literal 0"
