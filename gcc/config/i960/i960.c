@@ -798,7 +798,7 @@ const char *
 i960_output_ldconst (rtx dst, rtx src)
 {
   int rsrc1;
-  unsigned rsrc2;
+  unsigned int rsrc2;
   enum machine_mode mode = GET_MODE (dst);
   rtx operands[4];
 
@@ -810,7 +810,7 @@ i960_output_ldconst (rtx dst, rtx src)
 
   if (GET_CODE (src) != CONST_INT && GET_CODE (src) != CONST_DOUBLE)
     {
-      output_asm_insn ("ldconst	%1,%0", operands);
+      output_asm_insn ("ldconst	%1,%0 # ldconst 10", operands);
       return "";
     }
   else if (mode == TFmode)
@@ -819,11 +819,11 @@ i960_output_ldconst (rtx dst, rtx src)
       int i;
 
       if (i960_fp_literal_zero (src, TFmode))
-          return "movt	0,%0";
+          return "movt	0,%0 #ldconst 11";
 
       REAL_VALUE_TO_TARGET_LONG_DOUBLE (*CONST_DOUBLE_REAL_VALUE(src), value_long);
 
-      output_asm_insn ("# ldconst	%1,%0",operands);
+      output_asm_insn ("# ldconst	%1,%0 # ldconst 12",operands);
 
       for (i = 0; i < 3; i++)
 	{
@@ -844,7 +844,7 @@ i960_output_ldconst (rtx dst, rtx src)
 
       split_double (src, &first, &second);
 
-      output_asm_insn ("# ldconst	%1,%0",operands);
+      output_asm_insn ("# ldconst	%1,%0 # ldconst13",operands);
 
       operands[0] = gen_rtx_REG (SImode, REGNO (dst));
       operands[1] = first;
@@ -863,7 +863,7 @@ i960_output_ldconst (rtx dst, rtx src)
 
       REAL_VALUE_TO_TARGET_SINGLE(*CONST_DOUBLE_REAL_VALUE(src), value);
 
-      output_asm_insn ("# ldconst	%1,%0",operands);
+      output_asm_insn ("# ldconst	%1,%0 # ldconst14",operands);
       operands[0] = gen_rtx_REG (SImode, REGNO (dst));
       operands[1] = GEN_INT (value);
       output_asm_insn (i960_output_ldconst (operands[0], operands[1]),
@@ -930,7 +930,7 @@ i960_output_ldconst (rtx dst, rtx src)
 	  if (i960_last_insn_type == I_TYPE_REG && TARGET_C_SERIES)
 	    return "lda	%1,%0 #lda3";
 #endif
-	  return "mov	%1,%0";
+	  return "mov	%1,%0 # ldconst 20";
 	}
 
       /* ldconst	32..63,X	->	add	31,nn,X  */
@@ -941,7 +941,7 @@ i960_output_ldconst (rtx dst, rtx src)
 	    return "lda	%1,%0";
 #endif
 	  operands[1] = GEN_INT (rsrc1 - 31);
-	  output_asm_insn ("addo\t31,%1,%0\t# ldconst %3,%0", operands);
+	  output_asm_insn ("addo\t31,%1,%0\t# ldconst %3,%0 # ldconst 30", operands);
 	  return "";
 	}
     }
@@ -952,7 +952,7 @@ i960_output_ldconst (rtx dst, rtx src)
 	{
 	  /* return 'sub -(%1),0,%0' */
 	  operands[1] = GEN_INT (- rsrc1);
-	  output_asm_insn ("subo\t%1,0,%0\t# ldconst %3,%0", operands);
+	  output_asm_insn ("subo\t%1,0,%0\t# ldconst %3,%0 # ldconst 40", operands);
 	  return "";
 	}
       
@@ -960,7 +960,7 @@ i960_output_ldconst (rtx dst, rtx src)
       if (rsrc1 == -32)
 	{
 	  operands[1] = GEN_INT (~rsrc1);
-	  output_asm_insn ("not\t%1,%0	# ldconst %3,%0", operands);
+	  output_asm_insn ("not\t%1,%0	# ldconst %3,%0 # ldconst 50", operands);
 	  return "";
 	}
     }
@@ -969,7 +969,7 @@ i960_output_ldconst (rtx dst, rtx src)
   if (i960_bitpos (rsrc1) >= 0)
     {
       operands[1] = GEN_INT (i960_bitpos (rsrc1));
-      output_asm_insn ("setbit\t%1,0,%0\t# ldconst %3,%0", operands);
+      output_asm_insn ("setbit\t%1,0,%0\t# ldconst %3,%0 # ldconst 60", operands);
       return "";
     }
 
@@ -983,7 +983,7 @@ i960_output_ldconst (rtx dst, rtx src)
 	  rsrc2 = ((unsigned int) rsrc1) >> s;
 	  operands[1] = GEN_INT (rsrc2);
 	  operands[2] = GEN_INT (s);
-	  output_asm_insn ("shlo\t%2,%1,%0\t# ldconst %3,%0", operands);
+	  output_asm_insn ("shlo\t%2,%1,%0\t# ldconst %3,%0 # ldconst 70", operands);
 	  return "";
 	}
     }
@@ -993,9 +993,9 @@ i960_output_ldconst (rtx dst, rtx src)
      ror	31,3,g0	-> ldconst 0xe0000003,g0
    
      and any 2 instruction cases that might be worthwhile  */
-  
-  output_asm_insn ("ldconst	%1,%0", operands);
-  return "";
+    return "ldconst %1, %0 #ldconst 80";
+  //output_asm_insn ("ldconst	%1,%0 # ldconst 80", operands);
+  //return "";
 }
 
 /* Determine if there is an opportunity for a bypass optimization.
