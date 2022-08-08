@@ -894,6 +894,7 @@ x86_64-*-mingw*)
 	fi
 	;;
 i960*-*-elf*)
+    tmake_file="$tmake_file t-softfp-sfdftf t-softfp"
 	;;
 ia64*-*-elf*)
 	extra_parts="$extra_parts crtbeginS.o crtendS.o crtfastmath.o"
