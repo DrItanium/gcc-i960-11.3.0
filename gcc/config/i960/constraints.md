@@ -18,6 +18,7 @@
 ;; <http://www.gnu.org/licenses/>.
 
 
+
 (define_register_constraint "f" "TARGET_NUMERICS ? FP_REGS : NO_REGS"
  "Floating point registers provided by the numerics extension")
 
@@ -27,7 +28,7 @@
 (define_constraint "I" 
  "Literal values [0, 31]"
  (and (match_code "const_int")
-      (match_test "((unsigned) (ival) >= 0) && ((unsigned) (ival)) < 32")))
+      (match_test "IN_RANGE (ival, 0, 31)")))
 
 (define_constraint "J"
  "literal 0"
@@ -38,13 +39,13 @@
 (define_constraint "K"
  "Literal 0..-31"
  (and (match_code "const_int")
-      (match_test "((ival) >= -31) && ((ival) <= 0)")))
+      (match_test "IN_RANGE(ival, -31, 0)")))
 
 
 (define_constraint "M"
  "Defined in i960.h -32...0 ????"
  (and (match_code "const_int")
-      (match_test "((ival) >= -32) && ((ival) <= 0)")))
+      (match_test "IN_RANGE(ival, -32, 0)")))
 
 (define_constraint "G"
  "constant 0.0"

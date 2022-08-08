@@ -1259,4 +1259,13 @@ extern enum insn_types i960_last_insn_type;
 /* Defined in reload.c, and used in insn-recog.c.  */
 
 //extern int rtx_equal_function_value_matters;
+#undef SIZE_TYPE
+#define SIZE_TYPE "long unsigned int"
+
+#undef PTRDIFF_TYPE
+#define PTRDIFF_TYPE "long int"
+
+#undef WCHAR_TYPE
+#define WCHAR_TYPE "int"
+
 #endif
