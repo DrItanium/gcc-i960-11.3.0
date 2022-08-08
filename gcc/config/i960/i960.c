@@ -930,7 +930,7 @@ i960_output_ldconst (rtx dst, rtx src)
 	  if (i960_last_insn_type == I_TYPE_REG && TARGET_C_SERIES)
 	    return "lda	%1,%0 #lda3";
 #endif
-	  return "mov	%D1,%0 # ldconst 20";
+	  return "mov	%1,%0 # ldconst 20";
 	}
 
       /* ldconst	32..63,X	->	add	31,nn,X  */
