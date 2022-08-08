@@ -1068,7 +1068,10 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
 
 /* The prefix to add to user-visible assembler symbols.  */
 
+#undef USER_LABEL_PREFIX
 #define USER_LABEL_PREFIX "_"
+
+#define LOCAL_LABEL_PREFIX ".L"
 
 /* This is how to store into the string LABEL
    the symbol_ref name of an internal numbered label where
@@ -1076,7 +1079,7 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
    This is suitable for output with `assemble_name'.  */
 
 #define ASM_GENERATE_INTERNAL_LABEL(LABEL,PREFIX,NUM)	\
-  sprintf (LABEL, "*%s%lu", PREFIX, (unsigned long)(NUM))
+  sprintf (LABEL, "*%s%s%lu", LOCAL_LABEL_PREFIX, PREFIX, (unsigned long)(NUM))
 
 #define ASM_OUTPUT_REG_PUSH(FILE,REGNO)  \
   fprintf (FILE, "\tst\t%s,(sp)\n\taddo\t4,sp,sp\n", reg_names[REGNO])
@@ -1090,12 +1093,12 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
 /* This is how to output an element of a case-vector that is absolute.  */
 
 #define ASM_OUTPUT_ADDR_VEC_ELT(FILE, VALUE)  \
-  fprintf (FILE, "\t.word L%d\n", VALUE)
+  fprintf (FILE, "\t.word %s%d\n", LOCAL_LABEL_PREFIX, VALUE)
 
 /* This is how to output an element of a case-vector that is relative.  */
 
 #define ASM_OUTPUT_ADDR_DIFF_ELT(FILE, BODY, VALUE, REL)  \
-  fprintf (FILE, "\t.word L%d-L%d\n", VALUE, REL)
+  fprintf (FILE, "\t.word %s%d-%s%d\n", LOCAL_LABEL_PREFIX, VALUE, LOCAL_LABEL_PREFIX, REL)
 
 /* This is how to output an assembler line that says to advance the
    location counter to a multiple of 2**LOG bytes.  */
