@@ -883,59 +883,58 @@ i960_output_ldconst (rtx dst, rtx src)
 	output_asm_insn ("movq\t0,%0\t# ldconstq %1,%0",operands);
       /* Go pick up the low-order word.  */
     }
-  else if (mode == DImode)
-    {
+  else if (mode == DImode) {
       rtx upperhalf, lowerhalf, xoperands[2];
 
-      if (GET_CODE (src) == CONST_DOUBLE || GET_CODE (src) == CONST_INT)
- 	split_double (src, &lowerhalf, &upperhalf);
-
-      else
-	abort ();
+      if (GET_CODE (src) == CONST_DOUBLE || GET_CODE (src) == CONST_INT) {
+          split_double (src, &lowerhalf, &upperhalf);
+      } else {
+          abort ();
+      }
 
       /* Note: lowest order word goes in lowest numbered reg.  */
       /* Numbers from 0 to 31 can be handled with a single insn.  */
       rsrc1 = INTVAL (lowerhalf);
-      if (upperhalf == const0_rtx && rsrc1 >= 0 && rsrc1 < 32)
-	return "movl	%1,%0 #m7";
+      if (upperhalf == const0_rtx && rsrc1 >= 0 && rsrc1 < 32) {
+          return "movl	%1,%0 #m7";
+      }
 
+      /* emit the lower half with a recursive call (we don't want to fight with this ever!) */
+      xoperands[0] = gen_rtx_REG(SImode, REGNO(dst));
+      xoperands[1] = lowerhalf;
+      //return "mov	%D1,%0 # ldconst 20";
+      output_asm_insn (i960_output_ldconst(xoperands[0], xoperands[1]), xoperands);
       /* Output the upper half with a recursive call.  */
       xoperands[0] = gen_rtx_REG (SImode, REGNO (dst) + 1);
       xoperands[1] = upperhalf;
       output_asm_insn (i960_output_ldconst (xoperands[0], xoperands[1]),
 		       xoperands);
-      /* The lower word is emitted as normally.  */
-    }
-  else
-    {
+      return "";
+    } else {
       rsrc1 = INTVAL (src);
-      if (mode == QImode)
-	{
-	  if (rsrc1 > 0xff)
-	    rsrc1 &= 0xff;
-	}
-      else if (mode == HImode)
-	{
-	  if (rsrc1 > 0xffff)
-	    rsrc1 &= 0xffff;
-	}
-    }
+      if (mode == QImode) {
+          if (rsrc1 > 0xff) {
+              rsrc1 &= 0xff;
+          }
+      } else if (mode == HImode) {
+          if (rsrc1 > 0xffff) {
+              rsrc1 &= 0xffff;
+          }
+      }
+  }
 
-  if (rsrc1 >= 0)
-    {
+  if (rsrc1 >= 0) {
       /* ldconst	0..31,X		-> 	mov	0..31,X  */
-      if (rsrc1 < 32)
-	{
+      if (rsrc1 < 32) {
 #if 0
 	  if (i960_last_insn_type == I_TYPE_REG && TARGET_C_SERIES)
 	    return "lda	%1,%0 #lda3";
 #endif
-	  return "mov	%1,%0 # ldconst 20";
+	  return "mov	%D1,%0 # ldconst 20";
 	}
 
       /* ldconst	32..63,X	->	add	31,nn,X  */
-      if (rsrc1 < 63)
-	{
+      if (rsrc1 < 63) {
 #if 0
 	  if (i960_last_insn_type == I_TYPE_REG && TARGET_C_SERIES)
 	    return "lda	%1,%0";
