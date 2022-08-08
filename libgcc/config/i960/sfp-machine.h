@@ -50,3 +50,7 @@
 #define __BIG_ENDIAN 4321
 
 #define __BYTE_ORDER __LITTLE_ENDIAN
+
+# define strong_alias(name, aliasname) _strong_alias(name, aliasname)
+# define _strong_alias(name, aliasname) \
+  extern __typeof (name) aliasname __attribute__ ((alias (#name)));
