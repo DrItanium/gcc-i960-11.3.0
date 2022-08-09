@@ -1109,9 +1109,9 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
 #define ASM_OUTPUT_SKIP(FILE,SIZE)  \
   fprintf (FILE, "\t.space %d\n", (int)(SIZE))
 
+#if 0
 /* This says how to output an assembler line
    to define a global common symbol.  */
-
 /* For common objects, output unpadded size... gld960 & lnk960 both
    have code to align each common object at link time.  Also, if size
    is 0, treat this as a declaration, not a definition - i.e.,
@@ -1154,7 +1154,7 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
 /* Align code to 8 byte boundary if TARGET_CODE_ALIGN is true.  */
 
 #define	LABEL_ALIGN_AFTER_BARRIER(LABEL) (TARGET_CODE_ALIGN ? 3 : 0)
-
+#endif
 
 /* Print operand X (an rtx) in assembler syntax to file FILE.
    CODE is a letter or dot (`z' in `%z0') or 0 if no letter was specified.
