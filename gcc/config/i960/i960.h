@@ -102,9 +102,8 @@ Boston, MA 02111-1307, USA.  */
 
 /* Specs for the libraries to link with, to handle processor variations.
    Compatible with Intel's gnu960 tool chain.  */
-#undef LIB_SPEC
-#define LIB_SPEC "%{!nostdlib:-lcg %{p:-lprof}%{pg:-lgprof}\
-	  %{mka:-lfpg}%{msa:-lfpg}%{mca:-lfpg}%{mcf:-lfpg} -lgnu}"
+//#undef LIB_SPEC
+// #define LIB_SPEC "%{!nostdlib:-lcg %{p:-lprof}%{pg:-lgprof} %{mka:-lfpg}%{msa:-lfpg}%{mca:-lfpg}%{mcf:-lfpg} -lgnu}"
 
 /* Defining the macro shows we can debug even without a frame pointer.
    Actually, we can debug without FP.  But defining the macro results in
