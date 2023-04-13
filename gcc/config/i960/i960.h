@@ -91,8 +91,54 @@ enum reg_class
     LOCAL_REGS,
     LOCAL_OR_GLOBAL_REGS,
     FP_REGS,
+    SPECIAL_FUNCTION_REGISTERS,
     ALL_REGS,
     LIM_REG_CLASSES,
     /* No need to reference cc, ac, pc, tc, or SFRs for lack of allocation */
 };
+
+#define N_REG_CLASSES (int) LIM_REG_CLASSES
+#define REG_CLASS_NAMES { \
+    "NO_REGS", \
+    "GLOBAL_REGS", \
+    "LOCAL_REGS", \
+    "LOCAL_OR_GLOBAL_REGS", \
+    "FP_REGS", \
+    "ALL_REGS" }
+
+/*
+ * Pull in the allocation order from the old implementation as a base
+ */
+#define	REG_ALLOC_ORDER	\
+{  4, 5, 6, 7, 0, 1, 2, 3, 13,	 /* g4, g5, g6, g7, g0, g1, g2, g3, g13  */ \
+  20, 21, 22, 23, 24, 25, 26, 27,/* r4, r5, r6, r7, r8, r9, r10, r11  */    \
+  28, 29, 30, 31, 19, 8, 9, 10,	 /* r12, r13, r14, r15, r3, g8, g9, g10  */ \
+  11, 12,			 /* g11, g12  */			    \
+  32, 33, 34, 35,		 /* fp0, fp1, fp2, fp3  */		    \
+  /* We can't actually allocate these.  */				    \
+  16, 17, 18, 14, 15, 36, 37, 38, 39,	 /* r0 (pfp), r1 (sp), r2 (rip), g14 (lr), g15, cc, ac, pc, tc  */ \
+    /* special function registers are not available on all targets so make sure
+     * we can't allocate them at all!
+     */ \
+  40, 41, 42, 43, 44, 45, 46, 47, \
+  48, 49, 50, 51, 52, 53, 54, 55, \
+  56, 57, 58, 59, 60, 61, 62, 63, \
+  64, 65, 66, 67, 68, 69, 70, 71 }
+
+
+/**
+ * @brief Describes the argument counts for register and stack based
+ * operations.
+ */
+typedef struct i960_args 
+{
+    /**
+     * @brief the number of parmeters passed via registers
+     */
+    int nreg_params;
+    /**
+     * @brief the number of parameters passed via registers
+     */
+    int nstack_params;
+} CUMULATIVE_ARGS;
 #endif
