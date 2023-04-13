@@ -1,5 +1,5 @@
-;;- Constraint description for Intel 80960 chip for GNU C compiler
-;;   Copyright (C) 2022 Joshua Scoggins
+;;- Constraint description for Intel i960
+;;   Copyright (C) 2022-2023 Joshua Scoggins
 ;;
 ;; This file is part of GCC.
 ;;
