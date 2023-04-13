@@ -80,4 +80,19 @@
   1, 1, 1, 1, 1, 1, 1, 1,   \
   1, 1, 1, 1, 1, 1, 1, 1,   \
   1, 1, 1, 1, 1, 1, 1, 1}
+
+/*
+ * Register classes (taken from previous implementation but reformatted)
+ */
+enum reg_class 
+{
+    NO_REGS,
+    GLOBAL_REGS,
+    LOCAL_REGS,
+    LOCAL_OR_GLOBAL_REGS,
+    FP_REGS,
+    ALL_REGS,
+    LIM_REG_CLASSES,
+    /* No need to reference cc, ac, pc, tc, or SFRs for lack of allocation */
+};
 #endif
