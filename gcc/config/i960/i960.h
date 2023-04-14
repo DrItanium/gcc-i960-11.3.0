@@ -169,5 +169,12 @@ typedef struct i960_args
  */
 #define STRICT_ALIGNMENT 1
 
+/* Allocation boundary (in *bits*) for the code of a function.  */
+/* taken from old impl */
+#define FUNCTION_BOUNDARY 128
+
+/* Length in units of the trampoline for entering a nested function.  */
+/* taken from old impl */
+#define TRAMPOLINE_SIZE 20
 
 #endif
