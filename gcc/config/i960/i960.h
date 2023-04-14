@@ -20,6 +20,18 @@
 #ifndef GCC_I960_H
 #define GCC_I960_H
 
+/// @todo implement support for NUMERICS_ARCHITECTURE and other various architecture modes
+/// @todo implement support for TARGET SPECIFIC MACROS
+#define TARGET_CPU_CPP_BUILTINS()		\
+  do						\
+    {						\
+	builtin_define ("__i960__");		\
+    if (TARGET_NUMERICS) builtin_define("__i960_numerics__"); \
+	builtin_assert ("cpu=i960");		\
+	builtin_assert ("machine=i960");	\
+    }						\
+  while (0)
+
 
 /* 
  * Register map:
@@ -176,5 +188,20 @@ typedef struct i960_args
 /* Length in units of the trampoline for entering a nested function.  */
 /* taken from old impl */
 #define TRAMPOLINE_SIZE 20
+
+/* Register to use for pushing function arguments.  */
+#define STACK_POINTER_REGNUM 17
+
+/* Base register for access to local variables of the function.  */
+#define FRAME_POINTER_REGNUM 15
+
+/* Define this if most significant word of a multiword number is lowest
+   numbered.  */
+#define WORDS_BIG_ENDIAN 0
+
+/* No data type wants to be aligned rounder than this.
+   Extended precision floats gets 4-word alignment.  */
+#define BIGGEST_ALIGNMENT 128
+
 
 #endif
