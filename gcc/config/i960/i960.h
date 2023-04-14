@@ -31,10 +31,9 @@ Boston, MA 02111-1307, USA.  */
 #define TARGET_CPU_CPP_BUILTINS()		\
   do						\
     {						\
-	builtin_define_std ("i960");		\
-	builtin_define_std ("I960");		\
-	builtin_define_std ("i80960");		\
-	builtin_define_std ("I80960");		\
+	builtin_define ("__i960__");		\
+    if (TARGET_NUMERICS) builtin_define("__i960_numerics__"); \
+    if (TARGET_PROTECTED) builtin_define("__i960_protected__"); \
 	builtin_assert ("cpu=i960");		\
 	builtin_assert ("machine=i960");	\
     }						\
@@ -54,14 +53,17 @@ Boston, MA 02111-1307, USA.  */
 			%{mca:-D__i960CA}%{mcc:-D__i960CC}\
 			%{mcf:-D__i960CF}}\
 	%{msoft-float:-D_SOFT_FLOAT}\
-	%{mka:-D__i960KA__ -D__i960_KA__}\
-	%{mkb:-D__i960KB__ -D__i960_KB__}\
-	%{msa:-D__i960SA__ -D__i960_SA__}\
-	%{msb:-D__i960SB__ -D__i960_SB__}\
-	%{mmc:-D__i960MC__ -D__i960_MC__}\
-	%{mca:-D__i960CA__ -D__i960_CA__}\
-	%{mcc:-D__i960CC__ -D__i960_CC__}\
-	%{mcf:-D__i960CF__ -D__i960_CF__}\
+	%{mka:-D__i960KA__ -D__i960Kx__}\
+	%{mkb:-D__i960KB__ -D__i960Kx__}\
+	%{msa:-D__i960SA__ -D__i960Sx__}\
+	%{msb:-D__i960SB__ -D__i960Sx__}\
+	%{mmc:-D__i960MC__ -D__i960Mx__}\
+	%{mca:-D__i960CA__ -D__i960Cx__}\
+	%{mcc:-D__i960CC__ -D__i960Cx__}\
+	%{mcf:-D__i960CF__ -D__i960Cx__}\
+    %{mja:-D__i960JA__ -D__i960Jx__}\
+    %{mjd:-D__i960JD__ -D__i960Jx__}\
+    %{mjf:-D__i960JF__ -D__i960Jx__}\
 	%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:\
 		%{!mcc:%{!mcf:-D__i960_KB -D__i960KB__ %{mic*:-D__i960KB}}}}}}}}}\
 	%{mlong-double-64:-D__LONG_DOUBLE_64__}"
