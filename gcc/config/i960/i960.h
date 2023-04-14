@@ -20,8 +20,6 @@
 #ifndef GCC_I960_H
 #define GCC_I960_H
 
-/* Width of a word, in units (bytes).  */
-#define UNITS_PER_WORD 4
 
 /* 
  * Register map:
@@ -117,7 +115,8 @@ enum reg_class
   32, 33, 34, 35,		 /* fp0, fp1, fp2, fp3  */		    \
   /* We can't actually allocate these.  */				    \
   16, 17, 18, 14, 15, 36, 37, 38, 39,	 /* r0 (pfp), r1 (sp), r2 (rip), g14 (lr), g15, cc, ac, pc, tc  */ \
-    /* special function registers are not available on all targets so make sure
+    /* 
+     * special function registers are not available on all targets so make sure
      * we can't allocate them at all!
      */ \
   40, 41, 42, 43, 44, 45, 46, 47, \
@@ -141,4 +140,34 @@ typedef struct i960_args
      */
     int nstack_params;
 } CUMULATIVE_ARGS;
+
+/* The i960 can move up to 16-bytes in a single instruction (ldq, stq)
+ * across all implementations. There is the movqstr and other long form
+ * instructions which doesn't really count here since you must have access to
+ * protected mode architecture extensions.
+ */
+#define MOVE_MAX 16
+
+/*
+ * All versions of the i960 support little endian byte accesses. So big endian
+ * is not a thing in general. You can configure the PMCON registers in later
+ * chips to have the bus unit operate in big endian mode but that is not visible from the
+ * processor itself (as I understand it). Even with this being said, we only support little endian 
+ */
+#define BYTES_BIG_ENDIAN 0
+
+/* A word is 32-bits or 4-bytes */
+#define UNITS_PER_WORD 4
+
+/*
+ * To maximize compatibility with _all_ i960 implementations, we want to
+ * disallow unaligned accesses. On chips like the Kx and Sx, one can perform an
+ * unaligned load/store but it will slow things down. On chips like the Hx
+ * series, a fault will be generated! According to the i960 manuals, the choice
+ * is dependent on the implementation. In this case, it does not make sense to
+ * ever support unaligned memory accesses
+ */
+#define STRICT_ALIGNMENT 1
+
+
 #endif
