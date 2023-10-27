@@ -625,8 +625,7 @@ i960_emit_move_sequence (rtx* operands, enum machine_mode mode)
 /* Output assembler to move a double word value.  */
 
 const char *
-i960_output_move_double (rtx dst, rtx src)
-{
+i960_output_move_double (rtx dst, rtx src) {
     rtx operands[5];
 
     if (GET_CODE (dst) == REG && GET_CODE (src) == REG) {
@@ -644,7 +643,7 @@ i960_output_move_double (rtx dst, rtx src)
         }
     } else if (GET_CODE (dst) == REG
             && GET_CODE (src) == CONST_INT
-            && TARGET_CONST_OK_FOR_LETTER_P (INTVAL (src), 'I')) {
+            && TARGET_CONST_OK_FOR_LETTER_P(INTVAL (src), 'I')) {
         if (REGNO (dst) & 1) {
             return "mov	%1,%0\n\tmov	0,%D0 #m5.0";
         } else {
@@ -708,8 +707,7 @@ i960_output_move_quad (rtx dst, rtx src)
 {
   rtx operands[7];
 
-  if (GET_CODE (dst) == REG
-          && GET_CODE (src) == REG) {
+  if (GET_CODE (dst) == REG && GET_CODE (src) == REG) {
       if ((REGNO (src) & 3) || (REGNO (dst) & 3)) {
           /* We normally copy starting with the low numbered register.
              However, if there is an overlap such that the first dest reg
