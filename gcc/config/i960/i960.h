@@ -673,6 +673,14 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 
 /* Keep the stack pointer constant throughout the function.  */
 #define ACCUMULATE_OUTGOING_ARGS 1
+
+/* Define this macro if the targe tmachine has register windows. This C
+ expression returns true if the register is call-saved but is in the
+ register-window */
+ 
+#define LOCAL_REGNO(REGNO) \
+    ((REGNO) >= 16 && (REGNO) <= 32)
+
 #if 0
 /* Value is 1 if returning from a function call automatically
    pops the arguments described by the number-of-args field in the call.
