@@ -840,7 +840,7 @@ struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
    No definition is equivalent to always zero.  */
 
 #define	EXIT_IGNORE_STACK 1
-
+
 /* Addressing modes, and classification of registers for them.  */
 
 /* Macros to check register numbers against specific register classes.  */
@@ -912,7 +912,7 @@ struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
 #define REG_OK_FOR_BASE_P(X) REGNO_OK_FOR_BASE_P (REGNO (X))
 
 #endif
-
+
 /* GO_IF_LEGITIMATE_ADDRESS recognizes an RTL expression
    that is a valid memory address for an instruction.
    The MODE argument is the machine mode for the MEM expression
