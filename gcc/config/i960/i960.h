@@ -382,12 +382,6 @@ extern int target_flags;
   0, 0, 0, 0, 0, 0, 0, 0,	\
   0, 0, 0, 0, 1, 1}
 
-/* 1 for registers not available across function calls.
-   These must include the FIXED_REGISTERS and also any
-   registers that can be used without being saved.
-   The latter must include the registers where values are returned
-   and the register where structure-value addresses are passed.
-   Aside from that, you can include as many other registers as you like.  */
 
 /* On the 80960, note that:
 	g0..g3 are used for return values,
@@ -406,12 +400,19 @@ extern int target_flags;
 	r4-r11 may be clobbered by the mcount call when profiling
 	r4-r15 if otherwise unused may be used for preserving global registers
 	fp0..fp3 are never available.  */
-#define CALL_USED_REGISTERS  \
- {1, 1, 1, 1, 1, 1, 1, 1,	\
+
+/* 1 for registers not available across function calls.
+   These must include the FIXED_REGISTERS and also any
+   registers that can be used without being saved.
+   The latter must include the registers where values are returned
+   and the register where structure-value addresses are passed.
+   Aside from that, you can include as many other registers as you like.  */
+#define CALL_REALLY_USED_REGISTERS \
+ {0, 0, 0, 0, 0, 0, 0, 0,	\
   0, 0, 0, 0, 0, 1, 1, 1,	\
-  1, 1, 1, 0, 0, 0, 0, 0,	\
-  0, 0, 0, 0, 0, 0, 0, 0,	\
-  1, 1, 1, 1, 1, 1}
+  1, 1, 1, 1, 1, 1, 1, 1,	\
+  1, 1, 1, 1, 1, 1, 1, 1,	\
+  0, 0, 0, 0, 1, 1}
 
 #if 0
 /* If no fp unit, make all of the fp registers fixed so that they can't
