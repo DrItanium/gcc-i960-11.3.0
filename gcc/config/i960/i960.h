@@ -679,7 +679,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
  register-window */
  
 #define LOCAL_REGNO(REGNO) \
-    ((REGNO) >= 16 && (REGNO) <= 32)
+    ((REGNO) >= 16 && (REGNO) < 32)
 
 #if 0
 /* Value is 1 if returning from a function call automatically
