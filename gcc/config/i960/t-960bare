@@ -24,8 +24,12 @@
 i960-c.o: $(srcdir)/config/i960/i960-c.c $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) $(CPPLIB_H) $(TREE_H) c-family/c-pragma.h toplev.h $(GGC_H) $(TM_P_H)
 	$(COMPILER) -c $(ALL_COMPILERFLAGS) $(ALL_CPPFLAGS) $(INCLUDES) $< 
 
-MULTILIB_OPTIONS=mnumerics/msoft-float mlong-double-64
-MULTILIB_DIRNAMES=float soft-float ld64
+#MULTILIB_OPTIONS=mnumerics/msoft-float mlong-double-64
+#MULTILIB_DIRNAMES=float soft-float ld64
+#MULTILIB_MATCHES=mnumerics=msb mnumerics=msc mnumerics=mkb mnumerics=mkc mnumerics=mmc mnumerics=mcb mnumerics=mcc mnumerics=mjf msoft-float=msa msoft-float=mka msoft-float=mca msoft-float=mcf
+
+MULTILIB_OPTIONS=mnumerics/msoft-float
+MULTILIB_DIRNAMES=float soft-float
 MULTILIB_MATCHES=mnumerics=msb mnumerics=msc mnumerics=mkb mnumerics=mkc mnumerics=mmc mnumerics=mcb mnumerics=mcc mnumerics=mjf msoft-float=msa msoft-float=mka msoft-float=mca msoft-float=mcf
 
 #LIBGCC = stmp-multilib
