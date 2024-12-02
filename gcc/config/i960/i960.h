@@ -911,7 +911,7 @@ struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
    On the 960 this is never true.  */
 #define TARGET_GO_IF_MODE_DEPENDENT_ADDRESS(ADDR,LABEL)
 #endif
-
+
 /* Specify the machine mode that this machine uses
    for the index in the tablejump instruction.  */
 #define CASE_VECTOR_MODE SImode
