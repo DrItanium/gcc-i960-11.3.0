@@ -430,22 +430,6 @@ extern int target_flags;
 /* Base register for access to local variables of the function.  */
 #define FRAME_POINTER_REGNUM 15
 
-#if 0
-/* Value should be nonzero if functions must have frame pointers.
-   Zero means the frame pointer need not be set up (and parms
-   may be accessed via the stack pointer) in functions that seem suitable.
-   This is computed in `reload', in reload1.c.  */
-/* ??? It isn't clear to me why this is here.  Perhaps because of a bug (since
-   fixed) in the definition of INITIAL_FRAME_POINTER_OFFSET which would have
-   caused this to fail.  */
-/* ??? Must check current_function_has_nonlocal_goto, otherwise frame pointer
-  elimination messes up nonlocal goto sequences.  I think this works for other
-  targets because they use indirect jumps for the return which disables fp
-  elimination.  */
-#define FRAME_POINTER_REQUIRED \
-  (! leaf_function_p () || current_function_has_nonlocal_goto)
-
-#endif
 /* Definitions for register eliminations.
 
    This is an array of structures.  Each structure initializes one pair
@@ -454,11 +438,6 @@ extern int target_flags;
    in order of preference..  */
 
 #define ELIMINABLE_REGS	 {{FRAME_POINTER_REGNUM, STACK_POINTER_REGNUM}}
-#if 0
-/* Given FROM and TO register numbers, say whether this elimination is allowed.
-   Frame pointer elimination is automatically handled.  */
-#define CAN_ELIMINATE(FROM, TO) 1
-#endif
 
 /* Define the offset between two registers, one to be eliminated, and
    the other its replacement, at the start of a routine.
@@ -494,7 +473,7 @@ extern int target_flags;
   32, 33, 34, 35,		 /* fp0, fp1, fp2, fp3  */		    \
   /* We can't actually allocate these.  */				    \
   16, 17, 18, 14, 15, 36, 37}	 /* r0, r1, r2, g14, g15, cc  */
-
+
 /* Define the classes of registers for register constraints in the
    machine description.  Also define ranges of constants.
 
@@ -619,7 +598,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 #define SECONDARY_RELOAD_CLASS(CLASS,MODE,IN) \
   i960_secondary_reload_class (CLASS, MODE, IN)
 
-
+
 /* Stack layout; function entry, exit and calling.  */
 
 /* Define this if pushing a word on the stack
@@ -713,8 +692,6 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    stack and set PRETEND_SIZE to the length of the registers pushed.  */
 #define TARGET_SETUP_INCOMING_VARARGS(CUM,MODE,TYPE,PRETEND_SIZE,NO_RTL) \
   i960_setup_incoming_varargs(&CUM,MODE,TYPE,&PRETEND_SIZE,NO_RTL)
-#endif
-#if 0
 /* Implement `va_start' for varargs and stdarg.  */
 #define EXPAND_BUILTIN_VA_START(valist, nextarg) \
   i960_va_start (valist, nextarg)

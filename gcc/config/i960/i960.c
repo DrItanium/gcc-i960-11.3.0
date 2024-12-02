@@ -87,6 +87,7 @@ static struct rtx_def *i960_function_arg (cumulative_args_t, const class functio
 static void i960_function_arg_advance (cumulative_args_t, const class function_arg_info&);
 static void i960_setup_incoming_varargs (cumulative_args_t, const class function_arg_info&, int *, int);
 static void i960_conditional_register_usage(void);
+static bool i960_frame_pointer_required(void);
 /* Per-function machine data.  */
 struct GTY(()) machine_function
 {
@@ -208,6 +209,26 @@ i960_conditional_register_usage(void)
         fixed_regs[34] = 1;
         fixed_regs[35] = 1;
     }
+}
+static bool
+i960_frame_pointer_required(void)
+{
+/* Value should be nonzero if functions must have frame pointers.
+   Zero means the frame pointer need not be set up (and parms
+   may be accessed via the stack pointer) in functions that seem suitable.
+   This is computed in `reload', in reload1.c.  */
+/* ??? It isn't clear to me why this is here.  Perhaps because of a bug (since
+   fixed) in the definition of INITIAL_FRAME_POINTER_OFFSET which would have
+   caused this to fail.  */
+/* ??? Must check current_function_has_nonlocal_goto, otherwise frame pointer
+  elimination messes up nonlocal goto sequences.  I think this works for other
+  targets because they use indirect jumps for the return which disables fp
+  elimination.  */
+#if 0
+    return (! leaf_function_p () || current_function_has_nonlocal_goto);
+#else
+    return true;
+#endif
 }
 /* Return true if OP can be used as the source of an fp move insn.  */
 
@@ -3021,6 +3042,10 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_LRA_P hook_bool_void_false
 #undef TARGET_CONDITIONAL_REGISTER_USAGE
 #define TARGET_CONDITIONAL_REGISTER_USAGE i960_conditional_register_usage
+
+#undef TARGET_FRAME_POINTER_REQUIRED
+#define TARGET_FRAME_POINTER_REQUIRED i960_frame_pointer_required
+
 
 struct gcc_target targetm = TARGET_INITIALIZER;
 #include "gt-i960.h"
