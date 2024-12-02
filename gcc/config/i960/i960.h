@@ -344,7 +344,7 @@ extern int target_flags;
    80960 will work even with unaligned data, but it is slow.  */
 /// @todo should we support unaligned data? I'm thinking no!
 //#define STRICT_ALIGNMENT TARGET_STRICT_ALIGN
-#define STRICT_ALIGNMENT 0
+#define STRICT_ALIGNMENT 1
 
 /* Macros to determine size of aggregates (structures and unions
    in C).  Normally, these may be defined to simply return the maximum
@@ -354,7 +354,7 @@ extern int target_flags;
 
 #define ROUND_TYPE_ALIGN(TYPE, COMPUTED, SPECIFIED) \
   i960_round_align (MAX ((COMPUTED), (SPECIFIED)), TYPE)
-
+
 /* Standard register usage.  */
 
 /* Number of actual hardware registers.
@@ -412,18 +412,7 @@ extern int target_flags;
   0, 0, 0, 0, 0, 1, 1, 1,	\
   1, 1, 1, 1, 1, 1, 1, 1,	\
   1, 1, 1, 1, 1, 1, 1, 1,	\
-  1, 1, 1, 1, 1, 1}
-
-#if 0
-/* If no fp unit, make all of the fp registers fixed so that they can't
-   be used.  */
-#define	CONDITIONAL_REGISTER_USAGE	\
-  if (! TARGET_NUMERICS) {						\
-     fixed_regs[32] = fixed_regs[33] = fixed_regs[34] = fixed_regs[35] = 1;\
-  }									\
-
-#endif
-
+  0, 0, 0, 0, 1, 1}
 
 /* Specify the registers used for certain standard purposes.
    The values of these macros are register numbers.  */
@@ -734,7 +723,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 #define TARGET_EXPAND_BUILTIN_VA_ARG(valist, type) \
   i960_va_arg (valist, type)
 #endif
-
+
 /* Define a data type for recording info about an argument list
    during the scan of that argument list.  This data type should
    hold all necessary information about the function itself
@@ -817,13 +806,6 @@ struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
 /* Don't default to pcc-struct-return, because we have already specified
    exactly how to return structures in the RETURN_IN_MEMORY macro.  */
 #define DEFAULT_PCC_STRUCT_RETURN 0
-/* For an arg passed partly in registers and partly in memory,
-   this is the number of registers used.
-   This never happens on 80960.  */
-#if 0
-#define TARGET_FUNCTION_ARG_PARTIAL_NREGS(CUM, MODE, TYPE, NAMED) 0
-#endif
-
 /* Output the label for a function definition.
   This handles leaf functions and a few other things for the i960.  */
 

@@ -86,6 +86,7 @@ static void i960_option_override (void);
 static struct rtx_def *i960_function_arg (cumulative_args_t, const class function_arg_info&);
 static void i960_function_arg_advance (cumulative_args_t, const class function_arg_info&);
 static void i960_setup_incoming_varargs (cumulative_args_t, const class function_arg_info&, int *, int);
+static void i960_conditional_register_usage(void);
 /* Per-function machine data.  */
 struct GTY(()) machine_function
 {
@@ -196,6 +197,18 @@ i960_initialize ()
     //}
 }
 
+static void
+i960_conditional_register_usage(void)
+{
+/* If no fp unit, make all of the fp registers fixed so that they can't
+   be used.  */
+    if (! TARGET_NUMERICS) {
+        fixed_regs[32] = 1;
+        fixed_regs[33] = 1;
+        fixed_regs[34] = 1;
+        fixed_regs[35] = 1;
+    }
+}
 /* Return true if OP can be used as the source of an fp move insn.  */
 
 int
@@ -3006,6 +3019,8 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 // still use the old condition code stuff in the .md file so disable LRA
 #undef TARGET_LRA_P
 #define TARGET_LRA_P hook_bool_void_false
+#undef TARGET_CONDITIONAL_REGISTER_USAGE
+#define TARGET_CONDITIONAL_REGISTER_USAGE i960_conditional_register_usage
 
 struct gcc_target targetm = TARGET_INITIALIZER;
 #include "gt-i960.h"
