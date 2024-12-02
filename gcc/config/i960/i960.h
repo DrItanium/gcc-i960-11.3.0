@@ -412,7 +412,7 @@ extern int target_flags;
   0, 0, 0, 0, 0, 1, 1, 1,	\
   1, 1, 1, 1, 1, 1, 1, 1,	\
   1, 1, 1, 1, 1, 1, 1, 1,	\
-  0, 0, 0, 0, 1, 1}
+  1, 1, 1, 1, 1, 1}
 
 #if 0
 /* If no fp unit, make all of the fp registers fixed so that they can't
