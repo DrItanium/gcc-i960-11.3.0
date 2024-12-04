@@ -262,10 +262,10 @@ extern int i960_last_maxbitalignment;
    and the register where structure-value addresses are passed.
    Aside from that, you can include as many other registers as you like.  */
 #define CALL_REALLY_USED_REGISTERS \
- {0, 0, 0, 0, 0, 0, 0, 0,	\
-  0, 0, 0, 0, 0, 1, 1, 1,	\
+ {1, 1, 1, 1, 1, 1, 1, 1,	\
   1, 1, 1, 1, 1, 1, 1, 1,	\
-  1, 1, 1, 1, 1, 1, 1, 1,	\
+  1, 1, 1, 0, 0, 0, 0, 0,	\
+  0, 0, 0, 0, 0, 0, 0, 0,	\
   0, 0, 0, 0, 1, 1}
 
 /* Specify the registers used for certain standard purposes.
@@ -433,7 +433,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    stack, space is allocated for every register parameter.  */
 #define TARGET_MAYBE_REG_PARM_STACK_SPACE 48
 #define REG_PARM_STACK_SPACE(DECL) i960_reg_parm_stack_space (DECL)
-#define OUTGOING_REG_PARM_STACK_SPACE
+#define OUTGOING_REG_PARM_STACK_SPACE(FNTYPE) 0
 
 /* Keep the stack pointer constant throughout the function.  */
 #define ACCUMULATE_OUTGOING_ARGS 1
