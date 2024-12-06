@@ -2350,19 +2350,16 @@ i960_object_bytes_bitalign (int n)
 int
 i960_round_align (int align, tree type)
 {
-  int new_align;
-  tree tsize;
-
   //if (TARGET_OLD_ALIGN || TYPE_PACKED (type))
   //  return align;
   if (TREE_CODE (type) != RECORD_TYPE)
     return align;
-  tsize = TYPE_SIZE (type);
+  tree tsize = TYPE_SIZE (type);
 
   if (! tsize || TREE_CODE (tsize) != INTEGER_CST)
     return align;
 
-  new_align = i960_object_bytes_bitalign (TREE_INT_CST_LOW (tsize)
+  int new_align = i960_object_bytes_bitalign (TREE_INT_CST_LOW (tsize)
 					  / BITS_PER_UNIT);
   /* Handle #pragma align.  */
   if (new_align > i960_maxbitalignment)
@@ -2373,7 +2370,7 @@ i960_round_align (int align, tree type)
 
   return align;
 }
-
+
 /* Do any needed setup for a varargs function.  For the i960, we must
    create a register parameter block if one doesn't exist, and then copy
    all register parameters to memory.  */
@@ -2444,32 +2441,8 @@ i960_build_builtin_va_list ()
 void
 i960_va_start (tree valist, rtx nextarg)
 {
-#if 0
-    tree s, t, base, num;
-    rtx fake_arg_pointer_rtx;
-
-    /* The array type always decays to a pointer before we get here, so we
-       can't use ARRAY_REF.  */
-    base = build1 (INDIRECT_REF, unsigned_type_node, valist);
-    num = build1 (INDIRECT_REF, unsigned_type_node,
-                  build_nt (PLUS_EXPR, unsigned_type_node, valist,
-                            TYPE_SIZE_UNIT (TREE_TYPE (valist))));
-
-    /* Use a different rtx than arg_pointer_rtx so that cse and friends
-       can go on believing that the argument pointer can never be zero.  */
-    fake_arg_pointer_rtx = gen_raw_REG (Pmode, ARG_POINTER_REGNUM);
-    s = make_tree (unsigned_type_node, fake_arg_pointer_rtx);
-    t = build_nt (MODIFY_EXPR, unsigned_type_node, base, s);
-    TREE_SIDE_EFFECTS (t) = 1;
-    expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-    s = build_int_2 ((current_function_args_info.ca_nregparms
-                      + current_function_args_info.ca_nstackparms) * 4, 0);
-    t = build_nt (MODIFY_EXPR, unsigned_type_node, num, s);
-    TREE_SIDE_EFFECTS (t) = 1;
-    expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-#else
-#warning "PLEASE IMPLEMENT VA_START"
-#endif
+    nextarg = expand_builtin_saveregs();
+    std_expand_builtin_va_start(valist, nextarg);
 }
 
 /* Implement `va_arg'.  */
@@ -2987,8 +2960,8 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #undef TARGET_FUNCTION_ARG_BOUNDARY
 #define TARGET_FUNCTION_ARG_BOUNDARY i960_function_arg_boundary
 /// @todo reactivate
-//#undef TARGET_EXPAND_BUILTIN_VA_START
-//#define TARGET_EXPAND_BUILTIN_VA_START i960_va_start
+#undef TARGET_EXPAND_BUILTIN_VA_START
+#define TARGET_EXPAND_BUILTIN_VA_START i960_va_start
 #undef TARGET_STARTING_FRAME_OFFSET
 #define TARGET_STARTING_FRAME_OFFSET i960_starting_frame_offset
 #undef TARGET_ASM_ALIGNED_SI_OP
