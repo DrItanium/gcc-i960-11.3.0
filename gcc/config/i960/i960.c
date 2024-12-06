@@ -193,8 +193,8 @@ i960_initialize ()
     //    i960_maxbitalignment = 8;
     //    i960_last_maxbitalignment = 128;
     //} else {
-    //    i960_maxbitalignment = 128;
-    //    i960_last_maxbitalignment = 8;
+        i960_maxbitalignment = 128;
+        i960_last_maxbitalignment = 8;
     //}
 }
 
@@ -664,7 +664,7 @@ i960_emit_move_sequence (rtx* operands, enum machine_mode mode)
 const char *
 i960_output_move_double (rtx dst, rtx src) {
     rtx operands[5];
-
+    /// @todo cleanup the if conditionals?
     if (GET_CODE (dst) == REG && GET_CODE (src) == REG) {
         if ((REGNO (src) & 1) || (REGNO (dst) & 1)) {
             /* We normally copy the low-numbered register first.  However, if
