@@ -409,32 +409,31 @@ i960_bitpos (unsigned int val)
 int
 i960_is_mask (unsigned int val)
 {
-  int start, end = 0, i;
+    int start = -1;
+    int end = 0;
+    for (int i = 0; val != 0; val >>= 1, ++i) {
+        if (val & 1) {
+            if (start < 0) {
+                start = i;
+            }
+            end = i;
+            continue;
+        }
+        /* Still looking for the first bit.  */
+        if (start < 0) {
+            continue;
+        }
 
-  start = -1;
-  for (i = 0; val != 0; val >>= 1, i++)
-    {
-      if (val & 1)
-	{
-	  if (start < 0)
-	    start = i;
-
-	  end = i;
-	  continue;
-	}
-      /* Still looking for the first bit.  */
-      if (start < 0)
-	continue;
-
-      /* We've seen the start of a bit sequence, and now a zero.  There
-	 must be more one bits, otherwise we would have exited the loop.
-	 Therefore, it is not a mask.  */
-      if (val)
-	return 0;
+        /* We've seen the start of a bit sequence, and now a zero.  There
+       must be more one bits, otherwise we would have exited the loop.
+       Therefore, it is not a mask.  */
+        if (val) {
+            return 0;
+        }
     }
 
-  /* The bit string has ones from START to END bit positions only.  */
-  return end - start + 1;
+    /* The bit string has ones from START to END bit positions only.  */
+    return end - start + 1;
 }
 
 /* If VAL is a mask, then return nonzero, with S set to the starting bit
@@ -446,42 +445,39 @@ i960_is_mask (unsigned int val)
 int
 i960_bitstr (unsigned int val, int* s, int* e)
 {
-  int start, end, i;
 
-  start = -1;
-  end = -1;
-  for (i = 0; val != 0; val >>= 1, i++)
-    {
-      if (val & 1)
-	{
-	  if (start < 0)
-	    start = i;
+    int start = -1;
+    int end = -1;
+    for (int i = 0; val != 0; val >>= 1, ++i) {
+        if (val & 1) {
+            if (start < 0) {
+                start = i;
+            }
+            end = i;
+            continue;
+        }
 
-	  end = i;
-	  continue;
-	}
+        /* Still looking for the first bit.  */
+        if (start < 0) {
+            continue;
+        }
 
-      /* Still looking for the first bit.  */
-      if (start < 0)
-	continue;
-
-      /* We've seen the start of a bit sequence, and now a zero.  There
-	 must be more one bits, otherwise we would have exited the loop.
-	 Therefor, it is not a mask.  */
-      if (val)
-	{
-	  start = -1;
-	  end = -1;
-	  break;
-	}
+        /* We've seen the start of a bit sequence, and now a zero.  There
+       must be more one bits, otherwise we would have exited the loop.
+       Therefor, it is not a mask.  */
+        if (val) {
+            start = -1;
+            end = -1;
+            break;
+        }
     }
 
-  /* The bit string has ones from START to END bit positions only.  */
-  *s = start;
-  *e = end;
-  return ((start < 0) ? 0 : end - start + 1);
+    /* The bit string has ones from START to END bit positions only.  */
+    *s = start;
+    *e = end;
+    return ((start < 0) ? 0 : end - start + 1);
 }
-
+
 /* Return the machine mode to use for a comparison.  */
 
 enum machine_mode
@@ -503,12 +499,13 @@ i960_gen_compare_reg (enum rtx_code code, rtx x, rtx y)
   enum machine_mode mode
     = GET_MODE (x) == VOIDmode ? GET_MODE (y) : GET_MODE (x);
 
-  if (mode == SImode)
-    {
-      if (! arith_operand (x, mode))
-	x = force_reg (SImode, x);
-      if (! arith_operand (y, mode))
-	y = force_reg (SImode, y);
+    if (mode == SImode) {
+        if (! arith_operand (x, mode)) {
+            x = force_reg(SImode, x);
+        }
+        if (! arith_operand (y, mode)) {
+            y = force_reg(SImode, y);
+        }
     }
 
   cc_reg = gen_rtx_REG (ccmode, 36);
@@ -527,47 +524,53 @@ i960_gen_compare_reg (enum rtx_code code, rtx x, rtx y)
 static int 
 i960_address_cost (rtx x, machine_mode, addr_space_t, bool)
 {
-  if (GET_CODE (x) == REG)
-    return 1;
+  if (GET_CODE (x) == REG) {
+      return 1;
+  }
 
   /* This is a MEMA operand -- it's free.  */
   if (GET_CODE (x) == CONST_INT
       && INTVAL (x) >= 0
-      && INTVAL (x) < 4096)
-    return 0;
+      && INTVAL (x) < 4096) {
+      return 0;
+  }
 
-  if (GET_CODE (x) == PLUS)
-    {
+  if (GET_CODE (x) == PLUS) {
       rtx base = XEXP (x, 0);
       rtx offset = XEXP (x, 1);
 
-      if (GET_CODE (base) == SUBREG)
-	base = SUBREG_REG (base);
-      if (GET_CODE (offset) == SUBREG)
-	offset = SUBREG_REG (offset);
+      if (GET_CODE (base) == SUBREG) {
+          base = SUBREG_REG (base);
+      }
+      if (GET_CODE (offset) == SUBREG) {
+          offset = SUBREG_REG (offset);
+      }
 
-      if (GET_CODE (base) == REG)
-	{
-	  if (GET_CODE (offset) == REG)
-	    return 2;
-	  if (GET_CODE (offset) == CONST_INT)
-	    {
-	      if ((unsigned)INTVAL (offset) < 2047)
-		return 2;
-	      return 4;
-	    }
-	  if (CONSTANT_P (offset))
-	    return 4;
-	}
-      if (GET_CODE (base) == PLUS || GET_CODE (base) == MULT)
-	return 6;
+      if (GET_CODE (base) == REG) {
+          if (GET_CODE (offset) == REG) {
+              return 2;
+          }
+          if (GET_CODE (offset) == CONST_INT) {
+              if ((unsigned)INTVAL (offset) < 2047) {
+                  return 2;
+              }
+              return 4;
+          }
+          if (CONSTANT_P (offset)) {
+              return 4;
+          }
+      }
+      if (GET_CODE (base) == PLUS || GET_CODE (base) == MULT) {
+          return 6;
+      }
 
       /* This is an invalid address.  The return value doesn't matter, but
 	 for convenience we make this more expensive than anything else.  */
       return 12;
     }
-  if (GET_CODE (x) == MULT)
-    return 6;
+  if (GET_CODE (x) == MULT) {
+      return 6;
+  }
 
   /* Symbol_refs and other unrecognized addresses are cost 4.  */
   return 4;
@@ -2124,34 +2127,6 @@ i960_legitimate_address_p (enum machine_mode mode, rtx addr, int strict)
     return 0;
 }
 
-/* Try machine-dependent ways of modifying an illegitimate address
-   to be legitimate.  If we find one, return the new, valid address.
-   This macro is used in only one place: `memory_address' in explow.c.
-
-   This converts some non-canonical addresses to canonical form so they
-   can be recognized.  */
-
-
-#if 0
-/* Return the most stringent alignment that we are willing to consider
-   objects of size SIZE and known alignment ALIGN as having.  */
-   
-int
-i960_alignment (int size, int align)
-{
-  int i;
-
-  if (! TARGET_STRICT_ALIGN)
-    if (TARGET_IC_COMPAT2_0 || align >= 4)
-      {
-	i = i960_object_bytes_bitalign (size) / BITS_PER_UNIT;
-	if (i > align)
-	  align = i;
-      }
-
-  return align;
-}
-#endif
 
 
 /* Return the minimum alignment of an expression rtx X in bytes.  This takes
@@ -2229,26 +2204,14 @@ i960_expr_alignment (rtx x, int size)
 int
 i960_improve_align (rtx base, rtx offset, int size)
 {
-  int i, j;
+  int i;
 
   /* We have at least a word reference to the object, so we know it has to
      be aligned at least to 4 bytes.  */
 
   i = MIN (i960_expr_alignment (base, 4),
 	   i960_expr_alignment (offset, 4));
-
   i = MAX (i, 4);
-
-  /* We know the size of the request.  If strict align is not enabled, we
-     can guess that the alignment is OK for the requested size.  */
-// strict align is always on so ignore this
-/// @todo fix this if we go back to supporting non strict alignment
-#if 0
-  if (! TARGET_STRICT_ALIGN)
-    if ((j = (i960_object_bytes_bitalign (size) / BITS_PER_UNIT)) > i)
-      i = j;
-#endif
-
   return (i >= size);
 }
 
@@ -2773,6 +2736,14 @@ i960_rtx_costs (rtx x, machine_mode, int code, int outer_code, int* total, bool)
       return false;
     }
 }
+namespace {
+    constexpr bool isHardRegister(unsigned int index) noexcept {
+        return index < 32;
+    }
+    constexpr bool isFloatingPointRegister(unsigned int index) noexcept {
+        return index >= 32 && index < 36;
+    }
+}
 static unsigned int
 i960_hard_regno_nregs (unsigned int regno, machine_mode mode)
 {
@@ -2784,7 +2755,7 @@ i960_hard_regno_nregs (unsigned int regno, machine_mode mode)
    On 80960, ordinary registers hold 32 bits worth, but can be ganged
    together to hold double or extended precision floating point numbers,
    and the floating point registers hold any size floating point number */
-    if (regno < 32) {
+    if (isHardRegister(regno)) {
         if (mode == VOIDmode) {
             return 1;
         } else {
@@ -2810,44 +2781,44 @@ i960_hard_regno_mode_ok (unsigned int regno, machine_mode mode) {
 /* Value is 1 if hard register REGNO can hold a value of machine-mode MODE.
    On 80960, the cpu registers can hold any mode but the float registers
    can only hold SFmode, DFmode, or TFmode.  */
-    if (regno < 32) {
+    if (isHardRegister(regno)) {
         switch (mode) {
-            case CCmode: 
-            case CC_UNSmode: 
+            case CCmode:
+            case CC_UNSmode:
             case CC_CHKmode:
                 return false;
 
-            case DImode: 
+            case DImode:
             case DFmode:
                 return (regno & 1) == 0;
 
-            case TImode: 
+            case TImode:
             case TFmode:
                 return (regno & 3) == 0;
 
             default:
                 return true;
         }
-    } else if (regno >= 32 && regno < 36) {
+    } else if (isFloatingPointRegister(regno)) {
         switch (mode) {
             case SFmode: 
             case DFmode: 
             case TFmode:
             case SCmode: 
             case DCmode:
-                return 1;
+                return true;
             default:
-                return 0;
+                return false;
         }
     } else if (regno == 36) {
         switch (mode) {
             case CCmode: 
             case CC_UNSmode: 
             case CC_CHKmode:
-                return 1;
+                return true;
 
             default:
-                return 0;
+                return false;
         }
     } else if (regno == 37) {
         return false;
