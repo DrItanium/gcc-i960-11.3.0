@@ -727,6 +727,10 @@ i960_output_move_double (rtx dst, rtx src) {
 const char *
 i960_output_move_double_zero (rtx dst)
 {
+    /// @todo improve this code, while it is register efficient, it is very execution poor. It can really hammer the bus for very little benefit
+
+    // this code is also compatible with all of the different variants of the i960
+    // it is also important to remember that g14 needs to stay zero while not being used so this function takes advantage of that fact
   rtx operands[2];
 
   operands[0] = dst;
