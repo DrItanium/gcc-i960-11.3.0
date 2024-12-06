@@ -829,13 +829,10 @@ i960_output_move_quad_zero (rtx dst)
 const char *
 i960_output_ldconst (rtx dst, rtx src)
 {
-  int rsrc1;
-  unsigned int rsrc2;
+  int rsrc1 = 0;
+  unsigned int rsrc2 = 0;
   enum machine_mode mode = GET_MODE (dst);
-  rtx operands[4];
-
-  operands[0] = operands[2] = dst;
-  operands[1] = operands[3] = src;
+  rtx operands[4] { dst, src, dst, src };
 
   /* Anything that isn't a compile time constant, such as a SYMBOL_REF,
      must be a ldconst insn.  */
@@ -1018,7 +1015,7 @@ i960_output_ldconst (rtx dst, rtx src)
 	  return "";
 	}
     }
-
+  // the following comment is kind of nonsense but perhaps we will expand on it at some point in the future
   /* Unimplemented cases:
      const is in range 0..31 but rotated around end of word:
      ror	31,3,g0	-> ldconst 0xe0000003,g0
