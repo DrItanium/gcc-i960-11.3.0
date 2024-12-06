@@ -61,7 +61,6 @@ extern bool i960_bypass (rtx_insn*, rtx, rtx, int);
 extern void i960_print_operand_addr (FILE *, rtx);
 extern int i960_expr_alignment (rtx, int);
 extern int i960_improve_align (rtx, rtx, int);
-extern rtx i960_va_arg (tree, tree);
 extern void i960_va_start (tree, rtx);
 extern enum reg_class i960_secondary_reload_class (enum reg_class, enum machine_mode, rtx);
 extern int i960_si_ti (rtx, rtx);
