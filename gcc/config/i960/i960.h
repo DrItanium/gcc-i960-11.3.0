@@ -745,8 +745,7 @@ extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
 
 /* The prefix to add to user-visible assembler symbols.  */
 
-//#undef USER_LABEL_PREFIX
-//#define USER_LABEL_PREFIX "_"
+#define USER_LABEL_PREFIX ""
 
 
 #define LOCAL_LABEL_PREFIX ".L"
