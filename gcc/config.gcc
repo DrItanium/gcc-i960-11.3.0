@@ -2264,7 +2264,7 @@ x86_64-*-fuchsia*)
 	tm_file="${tm_file} i386/unix.h i386/att.h elfos.h newlib-stdint.h i386/i386elf.h i386/x86-64.h fuchsia.h"
 	;;
 i960*-*-elf*)
-	tm_file="${tm_file} dbxelf.h elfos.h newlib-stdint.h"
+	tm_file="${tm_file} dbxelf.h elfos.h newlib-stdint.h i960/elf.h"
 	tmake_file="i960/t-960bare"
 c_target_objs="${c_target_objs} i960-c.o"
 	cxx_target_objs="${cxx_target_objs} i960-c.o"

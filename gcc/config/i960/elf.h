@@ -36,7 +36,5 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 #undef  ENDFILE_SPEC
 #define ENDFILE_SPEC "crtend.o%s"
-
 /* End of elf.h */
-
 #endif
