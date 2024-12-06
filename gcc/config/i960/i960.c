@@ -2859,6 +2859,8 @@ i960_legitimize_address (rtx x,
 			rtx oldx,
 			machine_mode mode)
 {
+    (void)oldx;
+    (void)mode;
 /* Try machine-dependent ways of modifying an illegitimate address
    to be legitimate.  If we find one, return the new, valid address.
    This macro is used in only one place: `memory_address' in explow.c.
@@ -2901,40 +2903,41 @@ i960_legitimize_address (rtx x,
   /* Canonicalize (plus (plus (mult (reg) (const)) (plus (reg) (const))) const)
      into (plus (plus (mult (reg) (const)) (reg)) (const)).  */
   else if (GET_CODE (x) == PLUS && GET_CODE (XEXP (x, 0)) == PLUS
-	   && GET_CODE (XEXP (XEXP (x, 0), 0)) == MULT
-	   && GET_CODE (XEXP (XEXP (x, 0), 1)) == PLUS
-	   && CONSTANT_P (XEXP (x, 1)))
-    {
+           && GET_CODE (XEXP (XEXP (x, 0), 0)) == MULT
+           && GET_CODE (XEXP (XEXP (x, 0), 1)) == PLUS
+           && CONSTANT_P (XEXP (x, 1)))
+  {
       rtx constant, other;
 
-      if (GET_CODE (XEXP (x, 1)) == CONST_INT)
-	{
-	  constant = XEXP (x, 1);
-	  other = XEXP (XEXP (XEXP (x, 0), 1), 1);
-	}
-      else if (GET_CODE (XEXP (XEXP (XEXP (x, 0), 1), 1)) == CONST_INT)
-	{
-	  constant = XEXP (XEXP (XEXP (x, 0), 1), 1);
-	  other = XEXP (x, 1);
-	}
-      else
-	constant = 0, other = 0;
+      if (GET_CODE (XEXP (x, 1)) == CONST_INT) {
+          constant = XEXP (x, 1);
+          other = XEXP (XEXP (XEXP (x, 0), 1), 1);
+      } else if (GET_CODE (XEXP (XEXP (XEXP (x, 0), 1), 1)) == CONST_INT) {
+          constant = XEXP (XEXP (XEXP (x, 0), 1), 1);
+          other = XEXP (x, 1);
+      } else {
+          constant = 0;
+          other = 0;
+      }
 
-      if (constant)
-	x = gen_rtx_PLUS (Pmode,
-			  gen_rtx_PLUS (Pmode, XEXP (XEXP (x, 0), 0),
-					XEXP (XEXP (XEXP (x, 0), 1), 0)),
-			  plus_constant (Pmode, other, INTVAL (constant)));
-    }
+      if (constant) {
+          x = gen_rtx_PLUS(Pmode,
+                           gen_rtx_PLUS(Pmode, XEXP (XEXP(x, 0), 0),
+                                        XEXP (XEXP(XEXP(x, 0), 1), 0)),
+                           plus_constant(Pmode, other, INTVAL (constant)));
+      }
+  }
 
   return x;
 }
 bool
 i960_truly_noop_truncation (poly_uint64 outprec, poly_uint64 inprec)
 {
+    (void)outprec;
+    (void)inprec;
 /* Value is 1 if truncating an integer of INPREC bits to OUTPREC bits
    is done just by pretending it is already truncated.  */
-    return 1;
+    return true;
 }
 bool
 i960_legitimate_constant_p (machine_mode, rtx x)
