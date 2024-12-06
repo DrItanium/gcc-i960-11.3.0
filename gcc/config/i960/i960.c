@@ -813,6 +813,15 @@ i960_output_move_quad (rtx dst, rtx src)
 const char *
 i960_output_move_quad_zero (rtx dst)
 {
+    // Oof, I see why having the four store instructions but oof! It will nuke the memory bursting feature of the i960... but if the quad zero is not aligned to 16-byte boundaries then there is nothing to be done
+    // It can also cause a bunch of instruction cache line thrashing if not careful! The Sx/Kx processors support unaligned memory burst transactions.
+    // These processors break the transaction into two bus requests. The Sx/Kx processors access memory on 16-byte groups and provide an offset into that group.
+    //
+    // If the i960 Sx/Kx had a data cache then this does not actually matter much since we could "smooth" out the bus accesses with the data cache.
+    /// @todo Fix this code to better take advantage of burst mode of the i960 processor if alignment can be determined at this point.
+    // Using four separate store operations for move a quad zero to memory is the safest way to support all of the different i960 variants.
+    // Newer versions do not support unaligned accesses so I get it.
+
   rtx operands[4];
 
   operands[0] = dst;
