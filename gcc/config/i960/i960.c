@@ -731,7 +731,7 @@ const char *
 i960_output_move_quad (rtx dst, rtx src)
 {
   rtx operands[7];
-
+    /// @todo Can we emit two long word ops when we are not aligned to quad register boundaries?
   if (GET_CODE (dst) == REG && GET_CODE (src) == REG) {
       if ((REGNO (src) & 3) || (REGNO (dst) & 3)) {
           /* We normally copy starting with the low numbered register.
@@ -1036,22 +1036,22 @@ i960_output_ldconst (rtx dst, rtx src)
    CMPBR_FLAG is true if this is for a compare-and-branch insn.
    OP1 and OP2 are the two source operands of a 3 operand insn.  */
 
-int
+bool
 i960_bypass (rtx_insn* insn, rtx op1, rtx op2, int cmpbr_flag)
 {
   rtx prev_insn, prev_dest;
 #if 0
   if (TARGET_C_SERIES)
-    return 0;
+    return false;
 #endif
 
   /* Can't do this if op1 isn't a register.  */
   if (! REG_P (op1))
-    return 0;
+    return false;
 
   /* Can't do this for a compare-and-branch if both ops aren't regs.  */
   if (cmpbr_flag && ! REG_P (op2))
-    return 0;
+    return false;
 
   prev_insn = prev_real_insn (insn);
 
@@ -1063,9 +1063,9 @@ i960_bypass (rtx_insn* insn, rtx op1, rtx op2, int cmpbr_flag)
 	  || (GET_CODE (prev_dest) == SUBREG
 	      && GET_CODE (SUBREG_REG (prev_dest)) == REG
 	      && REGNO (SUBREG_REG (prev_dest)) == REGNO (op1)))
-	return 1;
+	return true;
     }
-  return 0;
+  return false;
 }
 
 /* Output the code which declares the function name.  This also handles
