@@ -232,22 +232,6 @@ i960_frame_pointer_required(void)
 }
 /* Return true if OP can be used as the source of an fp move insn.  */
 
-int
-i960_fpmove_src_operand (rtx op, enum machine_mode mode)
-{
-  return (GET_CODE (op) == CONST_DOUBLE || general_operand (op, mode));
-}
-
-#if 0
-/* Return true if OP is a register or zero.  */
-
-int
-reg_or_zero_operand (rtx op, enum machine_mode mode)
-{
-  return register_operand (op, mode) || op == const0_rtx;
-}
-#endif
-
 /* Return truth value of whether OP can be used as an operands in a three
    address arithmetic insn (such as add %o1,7,%l2) of mode MODE.  */
 

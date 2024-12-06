@@ -45,7 +45,6 @@ extern int i960_fp_literal (rtx, enum machine_mode);
 extern int i960_signed_literal (rtx, enum machine_mode);
 extern int i960_legitimate_address_p (enum machine_mode, rtx, int);
 extern void i960_print_operand (FILE *, rtx, int);
-extern int i960_fpmove_src_operand (rtx, enum machine_mode);
 extern int i960_arith_operand (rtx, enum machine_mode);
 extern int i960_logic_operand (rtx, enum machine_mode);
 extern int i960_fp_arith_operand (rtx, enum machine_mode);
