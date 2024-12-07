@@ -614,9 +614,7 @@ i960_emit_move_sequence (rtx* operands, enum machine_mode mode)
    'r' or 'g' are pre-defined to the class GENERAL_REGS.  */
 /* 'l' and 'b' are probably never used.  Note that 'd' and 'r' are *not*
    the same thing, since 'r' may include the fp registers.  */
-//#define REG_CLASS_FROM_LETTER(C) \
-//  (((C) == 'f') && (TARGET_NUMERICS) ? FP_REGS : ((C) == 'l' ? LOCAL_REGS : \
-//    (C) == 'b' ? GLOBAL_REGS : ((C) == 'd' ? LOCAL_OR_GLOBAL_REGS : NO_REGS)))
+// #define REG_CLASS_FROM_LETTER(C) (((C) == 'f') && (TARGET_NUMERICS) ? FP_REGS : ((C) == 'l' ? LOCAL_REGS : (C) == 'b' ? GLOBAL_REGS : ((C) == 'd' ? LOCAL_OR_GLOBAL_REGS : NO_REGS)))
 /* The letters I, J, K, L and M in a register constraint string
    can be used to stand for particular ranges of immediate operands.
    This macro defines what the ranges are.
@@ -2432,12 +2430,8 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_inf
 static tree
 i960_build_builtin_va_list ()
 {
-#if 0
   return build_array_type (unsigned_type_node,
 			   build_index_type (size_one_node));
-#else
-    return std_build_builtin_va_list();
-#endif
 }
 
 /* Implement `va_start' for varargs and stdarg.  */
@@ -2463,80 +2457,14 @@ i960_va_start (tree valist, rtx nextarg)
     t = build_nt (MODIFY_EXPR, unsigned_type_node, base, s);
     TREE_SIDE_EFFECTS (t) = 1;
     expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-    s = build_int_2 ((current_function_args_info.ca_nregparms
+    s = build_int_cst ((current_function_args_info.ca_nregparms
                       + current_function_args_info.ca_nstackparms) * 4, 0);
     t = build_nt (MODIFY_EXPR, unsigned_type_node, num, s);
     TREE_SIDE_EFFECTS (t) = 1;
     expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
 #else
     nextarg = expand_builtin_saveregs();
-
-#endif
-}
-
-/* Implement `va_arg'.  */
-
-rtx
-i960_va_arg (tree valist, tree type)
-{
-#if 0
-  HOST_WIDE_INT siz, ali;
-  tree base, num, pad, next, this_, t1, t2, int48;
-  rtx addr_rtx;
-
-  /* The array type always decays to a pointer before we get here, so we
-     can't use ARRAY_REF.  */
-  base = build1 (INDIRECT_REF, unsigned_type_node, valist);
-  num = build1 (INDIRECT_REF, unsigned_type_node,
-		build_nt (PLUS_EXPR, unsigned_type_node, valist,
-		       TYPE_SIZE_UNIT (TREE_TYPE (valist))));
-
-  /* Round up sizeof(type) to a word.  */
-  siz = (int_size_in_bytes (type) + UNITS_PER_WORD - 1) & -UNITS_PER_WORD;
-
-  /* Round up alignment to a word.  */
-  ali = TYPE_ALIGN (type);
-  if (ali < BITS_PER_WORD)
-    ali = BITS_PER_WORD;
-  ali /= BITS_PER_UNIT;
-
-  /* Align NUM appropriate for the argument.  */
-  pad = fold (build (PLUS_EXPR, unsigned_type_node, num,
-		      build_int_2 (ali - 1, 0)));
-  pad = fold (build (BIT_AND_EXPR, unsigned_type_node, pad,
-		      build_int_2 (-ali, -1)));
-  pad = save_expr (pad);
-
-  /* Increment VPAD past this argument.  */
-  next = fold (build (PLUS_EXPR, unsigned_type_node, pad,
-		      build_int_2 (siz, 0)));
-  next = save_expr (next);
-
-  /* Find the offset for the current argument.  Mind peculiar overflow
-     from registers to stack.  */
-  int48 = build_int_2 (48, 0);
-  if (siz > 16)
-    t2 = integer_one_node;
-  else
-    t2 = fold (build (GT_EXPR, integer_type_node, next, int48));
-  t1 = fold (build (LE_EXPR, integer_type_node, num, int48));
-  t1 = fold (build (TRUTH_AND_EXPR, integer_type_node, t1, t2));
-  this_ = fold (build (COND_EXPR, unsigned_type_node, t1, int48, pad));
-
-  /* Find the address for the current argument.  */
-  t1 = fold (build (PLUS_EXPR, unsigned_type_node, base, this_));
-  t1 = build1 (NOP_EXPR, ptr_type_node, t1);
-  addr_rtx = expand_expr (t1, NULL_RTX, Pmode, EXPAND_NORMAL);
-
-  /* Increment NUM.  */
-  t1 = build (MODIFY_EXPR, unsigned_type_node, num, next);
-  TREE_SIDE_EFFECTS (t1) = 1;
-  expand_expr (t1, const0_rtx, VOIDmode, EXPAND_NORMAL);
-
-  return addr_rtx;
-#else
-#warning "IMPLEMENT VA_START SUPPORT!"
-return NULL;
+    std_expand_builtin_va_start(valist, nextarg);
 #endif
 }
 
@@ -2980,8 +2908,8 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_LEGITIMATE_CONSTANT_P i960_legitimate_constant_p
 #undef TARGET_CONSTANT_ALIGNMENT
 #define TARGET_CONSTANT_ALIGNMENT i960_constant_alignment
-//#undef TARGET_SETUP_INCOMING_VARARGS
-//#define TARGET_SETUP_INCOMING_VARARGS i960_setup_incoming_varargs
+#undef TARGET_SETUP_INCOMING_VARARGS
+#define TARGET_SETUP_INCOMING_VARARGS i960_setup_incoming_varargs
 #undef TARGET_FUNCTION_ARG_ADVANCE
 #define TARGET_FUNCTION_ARG_ADVANCE i960_function_arg_advance
 #undef TARGET_FUNCTION_ARG 
@@ -2989,8 +2917,8 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #undef TARGET_FUNCTION_ARG_BOUNDARY
 #define TARGET_FUNCTION_ARG_BOUNDARY i960_function_arg_boundary
 /// @todo reactivate
-//#undef TARGET_EXPAND_BUILTIN_VA_START
-//#define TARGET_EXPAND_BUILTIN_VA_START i960_va_start
+#undef TARGET_EXPAND_BUILTIN_VA_START
+#define TARGET_EXPAND_BUILTIN_VA_START i960_va_start
 #undef TARGET_STARTING_FRAME_OFFSET
 #define TARGET_STARTING_FRAME_OFFSET i960_starting_frame_offset
 #undef TARGET_ASM_ALIGNED_SI_OP
@@ -3005,8 +2933,8 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_RTX_COSTS i960_rtx_costs
 #undef TARGET_ADDRESS_COST
 #define TARGET_ADDRESS_COST i960_address_cost
-//#undef TARGET_BUILD_BUILTIN_VA_LIST
-//#define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
+#undef TARGET_BUILD_BUILTIN_VA_LIST
+#define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
 // still use the old condition code stuff in the .md file so disable LRA
 #undef TARGET_LRA_P
 #define TARGET_LRA_P hook_bool_void_false
