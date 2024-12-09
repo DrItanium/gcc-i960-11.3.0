@@ -1353,19 +1353,19 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
   struct reg_group local_reg_groups [16];
 
 
-  for (i = 0; i < FIRST_PSEUDO_REGISTER; i++)
-    if (df_regs_ever_live_p(i)
-	&& ((! call_used_regs[i]) || (i > 7 && i < 12))
-	/* No need to save the static chain pointer.  */
-	&& ! (i == STATIC_CHAIN_REGNUM && cfun->static_chain_decl))
-      {
-	regs[i] = -1;
-        /* Count global registers that need saving.  */
-	if (i < 16)
-	  n_saved_regs++;
+  for (i = 0; i < FIRST_PSEUDO_REGISTER; i++) {
+      if (df_regs_ever_live_p(i) && ((!call_used_regs[i]) || (i > 7 && i < 12))
+          /* No need to save the static chain pointer.  */
+          && !(i == STATIC_CHAIN_REGNUM && cfun->static_chain_decl)) {
+          regs[i] = -1;
+          /* Count global registers that need saving.  */
+          if (i < 16)
+              n_saved_regs++;
+      } else {
+          regs[i] = 0;
       }
-    else
-      regs[i] = 0;
+  }
+
 
   n_remaining_saved_regs = n_saved_regs;
 
@@ -1389,39 +1389,36 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 	 i960_reg_group_compare);
   qsort (local_reg_groups, lnw, sizeof (struct reg_group),
 	 i960_reg_group_compare);
-  for (g = global_reg_groups, l = local_reg_groups; lnw != 0 && gnw != 0;)
-    {
-      if (g->length == l->length)
-	{
-	  fprintf (file, "\tmov%s	%s,%s\n",
-		   ((g->length == 4) ? "q" :
-		    (g->length == 3) ? "t" :
-		    (g->length == 2) ? "l" : ""),
-		   reg_names[(unsigned char) g->start_reg],
-		   reg_names[(unsigned char) l->start_reg]);
-	  sprintf (tmpstr, "\tmov%s	%s,%s\n",
-		   ((g->length == 4) ? "q" :
-		    (g->length == 3) ? "t" :
-		    (g->length == 2) ? "l" : ""),
-		   reg_names[(unsigned char) l->start_reg],
-		   reg_names[(unsigned char) g->start_reg]);
-	  strcat (epilogue_string, tmpstr);
-	  n_remaining_saved_regs -= g->length;
-	  for (i = 0; i < g->length; i++)
-	    {
-	      regs [i + g->start_reg] = 1;
-	      regs [i + l->start_reg] = -1;
-	      df_set_regs_ever_live (i + l->start_reg, true);
-	    }
-	  g++;
-	  l++;
-	  gnw--;
-	  lnw--;
-	}
-      else if (g->length > l->length)
-	gnw = i960_split_reg_group (g, gnw, l->length);
-      else
-	lnw = i960_split_reg_group (l, lnw, g->length);
+    for (g = global_reg_groups, l = local_reg_groups; lnw != 0 && gnw != 0;) {
+        if (g->length == l->length) {
+            fprintf (file, "\tmov%s	%s,%s\n",
+                     ((g->length == 4) ? "q" :
+                      (g->length == 3) ? "t" :
+                      (g->length == 2) ? "l" : ""),
+                     reg_names[(unsigned char) g->start_reg],
+                     reg_names[(unsigned char) l->start_reg]);
+            sprintf (tmpstr, "\tmov%s	%s,%s\n",
+                     ((g->length == 4) ? "q" :
+                      (g->length == 3) ? "t" :
+                      (g->length == 2) ? "l" : ""),
+                     reg_names[(unsigned char) l->start_reg],
+                     reg_names[(unsigned char) g->start_reg]);
+            strcat (epilogue_string, tmpstr);
+            n_remaining_saved_regs -= g->length;
+            for (i = 0; i < g->length; i++) {
+                regs [i + g->start_reg] = 1;
+                regs [i + l->start_reg] = -1;
+                df_set_regs_ever_live (i + l->start_reg, true);
+            }
+            g++;
+            l++;
+            gnw--;
+            lnw--;
+        } else if (g->length > l->length) {
+            gnw = i960_split_reg_group(g, gnw, l->length);
+        } else {
+            lnw = i960_split_reg_group(l, lnw, g->length);
+        }
     }
 
   actual_fsize = i960_compute_frame_size (get_frame_size()) + 4 * n_remaining_saved_regs;
@@ -1438,23 +1435,21 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 #endif
 
   /* Check stack limit if necessary.  */
-  if (crtl->limit_stack)
-    {
-      rtx min_stack = stack_limit_rtx;
-      if (actual_fsize != 0)
-          min_stack = plus_constant (Pmode, stack_limit_rtx, -actual_fsize);
+    if (crtl->limit_stack) {
+        rtx min_stack = stack_limit_rtx;
+        if (actual_fsize != 0)
+            min_stack = plus_constant (Pmode, stack_limit_rtx, -actual_fsize);
 
-      /* Now, emulate a little bit of reload.  We want to turn 'min_stack'
-	 into an arith_operand.  Use register 20 as the temporary.  */
-      if (i960_legitimate_address_p (Pmode, min_stack, 1) 
-	  && !i960_arith_operand (min_stack, Pmode))
-	{
-	  rtx tmp = gen_rtx_MEM (Pmode, min_stack);
-	  fputs ("\tlda\t", file);
-	  i960_print_operand (file, tmp, 0);
-	  fputs (",r4 #lda5\n", file);
-	  min_stack = gen_rtx_REG (Pmode, 20);
-	}
+        /* Now, emulate a little bit of reload.  We want to turn 'min_stack'
+       into an arith_operand.  Use register 20 as the temporary.  */
+        if (i960_legitimate_address_p (Pmode, min_stack, 1)
+            && !i960_arith_operand (min_stack, Pmode)) {
+            rtx tmp = gen_rtx_MEM (Pmode, min_stack);
+            fputs ("\tlda\t", file);
+            i960_print_operand (file, tmp, 0);
+            fputs (",r4 #lda5\n", file);
+            min_stack = gen_rtx_REG (Pmode, 20);
+        }
         if (arith_operand (min_stack, Pmode)) {
             fputs ("\tcmpo\tsp,", file);
             i960_print_operand (file, min_stack, 0);
@@ -1480,41 +1475,24 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
   /* Save registers on stack if needed.  */
   /* ??? Is it worth to use the same algorithm as one for saving
      global registers in local registers? */
-  for (i = 0, j = n_remaining_saved_regs; j > 0 && i < 16; i++)
-    {
-      if (regs[i] != -1)
-	continue;
-
+  for (i = 0, j = n_remaining_saved_regs; j > 0 && i < 16; i++) {
+      if (regs[i] != -1) continue;
       nr = 1;
+      if (i <= 14 && i % 2 == 0 && regs[i+1] == -1 && offset % 2 == 0) nr = 2;
+      if (nr == 2 && i <= 12 && i % 4 == 0 && regs[i+2] == -1 && offset % 4 == 0) nr = 3;
+      if (nr == 3 && regs[i+3] == -1) nr = 4;
 
-      if (i <= 14 && i % 2 == 0 && regs[i+1] == -1 && offset % 2 == 0)
-	nr = 2;
-
-      if (nr == 2 && i <= 12 && i % 4 == 0 && regs[i+2] == -1
-	  && offset % 4 == 0)
-	nr = 3;
-
-      if (nr == 3 && regs[i+3] == -1)
-	nr = 4;
-
-      fprintf (file,"\tst%s	%s," HOST_WIDE_INT_PRINT_DEC "(fp)\n",
-	       ((nr == 4) ? "q" :
-		(nr == 3) ? "t" :
-		(nr == 2) ? "l" : ""),
-	       reg_names[i], offset);
-      sprintf (tmpstr,"\tld%s	" HOST_WIDE_INT_PRINT_DEC "(fp),%s\n",
-	       ((nr == 4) ? "q" :
-		(nr == 3) ? "t" :
-		(nr == 2) ? "l" : ""),
-	       offset, reg_names[i]);
+      fprintf (file,"\tst%s	%s," HOST_WIDE_INT_PRINT_DEC "(fp)\n", ((nr == 4) ? "q" : (nr == 3) ? "t" : (nr == 2) ? "l" : ""), reg_names[i], offset);
+      sprintf (tmpstr,"\tld%s	" HOST_WIDE_INT_PRINT_DEC "(fp),%s\n", ((nr == 4) ? "q" : (nr == 3) ? "t" : (nr == 2) ? "l" : ""), offset, reg_names[i]);
       strcat (epilogue_string, tmpstr);
       i += nr-1;
       j -= nr;
       offset += nr * 4;
     }
 
-  if (actual_fsize == 0)
-    return;
+  if (actual_fsize == 0) {
+      return;
+  }
 
   fprintf (file, "\t#Prologue stats:\n");
   fprintf (file, "\t#  Total Frame Size: " HOST_WIDE_INT_PRINT_DEC " bytes\n",
@@ -2404,14 +2382,19 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_inf
 	 arguments were passed on the stack the caller would allocate the
 	 48 bytes as well).  We must allocate all 48 bytes (12*4) because
 	 va_start assumes it.  */
+      // do a cmpsi of g14 with 0
       emit_insn (gen_cmpsi (fake_arg_pointer_rtx, const0_rtx));
+      // bne to target label
       emit_jump_insn (gen_bne (label));
+      // set g14 to sp, it allows it be passed to another function as needed
       emit_insn (gen_rtx_SET (fake_arg_pointer_rtx,
 			      stack_pointer_rtx));
+      // set stack pointer to 48 + sp
       emit_insn (gen_rtx_SET (stack_pointer_rtx,
 			      memory_address (SImode,
 					      plus_constant (info.mode,
                                          stack_pointer_rtx, 48))));
+      // emit the label
       emit_label (label);
 
       /* ??? Note that we unnecessarily store one extra register for stdarg
@@ -2429,6 +2412,7 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_inf
 static tree
 i960_build_builtin_va_list ()
 {
+    // generate an array that can accept up to one item
   return build_array_type (unsigned_type_node,
 			   build_index_type (size_one_node));
 }
@@ -2448,11 +2432,13 @@ i960_va_start (tree valist, rtx nextarg)
     /* Use a different rtx than arg_pointer_rtx so that cse and friends
        can go on believing that the argument pointer can never be zero.  */
     fake_arg_pointer_rtx = gen_raw_REG (Pmode, ARG_POINTER_REGNUM);
+    // make a tree out of this g14 pointer
     tree s = make_tree(unsigned_type_node, fake_arg_pointer_rtx);
+    // then define an assignment expression where g14 is assigned to base?
     t = build2 (MODIFY_EXPR, unsigned_type_node, base, s);
     TREE_SIDE_EFFECTS (t) = 1;
     expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-    /* Set the num expression to a given constant */
+    // set the num expression to number of allocated entries
     t = build2 (MODIFY_EXPR, unsigned_type_node, num,
                   build_int_cst (integer_type_node, (current_function_args_info.ca_nregparms
                                                          + current_function_args_info.ca_nstackparms) * 4));
@@ -2939,3 +2925,16 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 
 struct gcc_target targetm = TARGET_INITIALIZER;
 #include "gt-i960.h"
+
+/*
+ * Some important terminology from the i960's CTOOLS manual
+ *
+ * From the manual itself:
+ * Argument Block:
+ *      An argument block is used to pass parameters when the parameters cannot be passed in registers. This can occur either
+ *      because there are not enough registers left to pass the parameter, or when the parameter is too large
+ *      (greater than 4 words) to pass in registers. As soon as a parameter is passed in an argument block, all further parameters get passed in the argument
+ *      block. The calling function is responsible for the creation of an argument block if one is needed. When an argument block is created it must contain enough
+ *      space at the beginning to store all possible parameter registers g0-g11. Thus the first 48 bytes of an argument block are reserved for
+ *      storing these registers. The first parameter passed in the argument block start at an address 48 bytes above teh pase of the argument block.
+ */
