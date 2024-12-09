@@ -2456,7 +2456,7 @@ i960_builtin_saveregs (void) {
 void
 i960_va_start (tree valist, rtx nextarg)
 {
-#if 0
+#if 1
     tree t, base, num;
     rtx fake_arg_pointer_rtx;
     // so va_start is defined as void va_start(va_list ap, parm_n)
@@ -2964,6 +2964,9 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_LRA_P hook_bool_void_false
 #undef TARGET_CONDITIONAL_REGISTER_USAGE
 #define TARGET_CONDITIONAL_REGISTER_USAGE i960_conditional_register_usage
+
+//#undef TARGET_EXPAND_BUILTIN_SAVEREGS
+//#define TARGET_EXPAND_BUILTIN_SAVEREGS i960_builtin_saveregs
 
 #undef TARGET_FRAME_POINTER_REQUIRED
 #define TARGET_FRAME_POINTER_REQUIRED i960_frame_pointer_required
