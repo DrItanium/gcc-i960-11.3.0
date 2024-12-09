@@ -2936,5 +2936,5 @@ struct gcc_target targetm = TARGET_INITIALIZER;
  *      (greater than 4 words) to pass in registers. As soon as a parameter is passed in an argument block, all further parameters get passed in the argument
  *      block. The calling function is responsible for the creation of an argument block if one is needed. When an argument block is created it must contain enough
  *      space at the beginning to store all possible parameter registers g0-g11. Thus the first 48 bytes of an argument block are reserved for
- *      storing these registers. The first parameter passed in the argument block start at an address 48 bytes above teh pase of the argument block.
+ *      storing these registers. The first parameter passed in the argument block starts at an address 48 bytes above the base of the argument block.
  */
