@@ -2424,7 +2424,6 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_inf
 			   NPARM_REGS - first_reg);
     }
 }
-#if 0
 /* Define the `__builtin_va_list' type for the ABI.  */
 
 static tree
@@ -2433,54 +2432,32 @@ i960_build_builtin_va_list ()
   return build_array_type (unsigned_type_node,
 			   build_index_type (size_one_node));
 }
-    #endif
-static rtx
-i960_builtin_saveregs(void) {
-    int firstReg = crtl->args.info.ca_nregparms;
-    rtx address;
-    for (int regno = firstReg; regno < NPARM_REGS; ++regno) {
-        emit_move_insn(gen_rtx_MEM(word_mode,
-                                   gen_rtx_PLUS(Pmode,
-                                                stack_pointer_rtx,
-                                                GEN_INT(FIRST_PARM_OFFSET(0) + (4 * regno)))),
-                       // start at g0
-                       gen_rtx_REG(word_mode, 0 + regno));
-    }
-    address = gen_rtx_PLUS(Pmode,
-                           stack_pointer_rtx,
-                           GEN_INT(FIRST_PARM_OFFSET(0) + 4 * firstReg));
-    return address;
-}
 void
 i960_va_start (tree valist, rtx nextarg)
 {
-#if 0
-    tree s, t, base, num;
+    tree t, base, num;
     rtx fake_arg_pointer_rtx;
 
     /* The array type always decays to a pointer before we get here, so we
        can't use ARRAY_REF.  */
+    // construct an expression tree that points to the valist itself
     base = build1 (INDIRECT_REF, unsigned_type_node, valist);
+    // construct an expression which is the valist plus the unit size of the valist itself
     num = build1 (INDIRECT_REF, unsigned_type_node,
-                  build_nt (PLUS_EXPR, unsigned_type_node, valist,
-                            TYPE_SIZE_UNIT (TREE_TYPE (valist))));
-
+                  build2 (PLUS_EXPR, unsigned_type_node, valist, TYPE_SIZE_UNIT (TREE_TYPE (valist))));
     /* Use a different rtx than arg_pointer_rtx so that cse and friends
        can go on believing that the argument pointer can never be zero.  */
     fake_arg_pointer_rtx = gen_raw_REG (Pmode, ARG_POINTER_REGNUM);
-    s = make_tree (unsigned_type_node, fake_arg_pointer_rtx);
-    t = build_nt (MODIFY_EXPR, unsigned_type_node, base, s);
+    tree s = make_tree(unsigned_type_node, fake_arg_pointer_rtx);
+    t = build2 (MODIFY_EXPR, unsigned_type_node, base, s);
     TREE_SIDE_EFFECTS (t) = 1;
     expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-    s = build_int_cst (integer_type_node, (current_function_args_info.ca_nregparms
-                      + current_function_args_info.ca_nstackparms) * 4);
-    t = build_nt (MODIFY_EXPR, unsigned_type_node, num, s);
+    /* Set the num expression to a given constant */
+    t = build2 (MODIFY_EXPR, unsigned_type_node, num,
+                  build_int_cst (integer_type_node, (current_function_args_info.ca_nregparms
+                                                         + current_function_args_info.ca_nstackparms) * 4));
     TREE_SIDE_EFFECTS (t) = 1;
     expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-#else
-    nextarg = expand_builtin_saveregs();
-    std_expand_builtin_va_start(valist, nextarg);
-#endif
 }
 
 /* Calculate the final size of the reg parm stack space for the current
@@ -2948,15 +2925,13 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_RTX_COSTS i960_rtx_costs
 #undef TARGET_ADDRESS_COST
 #define TARGET_ADDRESS_COST i960_address_cost
-//#undef TARGET_BUILD_BUILTIN_VA_LIST
-//#define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
+#undef TARGET_BUILD_BUILTIN_VA_LIST
+#define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
 // still use the old condition code stuff in the .md file so disable LRA
 #undef TARGET_LRA_P
 #define TARGET_LRA_P hook_bool_void_false
 #undef TARGET_CONDITIONAL_REGISTER_USAGE
 #define TARGET_CONDITIONAL_REGISTER_USAGE i960_conditional_register_usage
-#undef TARGET_EXPAND_BUILTIN_SAVEREGS
-#define TARGET_EXPAND_BUILTIN_SAVEREGS i960_builtin_saveregs
 
 #undef TARGET_FRAME_POINTER_REQUIRED
 #define TARGET_FRAME_POINTER_REQUIRED i960_frame_pointer_required
