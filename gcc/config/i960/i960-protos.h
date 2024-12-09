@@ -65,6 +65,9 @@ extern void i960_va_start (tree, rtx);
 extern enum reg_class i960_secondary_reload_class (enum reg_class, enum machine_mode, rtx);
 extern int i960_si_ti (rtx, rtx);
 extern int i960_si_di (rtx, rtx);
+constexpr bool isQuadRegisterAligned(unsigned int value) noexcept { return (value & 0b11) == 0; }
+constexpr bool isTripleRegisterAligned(unsigned int value) noexcept { return isQuadRegisterAligned(value); }
+constexpr bool isLongRegisterAligned(unsigned int value) noexcept { return (value & 0b1) == 0; }
 #endif
 extern int i960_round_align (int, tree);
 extern void i960_function_name_declare (FILE *, const char *, tree);

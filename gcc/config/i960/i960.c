@@ -731,7 +731,7 @@ i960_output_move_quad (rtx dst, rtx src)
   rtx operands[7];
     /// @todo Can we emit two long word ops when we are not aligned to quad register boundaries?
   if (GET_CODE (dst) == REG && GET_CODE (src) == REG) {
-      if ((REGNO (src) & 3) || (REGNO (dst) & 3)) {
+      if (!isQuadRegisterAligned(REGNO(src)) || !isQuadRegisterAligned(REGNO(dst))) {
           /* We normally copy starting with the low numbered register.
              However, if there is an overlap such that the first dest reg
              is <= the last source reg but not < the first source reg, we
@@ -748,13 +748,13 @@ i960_output_move_quad (rtx dst, rtx src)
   } else if (GET_CODE (dst) == REG
           && GET_CODE (src) == CONST_INT
           && TARGET_CONST_OK_FOR_LETTER_P (INTVAL (src), 'I')) {
-      if (REGNO (dst) & 3) {
+      if (!isQuadRegisterAligned(REGNO(dst))) {
           return "mov	%1,%0\n\tmov	0,%D0\n\tmov	0,%E0\n\tmov	0,%F0";
       } else {
           return "movq	%1,%0";
       }
   } else if (GET_CODE (dst) == REG && GET_CODE (src) == MEM) {
-      if (REGNO (dst) & 3) {
+      if (!isQuadRegisterAligned(REGNO(dst))) {
           /* One can optimize a few cases here, but you have to be
              careful of clobbering registers used in the address and
              edge conditions.  */
