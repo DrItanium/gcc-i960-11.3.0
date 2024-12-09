@@ -2416,6 +2416,21 @@ i960_build_builtin_va_list ()
   return build_array_type (unsigned_type_node,
 			   build_index_type (size_one_node));
 }
+static rtx
+i960_builtin_saveregs (void) {
+    int firstRegister = crtl->args.info.ca_nregparms;
+    rtx address;
+    for (int registerNum = firstRegister; registerNum < NPARM_REGS; ++registerNum) {
+        emit_move_insn(gen_rtx_MEM(word_mode,
+                                   gen_rtx_PLUS (Pmode,
+                                                 stack_pointer_rtx,
+                                                 GEN_INT(FIRST_PARM_OFFSET(0) + (4 * registerNum)))),
+                       gen_rtx_REG(word_mode, registerNum));
+    }
+    address = gen_rtx_PLUS(Pmode, stack_pointer_rtx,
+                           GEN_INT(FIRST_PARM_OFFSET(0) + 4 * firstRegister));
+    return address;
+}
 /*
  * According to the compiler documentation, g14 is defined as:
  *
@@ -2441,6 +2456,7 @@ i960_build_builtin_va_list ()
 void
 i960_va_start (tree valist, rtx nextarg)
 {
+#if 0
     tree t, base, num;
     rtx fake_arg_pointer_rtx;
     // so va_start is defined as void va_start(va_list ap, parm_n)
@@ -2450,6 +2466,7 @@ i960_va_start (tree valist, rtx nextarg)
     // *valist = g14;
     // construct an expression tree that points to the va_list itself indirectly?
     base = build1 (INDIRECT_REF, unsigned_type_node, valist);
+    //base = valist;
     // construct an expression which is the valist plus the unit size of the valist itself
     num = build1 (INDIRECT_REF, unsigned_type_node,
                   build2 (PLUS_EXPR, unsigned_type_node, valist, TYPE_SIZE_UNIT (TREE_TYPE (valist))));
@@ -2469,6 +2486,10 @@ i960_va_start (tree valist, rtx nextarg)
                                                          + current_function_args_info.ca_nstackparms) * 4));
     TREE_SIDE_EFFECTS (t) = 1;
     expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
+#else
+    nextarg = expand_builtin_saveregs();
+    std_expand_builtin_va_start(valist, nextarg);
+#endif
 }
 
 /* Calculate the final size of the reg parm stack space for the current
