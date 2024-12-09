@@ -2416,29 +2416,54 @@ i960_build_builtin_va_list ()
   return build_array_type (unsigned_type_node,
 			   build_index_type (size_one_node));
 }
+/*
+ * According to the compiler documentation, g14 is defined as:
+ *
+ * If the function requires an argument block, this register contains a pointer to the argument block;
+ * otherwise it contains zero. If g14 contains zero upon entry, then it must contain zero upon exit.
+ * If g14 contains a pointer to an argument block upon function entry, then g14 is considered a call-scratch register.
+ *
+ * g14 may also be used to hold the return address when a function is called using a BAL instruction. In this case,
+ * g14 must contain zero upon return from the function. This dual usage of g14 means that a function that requires an
+ * argument block cannot be entered using a bal instruction.
+ *
+ *
+ * -------
+ * My commentary (2024/12/8):
+ *
+ * I believe that this dual usage of g14 leads to massive amounts of pain. I realize that Intel has designed this calling
+ * convention so that you can pass up to 12 parameters through registers. The problem with this concept is that g14 becomes
+ * a bottleneck in the design.
+ *
+ * However, the design seems to be relatively straightforward so I will keep using it.
+ *
+ */
 void
 i960_va_start (tree valist, rtx nextarg)
 {
     tree t, base, num;
     rtx fake_arg_pointer_rtx;
-
+    // so va_start is defined as void va_start(va_list ap, parm_n)
+    // where ap is the va_list to populate with the contents of the name provided by parm_n
     /* The array type always decays to a pointer before we get here, so we
        can't use ARRAY_REF.  */
-    // construct an expression tree that points to the valist itself
+    // *valist = g14;
+    // construct an expression tree that points to the va_list itself indirectly?
     base = build1 (INDIRECT_REF, unsigned_type_node, valist);
     // construct an expression which is the valist plus the unit size of the valist itself
     num = build1 (INDIRECT_REF, unsigned_type_node,
                   build2 (PLUS_EXPR, unsigned_type_node, valist, TYPE_SIZE_UNIT (TREE_TYPE (valist))));
+    // Because of the way that g14 is used, we can assume that g14 has been cleaned up via incoming_varargs
     /* Use a different rtx than arg_pointer_rtx so that cse and friends
        can go on believing that the argument pointer can never be zero.  */
     fake_arg_pointer_rtx = gen_raw_REG (Pmode, ARG_POINTER_REGNUM);
-    // make a tree out of this g14 pointer
+    // make a tree out of this argument block pointer (g14)
     tree s = make_tree(unsigned_type_node, fake_arg_pointer_rtx);
-    // then define an assignment expression where g14 is assigned to base?
+    // now we want to modify base to be what was in g14 previously (the argument block pointer)
     t = build2 (MODIFY_EXPR, unsigned_type_node, base, s);
     TREE_SIDE_EFFECTS (t) = 1;
     expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-    // set the num expression to number of allocated entries
+    // *(valist + ?) = (ca_nregparms + ca_nstackparms) * 4
     t = build2 (MODIFY_EXPR, unsigned_type_node, num,
                   build_int_cst (integer_type_node, (current_function_args_info.ca_nregparms
                                                          + current_function_args_info.ca_nstackparms) * 4));
