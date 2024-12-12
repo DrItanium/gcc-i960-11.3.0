@@ -2412,9 +2412,14 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_inf
 static tree
 i960_build_builtin_va_list ()
 {
+#if 0
     // generate an array that can accept up to one item
   return build_array_type (unsigned_type_node,
 			   build_index_type (size_int(2)));
+#else
+  // construct an argument block in memory, it has a base address plus
+  tree record = (*lang_hooks.types.make_type)(RECORD_TYPE);
+#endif
 }
 static rtx
 i960_builtin_saveregs (void) {
@@ -2497,6 +2502,12 @@ i960_va_start (tree valist, rtx nextarg)
 
     tree base = build3(COMPONENT_REF, TREE_TYPE(f_base), valist, f_base, NULL_TREE);
     tree count = build3(COMPONENT_REF, TREE_TYPE(f_count), valist, f_count, NULL_TREE);
+    // setup the base operation
+    auto fakeArgPointer = gen_raw_REG(Pmode, ARG_POINTER_REGNUM);
+    t = make_tree(TREE_TYPE(base), fakeArgPointer);
+    t = build2(MODIFY_EXPR, TREE_TYPE(base), base, t);
+    TREE_SIDE_EFFECTS(t) = 1;
+    expand_expr(t, const0_rtx, VOIDmode, EXPAND_NORMAL);
     // setup the count store operation
     t = build2(MODIFY_EXPR, TREE_TYPE(count), count,
                build_int_cst(NULL_TREE, (current_function_args_info.ca_nregparms + current_function_args_info.ca_nstackparms) * 4));
