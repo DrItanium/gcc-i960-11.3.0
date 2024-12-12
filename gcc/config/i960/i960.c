@@ -2412,10 +2412,10 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_inf
 static tree
 i960_build_builtin_va_list ()
 {
-#if 0
+#if 1
     // generate an array that can accept up to one item
   return build_array_type (unsigned_type_node,
-			   build_index_type (size_int(2)));
+			   build_index_type (size_one_node));
 #else
   // construct an argument block in memory, it has a base address plus
   tree record = (*lang_hooks.types.make_type)(RECORD_TYPE);
@@ -2461,7 +2461,7 @@ i960_builtin_saveregs (void) {
 void
 i960_va_start (tree valist, rtx nextarg)
 {
-#if 0
+#if 1
     tree t, base, num;
     rtx fake_arg_pointer_rtx;
     // so va_start is defined as void va_start(va_list ap, parm_n)
@@ -2471,8 +2471,8 @@ i960_va_start (tree valist, rtx nextarg)
     // *valist = g14;
     // all other implementations now use a special "structure"
     // construct an expression tree that points to the va_list itself indirectly
-    base = build1 (INDIRECT_REF, unsigned_type_node,
-                   build2(PLUS_EXPR, unsigned_type_node, valist,
+    //base = build1 (INDIRECT_REF, unsigned_type_node, valist);
+    base = build1(INDIRECT_REF, TREE_TYPE(valist), valist);
     // construct an expression which is the valist plus the unit size of the valist itself
     num = build1 (INDIRECT_REF, unsigned_type_node,
                   build2 (PLUS_EXPR, unsigned_type_node, valist, TYPE_SIZE_UNIT (TREE_TYPE (valist))));
