@@ -2414,7 +2414,7 @@ i960_build_builtin_va_list ()
 {
     // generate an array that can accept up to one item
   return build_array_type (unsigned_type_node,
-			   build_index_type (size_one_node));
+			   build_index_type (size_int(2)));
 }
 static rtx
 i960_builtin_saveregs (void) {
@@ -2463,10 +2463,12 @@ i960_va_start (tree valist, rtx nextarg)
     // where ap is the va_list to populate with the contents of the name provided by parm_n
     /* The array type always decays to a pointer before we get here, so we
        can't use ARRAY_REF.  */
+    // st g14, 64(fp)
+    // mov 4, g4
+    // st g4, 68(fp)
     // *valist = g14;
     // construct an expression tree that points to the va_list itself indirectly?
-    base = build1 (INDIRECT_REF, unsigned_type_node, valist);
-    //base = valist;
+    base = build1 (INDIRECT_REF, TREE_TYPE(TREE_TYPE(valist)), valist);
     // construct an expression which is the valist plus the unit size of the valist itself
     num = build1 (INDIRECT_REF, unsigned_type_node,
                   build2 (PLUS_EXPR, unsigned_type_node, valist, TYPE_SIZE_UNIT (TREE_TYPE (valist))));
@@ -2477,7 +2479,7 @@ i960_va_start (tree valist, rtx nextarg)
     // make a tree out of this argument block pointer (g14)
     tree s = make_tree(unsigned_type_node, fake_arg_pointer_rtx);
     // now we want to modify base to be what was in g14 previously (the argument block pointer)
-    t = build2 (MODIFY_EXPR, unsigned_type_node, base, s);
+    t = build2 (MODIFY_EXPR, TREE_TYPE(valist), base, s);
     TREE_SIDE_EFFECTS (t) = 1;
     expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
     // *(valist + ?) = (ca_nregparms + ca_nstackparms) * 4
