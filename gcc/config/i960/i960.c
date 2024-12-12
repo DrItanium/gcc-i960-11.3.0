@@ -2488,6 +2488,7 @@ i960_va_start (tree valist, rtx nextarg)
     TREE_SIDE_EFFECTS (t) = 1;
     expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
 #else
+    tree t;
     // st g14, 64(fp)  # arg0 / base
     // mov 4, g4
     // st g4, 68(fp)   # arg1 / count
