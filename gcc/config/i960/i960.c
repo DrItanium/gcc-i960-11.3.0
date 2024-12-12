@@ -2456,19 +2456,18 @@ i960_builtin_saveregs (void) {
 void
 i960_va_start (tree valist, rtx nextarg)
 {
-#if 1
+#if 0
     tree t, base, num;
     rtx fake_arg_pointer_rtx;
     // so va_start is defined as void va_start(va_list ap, parm_n)
     // where ap is the va_list to populate with the contents of the name provided by parm_n
     /* The array type always decays to a pointer before we get here, so we
        can't use ARRAY_REF.  */
-    // st g14, 64(fp)
-    // mov 4, g4
-    // st g4, 68(fp)
     // *valist = g14;
-    // construct an expression tree that points to the va_list itself indirectly?
-    base = build1 (INDIRECT_REF, TREE_TYPE(TREE_TYPE(valist)), valist);
+    // all other implementations now use a special "structure"
+    // construct an expression tree that points to the va_list itself indirectly
+    base = build1 (INDIRECT_REF, unsigned_type_node,
+                   build2(PLUS_EXPR, unsigned_type_node, valist,
     // construct an expression which is the valist plus the unit size of the valist itself
     num = build1 (INDIRECT_REF, unsigned_type_node,
                   build2 (PLUS_EXPR, unsigned_type_node, valist, TYPE_SIZE_UNIT (TREE_TYPE (valist))));
@@ -2489,8 +2488,19 @@ i960_va_start (tree valist, rtx nextarg)
     TREE_SIDE_EFFECTS (t) = 1;
     expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
 #else
-    nextarg = expand_builtin_saveregs();
-    std_expand_builtin_va_start(valist, nextarg);
+    // st g14, 64(fp)  # arg0 / base
+    // mov 4, g4
+    // st g4, 68(fp)   # arg1 / count
+    tree f_base = TYPE_FIELDS(va_list_type_node);
+    tree f_count = DECL_CHAIN(f_base);
+
+    tree base = build3(COMPONENT_REF, TREE_TYPE(f_base), valist, f_base, NULL_TREE);
+    tree count = build3(COMPONENT_REF, TREE_TYPE(f_count), valist, f_count, NULL_TREE);
+    // setup the count store operation
+    t = build2(MODIFY_EXPR, TREE_TYPE(count), count,
+               build_int_cst(NULL_TREE, (current_function_args_info.ca_nregparms + current_function_args_info.ca_nstackparms) * 4));
+    TREE_SIDE_EFFECTS(t) = 1;
+    expand_expr(t, const0_rtx, VOIDmode, EXPAND_NORMAL);
 #endif
 }
 
