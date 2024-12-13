@@ -2448,21 +2448,6 @@ i960_build_builtin_va_list ()
   return record;
 #endif
 }
-static rtx
-i960_builtin_saveregs (void) {
-    int firstRegister = crtl->args.info.ca_nregparms;
-    rtx address;
-    for (int registerNum = firstRegister; registerNum < NPARM_REGS; ++registerNum) {
-        emit_move_insn(gen_rtx_MEM(word_mode,
-                                   gen_rtx_PLUS (Pmode,
-                                                 stack_pointer_rtx,
-                                                 GEN_INT(FIRST_PARM_OFFSET(0) + (4 * registerNum)))),
-                       gen_rtx_REG(word_mode, registerNum));
-    }
-    address = gen_rtx_PLUS(Pmode, stack_pointer_rtx,
-                           GEN_INT(FIRST_PARM_OFFSET(0) + 4 * firstRegister));
-    return address;
-}
 /*
  * According to the compiler documentation, g14 is defined as:
  *
@@ -2517,7 +2502,7 @@ i960_va_start (tree valist, rtx nextarg)
     // *(valist + ?) = (ca_nregparms + ca_nstackparms) * 4
     t = build2 (MODIFY_EXPR, unsigned_type_node, num,
                   build_int_cst (integer_type_node, (current_function_args_info.ca_nregparms
-                                                         + current_function_args_info.ca_nstackparms) * 4));
+                                                         + current_function_args_info.ca_nstackparms) * UNITS_PER_WORD));
     TREE_SIDE_EFFECTS (t) = 1;
     expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
 #else
@@ -2538,11 +2523,31 @@ i960_va_start (tree valist, rtx nextarg)
     expand_expr(t, const0_rtx, VOIDmode, EXPAND_NORMAL);
     // setup the count store operation
     t = build2(MODIFY_EXPR, TREE_TYPE(count), count,
-               build_int_cst(NULL_TREE, (current_function_args_info.ca_nregparms + current_function_args_info.ca_nstackparms) * 4));
+               build_int_cst(NULL_TREE, (current_function_args_info.ca_nregparms + current_function_args_info.ca_nstackparms) * UNITS_PER_WORD));
     TREE_SIDE_EFFECTS(t) = 1;
     expand_expr(t, const0_rtx, VOIDmode, EXPAND_NORMAL);
 #endif
 }
+
+static tree
+i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq *post_p ) {
+    // adapted from gcc 3.4.6 but updated for using a structure instead of the hack job that was being done before
+    tree f_base = TYPE_FIELDS(va_list_type_node);
+    tree f_count = DECL_CHAIN(f_base);
+    auto base = build3(COMPONENT_REF, TREE_TYPE(f_base), valist, f_base, NULL_TREE);
+    auto count = build3(COMPONENT_REF, TREE_TYPE(f_count), valist, f_count, NULL_TREE);
+    // round up sizeof(type) to a word
+    auto size = (int_size_in_bytes(type) + UNITS_PER_WORD - 1) & -UNITS_PER_WORD;
+
+    // round up alignment to a word
+    auto ali = TYPE_ALIGN(type);
+    if (ali < BITS_PER_WORD) {
+        ali = BITS_PER_WORD;
+    }
+    ali /= BITS_PER_WORD;
+}
+
+
 
 /* Calculate the final size of the reg parm stack space for the current
    function, based on how many bytes would be allocated on the stack.  */
@@ -3017,11 +3022,10 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #undef TARGET_CONDITIONAL_REGISTER_USAGE
 #define TARGET_CONDITIONAL_REGISTER_USAGE i960_conditional_register_usage
 
-//#undef TARGET_EXPAND_BUILTIN_SAVEREGS
-//#define TARGET_EXPAND_BUILTIN_SAVEREGS i960_builtin_saveregs
-
 #undef TARGET_FRAME_POINTER_REQUIRED
 #define TARGET_FRAME_POINTER_REQUIRED i960_frame_pointer_required
+#undef  TARGET_GIMPLIFY_VA_ARG_EXPR
+#define TARGET_GIMPLIFY_VA_ARG_EXPR i960_gimplify_va_arg_expr
 
 
 struct gcc_target targetm = TARGET_INITIALIZER;
