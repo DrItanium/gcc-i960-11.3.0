@@ -2413,7 +2413,7 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_inf
 static tree
 i960_build_builtin_va_list ()
 {
-#if 1
+#if 0
     // generate an array that can accept up to one item
   return build_array_type (unsigned_type_node,
 			   build_index_type (size_one_node));
@@ -2425,7 +2425,7 @@ i960_build_builtin_va_list ()
   //    unsigned int bytesSkipped; // number of bytes skipped past so far
   // } va_list;
   tree record = (*lang_hooks.types.make_type)(RECORD_TYPE);
-  tree typeDecl = build_dec(BUILTINS_LOCATION,
+  tree typeDecl = build_decl(BUILTINS_LOCATION,
                             TYPE_DECL,
                             get_identifier("__va_list_tag"),
                             record);
@@ -2488,7 +2488,7 @@ i960_builtin_saveregs (void) {
 void
 i960_va_start (tree valist, rtx nextarg)
 {
-#if 1
+#if 0
     tree t, base, num;
     rtx fake_arg_pointer_rtx;
     // so va_start is defined as void va_start(va_list ap, parm_n)
