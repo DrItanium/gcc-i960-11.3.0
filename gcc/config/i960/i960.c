@@ -61,6 +61,7 @@ Boston, MA 02111-1307, USA.  */
 #include "print-rtl.h"
 #include "rtl-iter.h"
 #include "diagnostic-core.h"
+#include "print-tree.h"
 // include last
 #include "target-def.h"
 
@@ -2417,8 +2418,34 @@ i960_build_builtin_va_list ()
   return build_array_type (unsigned_type_node,
 			   build_index_type (size_one_node));
 #else
-  // construct an argument block in memory, it has a base address plus
+  // construct an argument block in memory handled by incoming varargs
+  // a va list is defined like this:
+  // typedef struct __gnuc_va_list {
+  //    void* addr; // address of the first argument
+  //    unsigned int bytesSkipped; // number of bytes skipped past so far
+  // } va_list;
   tree record = (*lang_hooks.types.make_type)(RECORD_TYPE);
+  tree typeDecl = build_dec(BUILTINS_LOCATION,
+                            TYPE_DECL,
+                            get_identifier("__va_list_tag"),
+                            record);
+  tree addrField = build_decl(BUILTINS_LOCATION,
+                              FIELD_DECL,
+                              get_identifier("__va_addr"),
+                              ptr_type_node );
+  tree bytesSkippedField = build_decl(BUILTINS_LOCATION,
+                                      FIELD_DECL,
+                                      get_identifier("__va_bytes_skipped"),
+                                      unsigned_type_node);
+  DECL_FIELD_CONTEXT(addrField) = record;
+  DECL_FIELD_CONTEXT(bytesSkippedField) = record;
+  TYPE_STUB_DECL(record) = typeDecl;
+  TYPE_NAME(record) = typeDecl;
+  TYPE_FIELDS(record) = addrField;
+  DECL_CHAIN(addrField) = bytesSkippedField;
+  layout_type(record);
+
+  return record;
 #endif
 }
 static rtx
@@ -2471,8 +2498,8 @@ i960_va_start (tree valist, rtx nextarg)
     // *valist = g14;
     // all other implementations now use a special "structure"
     // construct an expression tree that points to the va_list itself indirectly
-    //base = build1 (INDIRECT_REF, unsigned_type_node, valist);
-    base = build1(INDIRECT_REF, TREE_TYPE(valist), valist);
+    base = build1 (INDIRECT_REF, unsigned_type_node, valist);
+    debug_tree(base);
     // construct an expression which is the valist plus the unit size of the valist itself
     num = build1 (INDIRECT_REF, unsigned_type_node,
                   build2 (PLUS_EXPR, unsigned_type_node, valist, TYPE_SIZE_UNIT (TREE_TYPE (valist))));
@@ -2483,7 +2510,8 @@ i960_va_start (tree valist, rtx nextarg)
     // make a tree out of this argument block pointer (g14)
     tree s = make_tree(unsigned_type_node, fake_arg_pointer_rtx);
     // now we want to modify base to be what was in g14 previously (the argument block pointer)
-    t = build2 (MODIFY_EXPR, TREE_TYPE(valist), base, s);
+    t = build2 (MODIFY_EXPR, unsigned_type_node, base, s);
+    debug_tree(t);
     TREE_SIDE_EFFECTS (t) = 1;
     expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
     // *(valist + ?) = (ca_nregparms + ca_nstackparms) * 4
@@ -2496,7 +2524,7 @@ i960_va_start (tree valist, rtx nextarg)
     tree t;
     // st g14, 64(fp)  # arg0 / base
     // mov 4, g4
-    // st g4, 68(fp)   # arg1 / count
+    // st g4, 68(fp)   # arg1 / count / skipped by
     tree f_base = TYPE_FIELDS(va_list_type_node);
     tree f_count = DECL_CHAIN(f_base);
 
