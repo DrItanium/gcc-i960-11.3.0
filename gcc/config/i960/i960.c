@@ -2545,6 +2545,32 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
         ali = BITS_PER_WORD;
     }
     ali /= BITS_PER_WORD;
+    // align count appropriate for the argument
+    auto pad = fold(build2(PLUS_EXPR, unsigned_type_node, count, build_int_cst(NULL_TREE, ali - 1)));
+    pad = fold(build2(BIT_AND_EXPR, unsigned_type_node, pad, build_int_cst(NULL_TREE, -ali)));
+    pad = save_expr(pad);
+
+    // increment vpad past this argument
+    tree next = fold(build2(PLUS_EXPR, unsigned_type_node, pad, build_int_cst(NULL_TREE, size)));
+    next = save_expr(next);
+
+    // find the offset for the current argument. Mind peculiar overflow from registers to stack
+    auto int48 = build_int_cst(NULL_TREE, 48);
+    auto t2 = size > 16 ? integer_one_node : fold(build2(GT_EXPR, integer_type_node, next, int48));
+    auto t1 = fold(build2(LE_EXPR, integer_type_node, count, int48)) ;
+    t1 = fold(build2(TRUTH_AND_EXPR, integer_type_node, t1, t2));
+    auto _this = fold(build3(COND_EXPR, unsigned_type_node, t1,  int48, pad));
+    // find the address for the current argument
+    t1 = fold(build2(PLUS_EXPR, unsigned_type_node, base, _this));
+    t1 = build1(NOP_EXPR, ptr_type_node, t1);
+    auto addr_rtx = expand_expr(t1, NULL_RTX, Pmode, EXPAND_NORMAL);
+    // increment count
+    t1 = build2(MODIFY_EXPR, unsigned_type_node, count, next);
+    TREE_SIDE_EFFECTS(t1) = 1;
+    expand_expr(t1, const0_rtx, VOIDmode, EXPAND_NORMAL);
+    return build_va_arg_indirect_ref(addr_rtx);
+
+
 }
 
 
