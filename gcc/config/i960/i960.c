@@ -2536,9 +2536,44 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     tree f_count = DECL_CHAIN(f_base);
     auto base = build3(COMPONENT_REF, TREE_TYPE(f_base), valist, f_base, NULL_TREE);
     auto count = build3(COMPONENT_REF, TREE_TYPE(f_count), valist, f_count, NULL_TREE);
+    // the old 3.4.6 gcc code was a hard implementation of the following macro from 2.95 (modified to be easier to read)
+    /*
+     * __vsiz(T): (((sizeof(T) + 3) / 4) * 4)
+     * __vali(T): (__alignof__(T) >= 4 ? __alignof__(T) : 4)
+     * __vpad(I, T) (((I) + __vali(T) - 1) / __vali (T)) * __vali(T) + __vsiz(T))
+     * va_arg(AP, T):
+     *  (
+     *      (
+     *          ((AP)[1] <= 48 && (__vpad((AP)[1], T) > 48 || __vsiz(T) > 16))
+     *          ? ((AP)[1] = 48 + __vsiz(T))
+     *          : ((AP)[1] = __Vpad((AP)[1], T))
+     *      ),
+     *      *((T*)(void*)((char*) *(AP) + (AP)[1] - __vsiz(T)))
+     *  )
+     */
+    // This translates to the following easier to read code:
+    /*
+     * __vsiz(T a) { return ((sizeof(a) + 3) / 4) * 4; }
+     * __vali(T a) {
+     *      if (__alignof__(a) >= 4) {
+     *          return __alignof__(a);
+     *      } else {
+     *          return 4;
+     *      }
+     *  }
+     *  __vpad(I a, T b) { return ((a + __vali(b) - 1) / __vali(b)) * __vali(b) + __vsiz(b);  }
+     *  va_arg(AP a, T b) {
+     *      if (a[1] <= 48 && (__vpad(a[1], b) > 48 || __vsiz(b) > 16)) {
+     *          a[1] = 48 + __vsiz(b);
+     *      } else {
+     *          a[1] = __Vpad(a[1], b)
+     *      }
+     *      return *((T*)(void*)((char*)a[0] + a[1] - __vsiz(b)));
+     *  }
+     */
+#if 0
     // round up sizeof(type) to a word
     auto size = (int_size_in_bytes(type) + UNITS_PER_WORD - 1) & -UNITS_PER_WORD;
-
     // round up alignment to a word
     auto ali = TYPE_ALIGN(type);
     if (ali < BITS_PER_WORD) {
@@ -2551,7 +2586,7 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     pad = save_expr(pad);
 
     // increment vpad past this argument
-    tree next = fold(build2(PLUS_EXPR, unsigned_type_node, pad, build_int_cst(NULL_TREE, size)));
+    tree next = fold(build2(PLUS_EXPR, unsigned_type_node, pad, size_tree);
     next = save_expr(next);
 
     // find the offset for the current argument. Mind peculiar overflow from registers to stack
@@ -2569,6 +2604,16 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     TREE_SIDE_EFFECTS(t1) = 1;
     expand_expr(t1, const0_rtx, VOIDmode, EXPAND_NORMAL);
     return build_va_arg_indirect_ref(addr_rtx);
+#else
+    // round up alignment to a word
+    auto size_tree = round_up (size_in_bytes(type), UNITS_PER_WORD);
+    gimplify_expr(&size_tree, pre_p, nullptr, is_gimple_val, fb_rvalue);
+    // align count appropriate for the argument
+    // increment vpad past this argument
+    // find the offset for the current argument. Mind peculiar overflow from registers to stack
+    // find the address for the current argument
+    // increment count
+#endif
 
 
 }
