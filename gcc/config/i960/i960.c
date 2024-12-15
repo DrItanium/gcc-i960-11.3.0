@@ -2636,12 +2636,14 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     // find the address for the current argument
     t1 = fold_build2(PLUS_EXPR, unsigned_type_node, base, _this); // A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali)
     auto addr_rtx = fold_convert(build_pointer_type(type), t1); // pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
+    gimplify_and_add(addr_rtx, pre_p);
     //auto addr_rtx = expand_expr(t1, NULL_RTX, Pmode, EXPAND_NORMAL);
     // increment count
-    t1 = build2(MODIFY_EXPR, unsigned_type_node, count, next); // A[1] = ((count + (ali - 1)) & (-ali)) + size
-    TREE_SIDE_EFFECTS(t1) = 1;
-    expand_expr(t1, const0_rtx, VOIDmode, EXPAND_NORMAL);
-    return addr_rtx; // return pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
+    //t1 = build2(MODIFY_EXPR, unsigned_type_node, count, next); // A[1] = ((count + (ali - 1)) & (-ali)) + size
+    //TREE_SIDE_EFFECTS(t1) = 1;
+    //expand_expr(t1, const0_rtx, VOIDmode, EXPAND_NORMAL);
+    gimplify_assign(count, next, pre_p);
+    return build_va_arg_indirect_ref(addr_rtx); // return pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
 #endif
 
 
