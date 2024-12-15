@@ -2607,17 +2607,41 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     t1 = build2(MODIFY_EXPR, unsigned_type_node, count, next); // A[1] = ((count + (ali - 1)) & (-ali)) + size
     TREE_SIDE_EFFECTS(t1) = 1;
     expand_expr(t1, const0_rtx, VOIDmode, EXPAND_NORMAL);
-    return build_va_arg_indirect_ref(addr_rtx); // return pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
+    return addr_rtx; // return pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
 #else
+    // just gimplify this existing work to start to see how well I can generate the corresponding code
+    // round up sizeof(type) to a word
+    auto size = (int_size_in_bytes(type) + UNITS_PER_WORD - 1) & -UNITS_PER_WORD;
     // round up alignment to a word
-    auto size_tree = round_up (size_in_bytes(type), UNITS_PER_WORD);
-    gimplify_expr(&size_tree, pre_p, nullptr, is_gimple_val, fb_rvalue);
+    auto ali = TYPE_ALIGN(type);
+    if (ali < BITS_PER_WORD) {
+        ali = BITS_PER_WORD;
+    }
+    ali /= BITS_PER_WORD;
     // align count appropriate for the argument
+    auto pad = fold_build2(PLUS_EXPR, unsigned_type_node, count, build_int_cst(NULL_TREE, ali - 1)); // count + (ali - 1)
+    pad = fold_build2(BIT_AND_EXPR, unsigned_type_node, pad, build_int_cst(NULL_TREE, -ali)); // (count + (ali - 1)) & (-ali)
+    pad = save_expr(pad); // turn it into a reusable code component
+
     // increment vpad past this argument
+    tree next = fold_build2(PLUS_EXPR, unsigned_type_node, pad, build_int_cst(NULL_TREE, size)); // ((count + (ali - 1)) & (-ali)) + size
+    next = save_expr(next); // turn it into a reusable code component
+
     // find the offset for the current argument. Mind peculiar overflow from registers to stack
+    auto int48 = build_int_cst(NULL_TREE, 48); // 48
+    auto t2 = size > 16 ? integer_one_node : fold_build2(GT_EXPR, integer_type_node, next, int48); // next > 48
+    auto t1 = fold_build2(LE_EXPR, integer_type_node, count, int48) ; // count < 48
+    t1 = fold_build2(TRUTH_AND_EXPR, integer_type_node, t1, t2); // ((count < 48) & (next > 48)
+    auto _this = fold_build3(COND_EXPR, unsigned_type_node, t1,  int48, pad); // ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali)
     // find the address for the current argument
+    t1 = fold_build2(PLUS_EXPR, unsigned_type_node, base, _this); // A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali)
+    t1 = build1(NOP_EXPR, ptr_type_node, t1); // pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
+    auto addr_rtx = expand_expr(t1, NULL_RTX, Pmode, EXPAND_NORMAL);
     // increment count
-    return nullptr;
+    t1 = build2(MODIFY_EXPR, unsigned_type_node, count, next); // A[1] = ((count + (ali - 1)) & (-ali)) + size
+    TREE_SIDE_EFFECTS(t1) = 1;
+    expand_expr(t1, const0_rtx, VOIDmode, EXPAND_NORMAL);
+    return addr_rtx; // return pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
 #endif
 
 
