@@ -2635,8 +2635,8 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     auto _this = fold_build3(COND_EXPR, unsigned_type_node, t1,  int48, pad); // ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali)
     // find the address for the current argument
     t1 = fold_build2(PLUS_EXPR, unsigned_type_node, base, _this); // A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali)
-    t1 = build1(NOP_EXPR, ptr_type_node, t1); // pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
-    auto addr_rtx = expand_expr(t1, NULL_RTX, Pmode, EXPAND_NORMAL);
+    auto addr_rtx = fold_convert(build_pointer_type(type), t1); // pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
+    //auto addr_rtx = expand_expr(t1, NULL_RTX, Pmode, EXPAND_NORMAL);
     // increment count
     t1 = build2(MODIFY_EXPR, unsigned_type_node, count, next); // A[1] = ((count + (ali - 1)) & (-ali)) + size
     TREE_SIDE_EFFECTS(t1) = 1;
