@@ -62,6 +62,8 @@ Boston, MA 02111-1307, USA.  */
 #include "rtl-iter.h"
 #include "diagnostic-core.h"
 #include "print-tree.h"
+#include "gimple.h"
+#include "gimplify.h"
 // include last
 #include "target-def.h"
 
@@ -2563,12 +2565,14 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
      *  }
      *  __vpad(I a, T b) { return ((a + __vali(b) - 1) / __vali(b)) * __vali(b) + __vsiz(b);  }
      *  va_arg(AP a, T b) {
+     *      auto result = *((T*)(void*)((char*)a[0] + a[1] - __vsiz(b)));
+     *      // increment address
      *      if (a[1] <= 48 && (__vpad(a[1], b) > 48 || __vsiz(b) > 16)) {
      *          a[1] = 48 + __vsiz(b);
      *      } else {
      *          a[1] = __Vpad(a[1], b)
      *      }
-     *      return *((T*)(void*)((char*)a[0] + a[1] - __vsiz(b)));
+     *      return result;
      *  }
      */
 #if 0
@@ -2581,29 +2585,29 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     }
     ali /= BITS_PER_WORD;
     // align count appropriate for the argument
-    auto pad = fold(build2(PLUS_EXPR, unsigned_type_node, count, build_int_cst(NULL_TREE, ali - 1)));
-    pad = fold(build2(BIT_AND_EXPR, unsigned_type_node, pad, build_int_cst(NULL_TREE, -ali)));
+    auto pad = fold(build2(PLUS_EXPR, unsigned_type_node, count, build_int_cst(NULL_TREE, ali - 1))); // count + (ali - 1)
+    pad = fold(build2(BIT_AND_EXPR, unsigned_type_node, pad, build_int_cst(NULL_TREE, -ali))); // (count + (ali - 1)) & (-ali)
     pad = save_expr(pad);
 
     // increment vpad past this argument
-    tree next = fold(build2(PLUS_EXPR, unsigned_type_node, pad, size_tree);
+    tree next = fold(build2(PLUS_EXPR, unsigned_type_node, pad, build_int_cst(NULL_TREE, size))); // ((count + (ali - 1)) & (-ali)) + size
     next = save_expr(next);
 
     // find the offset for the current argument. Mind peculiar overflow from registers to stack
-    auto int48 = build_int_cst(NULL_TREE, 48);
-    auto t2 = size > 16 ? integer_one_node : fold(build2(GT_EXPR, integer_type_node, next, int48));
-    auto t1 = fold(build2(LE_EXPR, integer_type_node, count, int48)) ;
-    t1 = fold(build2(TRUTH_AND_EXPR, integer_type_node, t1, t2));
-    auto _this = fold(build3(COND_EXPR, unsigned_type_node, t1,  int48, pad));
+    auto int48 = build_int_cst(NULL_TREE, 48); // 48
+    auto t2 = size > 16 ? integer_one_node : fold(build2(GT_EXPR, integer_type_node, next, int48)); // next > 48
+    auto t1 = fold(build2(LE_EXPR, integer_type_node, count, int48)) ; // count < 48
+    t1 = fold(build2(TRUTH_AND_EXPR, integer_type_node, t1, t2)); // ((count < 48) & (next > 48)
+    auto _this = fold(build3(COND_EXPR, unsigned_type_node, t1,  int48, pad)); // ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali)
     // find the address for the current argument
-    t1 = fold(build2(PLUS_EXPR, unsigned_type_node, base, _this));
-    t1 = build1(NOP_EXPR, ptr_type_node, t1);
+    t1 = fold(build2(PLUS_EXPR, unsigned_type_node, base, _this)); // A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali)
+    t1 = build1(NOP_EXPR, ptr_type_node, t1); // pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
     auto addr_rtx = expand_expr(t1, NULL_RTX, Pmode, EXPAND_NORMAL);
     // increment count
-    t1 = build2(MODIFY_EXPR, unsigned_type_node, count, next);
+    t1 = build2(MODIFY_EXPR, unsigned_type_node, count, next); // A[1] = ((count + (ali - 1)) & (-ali)) + size
     TREE_SIDE_EFFECTS(t1) = 1;
     expand_expr(t1, const0_rtx, VOIDmode, EXPAND_NORMAL);
-    return build_va_arg_indirect_ref(addr_rtx);
+    return build_va_arg_indirect_ref(addr_rtx); // return pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
 #else
     // round up alignment to a word
     auto size_tree = round_up (size_in_bytes(type), UNITS_PER_WORD);
@@ -2613,6 +2617,7 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     // find the offset for the current argument. Mind peculiar overflow from registers to stack
     // find the address for the current argument
     // increment count
+    return nullptr;
 #endif
 
 
