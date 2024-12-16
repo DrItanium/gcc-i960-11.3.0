@@ -36,5 +36,7 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 #undef  ENDFILE_SPEC
 #define ENDFILE_SPEC "crtend.o%s"
+/* this is a bare metal target, I want to have access to automatic invocation of classes and structures*/
+#define INVOKE__main
 /* End of elf.h */
 #endif
