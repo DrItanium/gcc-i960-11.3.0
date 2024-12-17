@@ -2264,19 +2264,11 @@ x86_64-*-fuchsia*)
 	tm_file="${tm_file} i386/unix.h i386/att.h elfos.h newlib-stdint.h i386/i386elf.h i386/x86-64.h fuchsia.h"
 	;;
 i960*-*-elf*)
-	tm_file="${tm_file} dbxelf.h elfos.h newlib-stdint.h i960/elf.h"
+	tm_file="${tm_file} elfos.h newlib-stdint.h i960/elf.h"
 	tmake_file="i960/t-960bare"
-c_target_objs="${c_target_objs} i960-c.o"
+    c_target_objs="${c_target_objs} i960-c.o"
 	cxx_target_objs="${cxx_target_objs} i960-c.o"
 	target_cpu_default="0"
-	if test x$gas = xyes
-	then
-		target_cpu_default="${target_cpu_default}|MASK_GNU_AS"
-	fi
-	if test x$gnu_ld = xyes
-	then
-		target_cpu_default="${target_cpu_default}|MASK_GNU_LD"
-	fi
 	;;
 ia64*-*-elf*)
 	tm_file="${tm_file} dbxelf.h elfos.h newlib-stdint.h ia64/sysv4.h ia64/elf.h"
