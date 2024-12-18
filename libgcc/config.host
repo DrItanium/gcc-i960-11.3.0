@@ -913,6 +913,7 @@ x86_64-*-mingw*)
 	fi
 	;;
 i960*-*-elf*)
+    extra_parts="$extra_parts crti.o crtn.o"
     tmake_file="$tmake_file i960/t-softfp t-softfp"
 	;;
 ia64*-*-elf*)
