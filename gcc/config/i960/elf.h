@@ -32,9 +32,9 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 /* elfos.h does not link with crti.o/crtn.o.  We override elfos.h so
    that we can use the standard ELF Unix method.  */
 #undef  STARTFILE_SPEC
-#define STARTFILE_SPEC "crt0.o%s crtbegin.o%s"
+#define STARTFILE_SPEC "crt0.o%s crti.o%s crtbegin.o%s"
 
 #undef  ENDFILE_SPEC
-#define ENDFILE_SPEC "crtend.o%s"
+#define ENDFILE_SPEC "crtend.o%s crtn.o%s"
 /* End of elf.h */
 #endif
