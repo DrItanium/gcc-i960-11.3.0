@@ -372,20 +372,18 @@ i960_cmplpower2_operand (rtx op, enum machine_mode)
    return -1.  */
 
 int
-i960_bitpos (unsigned int val)
-{
-  int i;
-
-  for (i = 0; val != 0; i++, val >>= 1)
-    {
-      if (val & 1)
-	{
-	  if (val != 1)
-	    return -1;
-	  return i;
-	}
+i960_bitpos (unsigned int val) {
+    // we actually have a bounded set of elements to check against
+    switch (val) {
+#define X(index) case (1 << index) : return index
+        X(0); X(1); X(2); X(3); X(4); X(5); X(6); X(7);
+        X(8); X(9); X(10); X(11); X(12); X(13); X(14); X(15);
+        X(16); X(17); X(18); X(19); X(20); X(21); X(22); X(23);
+        X(24); X(25); X(26); X(27); X(28); X(29); X(30); X(31);
+#undef X
+        default:
+            return -1;
     }
-  return -1;
 }
 
 /* Return nonzero if OP is a mask, i.e. all one bits are consecutive.
