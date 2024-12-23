@@ -665,9 +665,9 @@ i960_output_move_double (rtx dst, rtx src) {
             && GET_CODE (src) == CONST_INT
             && TARGET_CONST_OK_FOR_LETTER_P(INTVAL (src), 'I')) {
         if (REGNO (dst) & 1) {
-            return "mov	%1,%0\n\tmov	0,%D0 #m5.0";
+            return "mov	%1,%0\n\tmov	0,%D0";
         } else {
-            return "movl	%1,%0 #m5.1";
+            return "movl	%1,%0";
         }
     } else if (GET_CODE (dst) == REG
             && GET_CODE (src) == MEM) {
@@ -682,7 +682,7 @@ i960_output_move_double (rtx dst, rtx src) {
             operands[4] = adjust_address (operands[3], word_mode,
                     UNITS_PER_WORD);
             output_asm_insn
-                ("lda	%1,%2 #lda 1\n\tld	%3,%0\n\tld	%4,%D0", operands);
+                ("lda	%1,%2\n\tld	%3,%0\n\tld	%4,%D0", operands);
             return "";
         } else {
             return "ldl	%1,%0";
@@ -769,7 +769,7 @@ i960_output_move_quad (rtx dst, rtx src)
               = adjust_address (operands[4], word_mode, UNITS_PER_WORD);
           operands[6]
               = adjust_address (operands[5], word_mode, UNITS_PER_WORD);
-          output_asm_insn ("lda	%1,%2 #lda2\n\tld	%3,%0\n\tld	%4,%D0\n\tld	%5,%E0\n\tld	%6,%F0", operands);
+          output_asm_insn ("lda	%1,%2\n\tld	%3,%0\n\tld	%4,%D0\n\tld	%5,%E0\n\tld	%6,%F0", operands);
           return "";
       } else {
           return "ldq	%1,%0";
@@ -838,7 +838,7 @@ i960_output_ldconst (rtx dst, rtx src)
 
   if (GET_CODE (src) != CONST_INT && GET_CODE (src) != CONST_DOUBLE)
     {
-      output_asm_insn ("ldconst	%1,%0 # ldconst 10", operands);
+      output_asm_insn ("ldconst	%1,%0", operands);
       return "";
     }
   else if (mode == TFmode)
@@ -847,11 +847,11 @@ i960_output_ldconst (rtx dst, rtx src)
       int i;
 
       if (i960_fp_literal_zero (src, TFmode))
-          return "movt	0,%0 #ldconst 11";
+          return "movt	0,%0";
 
       REAL_VALUE_TO_TARGET_LONG_DOUBLE (*CONST_DOUBLE_REAL_VALUE(src), value_long);
 
-      output_asm_insn ("# ldconst	%1,%0 # ldconst 12",operands);
+      output_asm_insn ("# ldconst	%1,%0",operands);
 
       for (i = 0; i < 3; i++)
 	{
@@ -868,11 +868,11 @@ i960_output_ldconst (rtx dst, rtx src)
       rtx first, second;
 
       if (i960_fp_literal_zero (src, DFmode))
-	return "movl	0,%0 #m6";
+	return "movl	0,%0";
 
       split_double (src, &first, &second);
 
-      output_asm_insn ("# ldconst	%1,%0 # ldconst13",operands);
+      output_asm_insn ("# ldconst	%1,%0",operands);
 
       operands[0] = gen_rtx_REG (SImode, REGNO (dst));
       operands[1] = first;
@@ -891,7 +891,7 @@ i960_output_ldconst (rtx dst, rtx src)
 
       REAL_VALUE_TO_TARGET_SINGLE(*CONST_DOUBLE_REAL_VALUE(src), value);
 
-      output_asm_insn ("# ldconst	%1,%0 # ldconst14",operands);
+      output_asm_insn ("# ldconst	%1,%0",operands);
       operands[0] = gen_rtx_REG (SImode, REGNO (dst));
       operands[1] = GEN_INT (value);
       output_asm_insn (i960_output_ldconst (operands[0], operands[1]),
@@ -924,13 +924,13 @@ i960_output_ldconst (rtx dst, rtx src)
       /* Numbers from 0 to 31 can be handled with a single insn.  */
       rsrc1 = INTVAL (lowerhalf);
       if (upperhalf == const0_rtx && rsrc1 >= 0 && rsrc1 < 32) {
-          return "movl	%1,%0 #m7";
+          return "movl	%1,%0";
       }
 
       /* emit the lower half with a recursive call (we don't want to fight with this ever!) */
       xoperands[0] = gen_rtx_REG(SImode, REGNO(dst));
       xoperands[1] = lowerhalf;
-      //return "mov	%D1,%0 # ldconst 20";
+      //return "mov	%D1,%0";
       output_asm_insn (i960_output_ldconst(xoperands[0], xoperands[1]), xoperands);
       /* Output the upper half with a recursive call.  */
       xoperands[0] = gen_rtx_REG (SImode, REGNO (dst) + 1);
@@ -956,9 +956,9 @@ i960_output_ldconst (rtx dst, rtx src)
       if (rsrc1 < 32) {
 #if 0
 	  if (i960_last_insn_type == I_TYPE_REG && TARGET_C_SERIES)
-	    return "lda	%1,%0 #lda3";
+	    return "lda	%1,%0";
 #endif
-	  return "mov	%1,%0 # ldconst 20";
+	  return "mov	%1,%0";
 	}
 
       /* ldconst	32..63,X	->	add	31,nn,X  */
@@ -968,7 +968,7 @@ i960_output_ldconst (rtx dst, rtx src)
 	    return "lda	%1,%0";
 #endif
 	  operands[1] = GEN_INT (rsrc1 - 31);
-	  output_asm_insn ("addo\t31,%1,%0\t# ldconst %3,%0 # ldconst 30", operands);
+	  output_asm_insn ("addo\t31,%1,%0\t# ldconst %3,%0", operands);
 	  return "";
 	}
     }
@@ -979,7 +979,7 @@ i960_output_ldconst (rtx dst, rtx src)
 	{
 	  /* return 'sub -(%1),0,%0' */
 	  operands[1] = GEN_INT (- rsrc1);
-	  output_asm_insn ("subo\t%1,0,%0\t# ldconst %3,%0 # ldconst 40", operands);
+	  output_asm_insn ("subo\t%1,0,%0\t# ldconst %3,%0", operands);
 	  return "";
 	}
       
@@ -987,7 +987,7 @@ i960_output_ldconst (rtx dst, rtx src)
       if (rsrc1 == -32)
 	{
 	  operands[1] = GEN_INT (~rsrc1);
-	  output_asm_insn ("not\t%1,%0	# ldconst %3,%0 # ldconst 50", operands);
+	  output_asm_insn ("not\t%1,%0	# ldconst %3,%0", operands);
 	  return "";
 	}
     }
@@ -996,7 +996,7 @@ i960_output_ldconst (rtx dst, rtx src)
   if (i960_bitpos (rsrc1) >= 0)
     {
       operands[1] = GEN_INT (i960_bitpos (rsrc1));
-      output_asm_insn ("setbit\t%1,0,%0\t# ldconst %3,%0 # ldconst 60", operands);
+      output_asm_insn ("setbit\t%1,0,%0\t# ldconst %3,%0", operands);
       return "";
     }
 
@@ -1010,7 +1010,7 @@ i960_output_ldconst (rtx dst, rtx src)
 	  rsrc2 = ((unsigned int) rsrc1) >> s;
 	  operands[1] = GEN_INT (rsrc2);
 	  operands[2] = GEN_INT (s);
-	  output_asm_insn ("shlo\t%2,%1,%0\t# ldconst %3,%0 # ldconst 70", operands);
+	  output_asm_insn ("shlo\t%2,%1,%0\t# ldconst %3,%0", operands);
 	  return "";
 	}
     }
@@ -1020,8 +1020,8 @@ i960_output_ldconst (rtx dst, rtx src)
      ror	31,3,g0	-> ldconst 0xe0000003,g0
    
      and any 2 instruction cases that might be worthwhile  */
-    return "ldconst %1, %0 #ldconst 80";
-  //output_asm_insn ("ldconst	%1,%0 # ldconst 80", operands);
+    return "ldconst %1, %0";
+  //output_asm_insn ("ldconst	%1,%0", operands);
   //return "";
 }
 
@@ -1206,7 +1206,7 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
       assemble_name (file, name);
       fprintf (file, ",%s.lf\n", (name[0] == '*' ? &name[1] : name));
       ASM_OUTPUT_LABEL (file, name);
-      fprintf (file, "\tlda    .Li960R%d,g14 #lda4\n", ret_label);
+      fprintf (file, "\tlda    .Li960R%d,g14\n", ret_label);
       fprintf (file, "%s.lf:\n", (name[0] == '*' ? &name[1] : name));
       fprintf (file, "\tmov    g14,g%d\n", i960_leaf_ret_reg);
 #if 0
@@ -1448,7 +1448,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
             rtx tmp = gen_rtx_MEM (Pmode, min_stack);
             fputs ("\tlda\t", file);
             i960_print_operand (file, tmp, 0);
-            fputs (",r4 #lda5\n", file);
+            fputs (",r4\n", file);
             min_stack = gen_rtx_REG (Pmode, 20);
         }
         if (arith_operand (min_stack, Pmode)) {
@@ -1465,7 +1465,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
         if (actual_fsize < 32) {
             fprintf (file, "\taddo	" HOST_WIDE_INT_PRINT_DEC ",sp,sp\n", actual_fsize);
         } else {
-            fprintf(file, "\tlda\t" HOST_WIDE_INT_PRINT_DEC "(sp),sp #lda6\n", actual_fsize);
+            fprintf(file, "\tlda\t" HOST_WIDE_INT_PRINT_DEC "(sp),sp\n", actual_fsize);
         }
     }
 
@@ -1559,7 +1559,7 @@ i960_output_function_profiler (FILE* file, int labelno)
 
   /* Load location address into g0 and call mcount.  */
 
-  fprintf (file, "\tlda\tLP%d,g0 #lda7\n\tcallx\tmcount\n", labelno);
+  fprintf (file, "\tlda\tLP%d,g0\n\tcallx\tmcount\n", labelno);
 
   /* If this function uses the arg pointer, restore it.  */
 
@@ -1664,7 +1664,7 @@ i960_output_call_insn (rtx target, rtx argsize_rtx, rtx arg_pointer, rtx_insn* i
     output_asm_insn ("mov	g14,r3", operands);
 
   if (argsize > 48)
-    output_asm_insn ("lda	%a1,g14 #lda8", operands);
+    output_asm_insn ("lda	%a1,g14", operands);
   else if (current_function_args_size != 0 || varargs_stdarg_function)
     output_asm_insn ("mov	0,g14", operands);
 
