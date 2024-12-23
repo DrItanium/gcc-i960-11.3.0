@@ -2384,9 +2384,9 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_inf
 	 48 bytes as well).  We must allocate all 48 bytes (12*4) because
 	 va_start assumes it.  */
       // do a cmpsi of g14 with 0
-      emit_insn (gen_cmpsi (fake_arg_pointer_rtx, const0_rtx));
       // bne to target label
-      emit_jump_insn (gen_bne (label));
+      rtx test = gen_rtx_NE(VOIDmode, fake_arg_pointer_rtx, const0_rtx);
+      emit_jump_insn(gen_cbranchsi4(test, fake_arg_pointer_rtx, const0_rtx, label));
       // set g14 to sp, it allows it be passed to another function as needed
       emit_insn (gen_rtx_SET (fake_arg_pointer_rtx,
 			      stack_pointer_rtx));
