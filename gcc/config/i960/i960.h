@@ -263,7 +263,7 @@ extern int i960_last_maxbitalignment;
    Aside from that, you can include as many other registers as you like.  */
 #define CALL_REALLY_USED_REGISTERS \
  {1, 1, 1, 1, 1, 1, 1, 1,	\
-  0, 0, 0, 0, 0, 1, 1, 1,	\
+  1, 1, 1, 1, 1, 1, 1, 1,	\
   1, 1, 1, 0, 0, 0, 0, 0,	\
   0, 0, 0, 0, 0, 0, 0, 0,	\
   0, 0, 0, 0, 1, 1}

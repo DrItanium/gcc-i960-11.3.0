@@ -57,7 +57,7 @@
 
 (define_predicate "cmplpower2_operand"
     (and (match_code "const_int")
-         (match_test "(~exact_log2(INTVAL(op))) >= 0")))
+         (match_test "(exact_log2(~INTVAL(op))) >= 0")))
 
 (define_predicate "arith32_operand"
      (match_code "subreg,reg,label_ref,symbol_ref,const_int,const_double,const"))
