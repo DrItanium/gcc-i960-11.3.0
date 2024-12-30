@@ -65,7 +65,7 @@ Boston, MA 02111-1307, USA.  */
     %{mjd:-D__i960JD__ -D__i960Jx__}\
     %{mjf:-D__i960JF__ -D__i960Jx__}\
 	%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:\
-		%{!mcc:%{!mcf:-D__i960_KB -D__i960KB__ %{mic*:-D__i960KB}}}}}}}}}\
+		%{!mcc:%{!mcf:-D__i960_KA -D__i960KA__ %{mic*:-D__i960KA}}}}}}}}}\
 	%{mlong-double-64:-D__LONG_DOUBLE_64__}"
 
 /* Specs for the compiler, to handle processor variations. 
