@@ -61,3 +61,6 @@
 
 (define_predicate "arith32_operand"
      (match_code "subreg,reg,label_ref,symbol_ref,const_int,const_double,const"))
+
+(define_predicate "unsigned_comparison_operator"
+     (match_code "ltu,geu,leu,gtu"))

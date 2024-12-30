@@ -466,7 +466,7 @@ i960_bitstr (unsigned int val, int* s, int* e)
 /* Return the machine mode to use for a comparison.  */
 
 enum machine_mode
-i960_select_cc_mode (RTX_CODE op, rtx x)
+i960_select_cc_mode (RTX_CODE op, rtx x, rtx y)
 {
   if (op == GTU || op == LTU || op == GEU || op == LEU)
     return CC_UNSmode;

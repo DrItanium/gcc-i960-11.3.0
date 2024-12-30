@@ -38,7 +38,7 @@ extern const char *i960_output_move_double (rtx, rtx);
 extern const char *i960_output_move_double_zero (rtx);
 extern const char *i960_output_move_quad (rtx, rtx);
 extern const char *i960_output_move_quad_zero (rtx);
-extern machine_mode i960_select_cc_mode (RTX_CODE, rtx);
+extern machine_mode i960_select_cc_mode (RTX_CODE, rtx, rtx);
 extern int i960_literal (rtx, enum machine_mode);
 extern int i960_hard_regno_mode_ok (int, enum machine_mode);
 extern int i960_fp_literal (rtx, enum machine_mode);
