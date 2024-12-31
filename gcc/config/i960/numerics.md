@@ -433,12 +433,12 @@
     "(TARGET_NUMERICS)"
     "cpysre	%1,0f0.0,%0"
     [(set_attr "type" "fpmove")])
-(define_insn "i960_sqrtr"
+(define_insn "sqrtsf2"
     [(set (match_operand:SF 0 "register_operand" "=d*f")
         (sqrt:SF (match_operand:SF 1 "fp_arith_operand" "%rGH")))]
     "TARGET_NUMERICS"
     "sqrtr %1,%0")
-(define_insn "i960_sqrtrl"
+(define_insn "sqrtdf2"
     [(set (match_operand:DF 0 "register_operand" "=d*f")
           (sqrt:DF (match_operand:DF 1 "fp_arith_operand" "%rGH")))]
     "TARGET_NUMERICS"
