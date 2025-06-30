@@ -836,39 +836,34 @@ i960_output_ldconst (rtx dst, rtx src)
   /* Anything that isn't a compile time constant, such as a SYMBOL_REF,
      must be a ldconst insn.  */
 
-  if (GET_CODE (src) != CONST_INT && GET_CODE (src) != CONST_DOUBLE)
-    {
+  if (GET_CODE (src) != CONST_INT && GET_CODE (src) != CONST_DOUBLE) {
       output_asm_insn ("ldconst	%1,%0", operands);
       return "";
-    }
-  else if (mode == TFmode)
-    {
+  } else if (mode == TFmode) {
       long value_long[3];
       int i;
 
-      if (i960_fp_literal_zero (src, TFmode))
+      if (i960_fp_literal_zero (src, TFmode)) {
           return "movt	0,%0";
+      }
 
       REAL_VALUE_TO_TARGET_LONG_DOUBLE (*CONST_DOUBLE_REAL_VALUE(src), value_long);
 
       output_asm_insn ("# ldconst	%1,%0",operands);
 
-      for (i = 0; i < 3; i++)
-	{
-	  operands[0] = gen_rtx_REG (SImode, REGNO (dst) + i);
-	  operands[1] = GEN_INT (value_long[i]);
-	  output_asm_insn (i960_output_ldconst (operands[0], operands[1]),
-			   operands);
-	}
+      for (i = 0; i < 3; i++) {
+          operands[0] = gen_rtx_REG (SImode, REGNO (dst) + i);
+          operands[1] = GEN_INT (value_long[i]);
+          output_asm_insn (i960_output_ldconst (operands[0], operands[1]),
+                  operands);
+      }
 
       return ""; 
-   }
-  else if (mode == DFmode)
-    {
+  } else if (mode == DFmode) {
       rtx first, second;
 
       if (i960_fp_literal_zero (src, DFmode))
-	return "movl	0,%0";
+          return "movl	0,%0";
 
       split_double (src, &first, &second);
 
@@ -883,9 +878,7 @@ i960_output_ldconst (rtx dst, rtx src)
       output_asm_insn (i960_output_ldconst (operands[0], operands[1]),
 		      operands);
       return "";
-    }
-  else if (mode == SFmode)
-    {
+  } else if (mode == SFmode) {
       //REAL_VALUE_TYPE d;
       long value;
 
@@ -897,21 +890,19 @@ i960_output_ldconst (rtx dst, rtx src)
       output_asm_insn (i960_output_ldconst (operands[0], operands[1]),
 		      operands);
       return "";
-    }
-  else if (mode == TImode)
-    {
+  } else if (mode == TImode) {
       /* ??? This is currently not handled at all.  */
       abort ();
 
       /* Note: lowest order word goes in lowest numbered reg.  */
       rsrc1 = INTVAL (src);
-      if (rsrc1 >= 0 && rsrc1 < 32)
-	return "movq	%1,%0";
-      else
-	output_asm_insn ("movq\t0,%0\t# ldconstq %1,%0",operands);
+      if (rsrc1 >= 0 && rsrc1 < 32) {
+          return "movq	%1,%0";
+      } else {
+          output_asm_insn ("movq\t0,%0\t# ldconstq %1,%0",operands);
+      }
       /* Go pick up the low-order word.  */
-    }
-  else if (mode == DImode) {
+  } else if (mode == DImode) {
       rtx upperhalf, lowerhalf, xoperands[2];
 
       if (GET_CODE (src) == CONST_DOUBLE || GET_CODE (src) == CONST_INT) {
@@ -971,49 +962,42 @@ i960_output_ldconst (rtx dst, rtx src)
 	  output_asm_insn ("addo\t31,%1,%0\t# ldconst %3,%0", operands);
 	  return "";
 	}
-    }
-  else if (rsrc1 < 0)
-    {
+    } else if (rsrc1 < 0) {
       /* ldconst	-1..-31		->	sub	0,0..31,X  */
-      if (rsrc1 >= -31)
-	{
-	  /* return 'sub -(%1),0,%0' */
-	  operands[1] = GEN_INT (- rsrc1);
-	  output_asm_insn ("subo\t%1,0,%0\t# ldconst %3,%0", operands);
-	  return "";
-	}
+        if (rsrc1 >= -31) {
+            /* return 'sub -(%1),0,%0' */
+            operands[1] = GEN_INT (- rsrc1);
+            output_asm_insn ("subo\t%1,0,%0\t# ldconst %3,%0", operands);
+            return "";
+        }
       
       /* ldconst	-32		->	not	31,X  */
-      if (rsrc1 == -32)
-	{
-	  operands[1] = GEN_INT (~rsrc1);
-	  output_asm_insn ("not\t%1,%0	# ldconst %3,%0", operands);
-	  return "";
-	}
+        if (rsrc1 == -32) {
+            operands[1] = GEN_INT (~rsrc1);
+            output_asm_insn ("not\t%1,%0	# ldconst %3,%0", operands);
+            return "";
+        }
     }
 
   /* If const is a single bit.  */
-  if (i960_bitpos (rsrc1) >= 0)
-    {
+  if (i960_bitpos (rsrc1) >= 0) {
       operands[1] = GEN_INT (i960_bitpos (rsrc1));
       output_asm_insn ("setbit\t%1,0,%0\t# ldconst %3,%0", operands);
       return "";
-    }
+  }
 
   /* If const is a bit string of less than 6 bits (1..31 shifted).  */
-  if (i960_is_mask (rsrc1))
-    {
+  if (i960_is_mask (rsrc1)) {
       int s, e;
 
-      if (i960_bitstr (rsrc1, &s, &e) < 6)
-	{
-	  rsrc2 = ((unsigned int) rsrc1) >> s;
-	  operands[1] = GEN_INT (rsrc2);
-	  operands[2] = GEN_INT (s);
-	  output_asm_insn ("shlo\t%2,%1,%0\t# ldconst %3,%0", operands);
-	  return "";
-	}
-    }
+      if (i960_bitstr (rsrc1, &s, &e) < 6) {
+          rsrc2 = ((unsigned int) rsrc1) >> s;
+          operands[1] = GEN_INT (rsrc2);
+          operands[2] = GEN_INT (s);
+          output_asm_insn ("shlo\t%2,%1,%0\t# ldconst %3,%0", operands);
+          return "";
+      }
+  }
   // the following comment is kind of nonsense but perhaps we will expand on it at some point in the future
   /* Unimplemented cases:
      const is in range 0..31 but rotated around end of word:
@@ -1054,16 +1038,14 @@ i960_bypass (rtx_insn* insn, rtx op1, rtx op2, int cmpbr_flag)
 
   prev_insn = prev_real_insn (insn);
 
-  if (prev_insn && GET_CODE (prev_insn) == INSN
-      && GET_CODE (PATTERN (prev_insn)) == SET)
-    {
+  if (prev_insn && GET_CODE (prev_insn) == INSN && GET_CODE (PATTERN (prev_insn)) == SET) {
       prev_dest = SET_DEST (PATTERN (prev_insn));
       if ((GET_CODE (prev_dest) == REG && REGNO (prev_dest) == REGNO (op1))
-	  || (GET_CODE (prev_dest) == SUBREG
-	      && GET_CODE (SUBREG_REG (prev_dest)) == REG
-	      && REGNO (SUBREG_REG (prev_dest)) == REGNO (op1)))
-	return true;
-    }
+              || (GET_CODE (prev_dest) == SUBREG
+                  && GET_CODE (SUBREG_REG (prev_dest)) == REG
+                  && REGNO (SUBREG_REG (prev_dest)) == REGNO (op1)))
+          return true;
+  }
   return false;
 }
 
@@ -1535,21 +1517,21 @@ i960_output_function_profiler (FILE* file, int labelno)
 
   /* Save parameter registers in regs r4 (20) to r11 (27).  */
 
-  for (i = 0, j = 4; i <= last_parm_reg; i += increment, j += increment)
-    {
-      if (i % 4 == 0 && (last_parm_reg - i) >= 3)
-	increment = 4;
-      else if (i % 4 == 0 && (last_parm_reg - i) >= 2)
-	increment = 3;
-      else if (i % 2 == 0 && (last_parm_reg - i) >= 1)
-	increment = 2;
-      else
-	increment = 1;
+  for (i = 0, j = 4; i <= last_parm_reg; i += increment, j += increment) {
+      if (i % 4 == 0 && (last_parm_reg - i) >= 3) {
+          increment = 4;
+      } else if (i % 4 == 0 && (last_parm_reg - i) >= 2) {
+          increment = 3;
+      } else if (i % 2 == 0 && (last_parm_reg - i) >= 1) {
+          increment = 2;
+      } else {
+          increment = 1;
+      }
 
       fprintf (file, "\tmov%s	g%d,r%d\n",
-	       (increment == 4 ? "q" : increment == 3 ? "t"
-		: increment == 2 ? "l": ""), i, j);
-      }
+              (increment == 4 ? "q" : increment == 3 ? "t"
+               : increment == 2 ? "l": ""), i, j);
+  }
 
   /* If this function uses the arg pointer, then save it in r3 and then
      set it to zero.  */
@@ -1563,26 +1545,26 @@ i960_output_function_profiler (FILE* file, int labelno)
 
   /* If this function uses the arg pointer, restore it.  */
 
-  if (current_function_args_size != 0 || varargs_stdarg_function)
-    fprintf (file, "\tmov	r3,g14\n");
+  if (current_function_args_size != 0 || varargs_stdarg_function) {
+      fprintf (file, "\tmov	r3,g14\n");
+  }
 
   /* Restore parameter registers.  */
 
-  for (i = 0, j = 4; i <= last_parm_reg; i += increment, j += increment)
-    {
-      if (i % 4 == 0 && (last_parm_reg - i) >= 3)
-	increment = 4;
-      else if (i % 4 == 0 && (last_parm_reg - i) >= 2)
-	increment = 3;
-      else if (i % 2 == 0 && (last_parm_reg - i) >= 1)
-	increment = 2;
-      else
-	increment = 1;
-
+  for (i = 0, j = 4; i <= last_parm_reg; i += increment, j += increment) {
+      if (i % 4 == 0 && (last_parm_reg - i) >= 3) {
+          increment = 4;
+      } else if (i % 4 == 0 && (last_parm_reg - i) >= 2) {
+          increment = 3;
+      } else if (i % 2 == 0 && (last_parm_reg - i) >= 1) {
+          increment = 2;
+      } else {
+          increment = 1;
+      }
       fprintf (file, "\tmov%s	r%d,g%d\n",
-	       (increment == 4 ? "q" : increment == 3 ? "t"
-		: increment == 2 ? "l": ""), j, i);
-    }
+              (increment == 4 ? "q" : increment == 3 ? "t"
+               : increment == 2 ? "l": ""), j, i);
+  }
 }
 
 /* Output code for the function epilogue.  */

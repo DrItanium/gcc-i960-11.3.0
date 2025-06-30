@@ -140,7 +140,7 @@ extern int i960_last_maxbitalignment;
 /* Don't enable anything by default.  The user is expected to supply a -mARCH
    option.  If none is given, then -mka is added by CC1_SPEC.  */
 #define TARGET_DEFAULT 0
-
+
 /* Target machine storage layout.  */
 
 /* Define this if most significant bit is lowest numbered
