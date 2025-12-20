@@ -327,14 +327,6 @@ i960_symbolic_memory_operand (rtx op, enum machine_mode)
 	  || GET_CODE (op) == HIGH || GET_CODE (op) == LABEL_REF);
 }
 
-/* Return truth value of whether OP is EQ or NE.  */
-
-int
-i960_eq_or_neq (rtx op, enum machine_mode)
-{
-  return (GET_CODE (op) == EQ || GET_CODE (op) == NE);
-}
-
 /* OP is an integer register or a constant.  */
 
 int
