@@ -563,25 +563,28 @@ i960_address_cost (rtx x, machine_mode, addr_space_t, bool)
 
 /* Emit insns to move operands[1] into operands[0].
 
-   Return 1 if we have written out everything that needs to be done to
-   do the move.  Otherwise, return 0 and the caller will emit the move
+   Return true if we have written out everything that needs to be done to
+   do the move.  Otherwise, return false and the caller will emit the move
    normally.  */
 
-int
+bool
 i960_emit_move_sequence (rtx* operands, enum machine_mode mode)
 {
   /* We can only store registers to memory.  */
   
-  if (GET_CODE (operands[0]) == MEM && GET_CODE (operands[1]) != REG
-      && (operands[1] != const0_rtx || current_function_args_size
-	  || current_function_stdarg
-	  || currently_expanding_to_rtl))
-    /* Here we use the same test as movsi+1 pattern -- see i960.md.  */
-    operands[1] = force_reg (mode, operands[1]);
+    if (GET_CODE (operands[0]) == MEM && 
+        GET_CODE (operands[1]) != REG && 
+        (operands[1] != const0_rtx || current_function_args_size
+                || current_function_stdarg
+                || currently_expanding_to_rtl)) {
+        /* Here we use the same test as movsi+1 pattern -- see i960.md.  */
+        operands[1] = force_reg (mode, operands[1]);
+    }
 
   /* Storing multi-word values in unaligned hard registers to memory may
      require a scratch since we have to store them a register at a time and
      adding 4 to the memory address may not yield a valid insn.  */
+  // the above design is a good idea to be maximally compatible.
   /* ??? We don't always need the scratch, but that would complicate things.
      Maybe later.  */
   /* ??? We must also handle stores to pseudos here, because the pseudo may be
@@ -595,16 +598,17 @@ i960_emit_move_sequence (rtx* operands, enum machine_mode mode)
       && REGNO (operands[1]) < FIRST_PSEUDO_REGISTER
       && ! TARGET_HARD_REGNO_MODE_OK (REGNO (operands[1]), mode))
     {
-      emit_insn (gen_rtx_PARALLEL
-		 (VOIDmode,
-		  gen_rtvec (2,
-			     gen_rtx_SET (operands[0], operands[1]),
-			     gen_rtx_CLOBBER (VOIDmode,
-					      gen_rtx_SCRATCH (Pmode)))));
-      return 1;
+        // what the hell is this?
+        emit_insn (gen_rtx_PARALLEL
+                (VOIDmode,
+                 gen_rtvec (2,
+                     gen_rtx_SET (operands[0], operands[1]),
+                     gen_rtx_CLOBBER (VOIDmode,
+                         gen_rtx_SCRATCH (Pmode)))));
+        return true;
     }
 
-  return 0;
+  return false;
 }
 
 /* Get reg_class from a letter such as appears in the machine description.
