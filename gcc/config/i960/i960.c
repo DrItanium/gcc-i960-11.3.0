@@ -2659,10 +2659,7 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
 int
 i960_final_reg_parm_stack_space (int const_size, tree var_size)
 {
-  if (var_size || const_size > 48)
-    return 48;
-  else
-    return 0;
+    return (var_size || (const_size > 48)) ? 48 : 0;
 }
 
 /* Calculate the size of the reg parm stack space.  This is a bit complicated
@@ -2673,7 +2670,7 @@ i960_reg_parm_stack_space (tree fndecl)
 {
   /* In this case, we are called from emit_library_call, and we don't need
      to pretend we have more space for parameters than what's apparent.  */
-  if (fndecl == 0)
+  if (!fndecl)
     return 0;
 
   /* In this case, we are called from locate_and_pad_parms when we're
@@ -2788,6 +2785,7 @@ i960_scan_opcode (const char* p)
 static void
 i960_output_mi_thunk (FILE* file, tree /*thunk*/, HOST_WIDE_INT delta, HOST_WIDE_INT vcall_offset, tree function)
 {
+    // TODO rewrite to not emit a fixed block of assembly instructions
     int d = delta;
     if (d < 0 && d > -32) {
         fprintf (file, "\tsubo %d,g0,g0\n", -d);
