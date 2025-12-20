@@ -680,7 +680,7 @@ struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
 /* These global variables are used to pass information between
    cc setter and cc user at insn emit time.  */
 
-extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
+//extern struct rtx_def *i960_compare_op0, *i960_compare_op1;
 
 /* Given a comparison code (EQ, NE, etc.) and the first operand of a COMPARE,
    return the mode to be used for the comparison.  For floating-point, CCFPmode

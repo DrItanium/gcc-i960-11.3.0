@@ -103,7 +103,7 @@ struct GTY(()) machine_function
 /* Save the operands last given to a compare for use when we
    generate a scc or bcc insn.  */
 
-rtx i960_compare_op0, i960_compare_op1;
+//rtx i960_compare_op0, i960_compare_op1;
 
 /* Used to implement #pragma align/noalign.  Initialized by OVERRIDE_OPTIONS
    macro in i960.h.  */
