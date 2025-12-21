@@ -824,6 +824,27 @@ i960_output_move_quad_zero (rtx dst)
 const char *
 i960_output_ldconst (rtx dst, rtx src)
 {
+    // we should be using ldconst as much as possible
+    // if it turns out that the assembler isn't up to the challenge then the
+    // assembler should be retrofitted to support the other constant modes
+    //
+    // new assembler mnemonics should come along as well
+    //
+    // For example, I do not know if ldconst 0.0f, fp0 will do the right thing
+    // but we could introduce some extra stuff to assist.
+    //
+    // ldconstl 0, g0 => movl 0, g0
+    // ldconstl 0x89'ABCD'EF01, g0 => ldconst 0xABCDEF01, g0 ; ldconst 0x89, g1
+    // ldconstt 0, g0 => movt 0, g0
+    // ldconstt 0xABCD'EF01'2345'6789'ABCD'EF01, g0 => 
+    //      ldconst 0xABCD'EF01, g0
+    //      ldconst 0x2345'6789, g1
+    //      ldconst 0xABCD'EF01, g2
+    //
+    // and so on...
+    //
+    // This attempt to outsmart the assembler just introduces more places for
+    // this frankly fragile code to get even more fragile.
   int rsrc1 = 0;
   unsigned int rsrc2 = 0;
   enum machine_mode mode = GET_MODE (dst);
@@ -842,11 +863,12 @@ i960_output_ldconst (rtx dst, rtx src)
       long value_long[3];
       int i;
 
+      // why? this doesn't make any sense
       if (i960_fp_literal_zero (src, TFmode))
           return "movt	0,%0";
 
       REAL_VALUE_TO_TARGET_LONG_DOUBLE (*CONST_DOUBLE_REAL_VALUE(src), value_long);
-
+      
       output_asm_insn ("# ldconst	%1,%0",operands);
 
       for (i = 0; i < 3; i++)
@@ -897,6 +919,7 @@ i960_output_ldconst (rtx dst, rtx src)
   else if (mode == TImode)
     {
       /* ??? This is currently not handled at all.  */
+    // triple integer mode apparently just causes an abort to happen...
       abort ();
 
       /* Note: lowest order word goes in lowest numbered reg.  */
@@ -949,20 +972,16 @@ i960_output_ldconst (rtx dst, rtx src)
 
   if (rsrc1 >= 0) {
       /* ldconst	0..31,X		-> 	mov	0..31,X  */
+      // we could just let the assembler handle this instead and not try to
+      // outsmart it!
       if (rsrc1 < 32) {
-#if 0
-	  if (i960_last_insn_type == I_TYPE_REG && TARGET_C_SERIES)
-	    return "lda	%1,%0";
-#endif
-	  return "mov	%1,%0";
-	}
+          return "mov	%1,%0";
+      }
 
       /* ldconst	32..63,X	->	add	31,nn,X  */
+      // look... once again just emit ldconst and let the assembler handle
+      // this...
       if (rsrc1 < 63) {
-#if 0
-	  if (i960_last_insn_type == I_TYPE_REG && TARGET_C_SERIES)
-	    return "lda	%1,%0";
-#endif
 	  operands[1] = GEN_INT (rsrc1 - 31);
 	  output_asm_insn ("addo\t31,%1,%0\t# ldconst %3,%0", operands);
 	  return "";
@@ -970,6 +989,8 @@ i960_output_ldconst (rtx dst, rtx src)
     }
   else if (rsrc1 < 0)
     {
+        // again... ldconst in the assembler handles this and also make the
+        // code easier to reason with when I do -S
       /* ldconst	-1..-31		->	sub	0,0..31,X  */
       if (rsrc1 >= -31)
 	{
@@ -987,7 +1008,8 @@ i960_output_ldconst (rtx dst, rtx src)
 	  return "";
 	}
     }
-
+    // once again ldconst should be retrofitted with this if the assembler
+    // doesn't emit this sequence...
   /* If const is a single bit.  */
   if (i960_bitpos (rsrc1) >= 0)
     {
