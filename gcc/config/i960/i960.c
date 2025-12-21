@@ -3051,11 +3051,13 @@ i960_legitimate_constant_p (machine_mode, rtx x)
 static HOST_WIDE_INT
 i960_constant_alignment (const_tree exp, HOST_WIDE_INT basic_align)
 {
-//#define TARGET_CONSTANT_ALIGNMENT(EXP, ALIGN) \
-//  (TREE_CODE (EXP) == STRING_CST	\
-//   && i960_object_bytes_bitalign (int_size_in_bytes (TREE_TYPE (EXP))) > (int)(ALIGN) \
-//   ? i960_object_bytes_bitalign (int_size_in_bytes (TREE_TYPE (EXP)))	    \
-//   : (int)(ALIGN))
+#if 0
+#define TARGET_CONSTANT_ALIGNMENT(EXP, ALIGN) \
+  (TREE_CODE (EXP) == STRING_CST	\
+   && i960_object_bytes_bitalign (int_size_in_bytes (TREE_TYPE (EXP))) > (int)(ALIGN) \
+   ? i960_object_bytes_bitalign (int_size_in_bytes (TREE_TYPE (EXP)))	    \
+   : (int)(ALIGN))
+#endif
 /* Specify alignment for string literals (which might be higher than the
    base type's minimal alignment requirement.  This allows strings to be
    aligned on word boundaries, and optimizes calls to the str* and mem*
@@ -3086,9 +3088,11 @@ i960_function_arg_boundary (machine_mode mode, const_tree type) {
    needed to represent mode MODE in a register of class CLASS.  */
 /* On 80960, this is the size of MODE in words,
    except in the FP regs, where a single reg is always enough.  */
-//#define TARGET_CLASS_MAX_NREGS(CLASS, MODE)					\
-//  ((CLASS) == FP_REGS ? 1 : TARGET_HARD_REGNO_NREGS (0, (MODE)))
-//#define TARGET_STARTING_FRAME_OFFSET 64
+#if 0
+#define TARGET_CLASS_MAX_NREGS(CLASS, MODE)					\
+  ((CLASS) == FP_REGS ? 1 : TARGET_HARD_REGNO_NREGS (0, (MODE)))
+#define TARGET_STARTING_FRAME_OFFSET 64
+#endif
 static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 
 #undef  TARGET_OPTION_OVERRIDE
