@@ -2379,12 +2379,14 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_inf
 	 arguments were passed on the stack the caller would allocate the
 	 48 bytes as well).  We must allocate all 48 bytes (12*4) because
 	 va_start assumes it.  */
+      // this is actually just a cbranchsi4
       // do a cmpsi of g14 with 0
-      // TODO fix this code!
-      //emit_insn (gen_cmpsi (fake_arg_pointer_rtx, const0_rtx));
       // bne to target label
-      // TODO update to support bne
-      //emit_jump_insn (gen_bne (label));
+      emit_insn(gen_cbranchsi4(
+                  gen_rtx_NE(VOIDmode, fake_arg_pointer_rtx, const0_rtx),
+                  fake_arg_pointer_rtx,
+                  const0_rtx,
+                  label));
       // set g14 to sp, it allows it be passed to another function as needed
       emit_insn (gen_rtx_SET (fake_arg_pointer_rtx,
 			      stack_pointer_rtx));
