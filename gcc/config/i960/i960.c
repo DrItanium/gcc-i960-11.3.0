@@ -1057,10 +1057,6 @@ bool
 i960_bypass (rtx_insn* insn, rtx op1, rtx op2, int cmpbr_flag)
 {
   rtx prev_insn, prev_dest;
-#if 0
-  if (TARGET_C_SERIES)
-    return false;
-#endif
 
   /* Can't do this if op1 isn't a register.  */
   if (! REG_P (op1))
@@ -1212,13 +1208,12 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
   }
 
   fprintf (file, "\n");
-
-  if (i960_leaf_ret_reg >= 0)
-    {
+    // TODO fix this garbage
+  if (i960_leaf_ret_reg >= 0) {
       /* Make it a leaf procedure.  */
 
       if (TREE_PUBLIC (fndecl))
-	fprintf (file,"\t.globl\t%s.lf\n", (name[0] == '*' ? &name[1] : name));
+          fprintf (file,"\t.globl\t%s.lf\n", (name[0] == '*' ? &name[1] : name));
 
       fprintf (file, "\t.leafproc\t");
       assemble_name (file, name);
@@ -1227,27 +1222,12 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
       fprintf (file, "\tlda    .Li960R%d,g14\n", ret_label);
       fprintf (file, "%s.lf:\n", (name[0] == '*' ? &name[1] : name));
       fprintf (file, "\tmov    g14,g%d\n", i960_leaf_ret_reg);
-#if 0
-      if (TARGET_C_SERIES)
-	{
-	  fprintf (file, "\tlda    0,g14\n");
-	  i960_last_insn_type = I_TYPE_MEM;
-	}
-      else
-	{
-#endif
-	  fprintf (file, "\tmov    0,g14\n");
-	  i960_last_insn_type = I_TYPE_REG;
-#if 0
-	}
-#endif
-
-    }
-  else
-    {
+      fprintf (file, "\tmov    0,g14\n");
+      i960_last_insn_type = I_TYPE_REG;
+  } else {
       ASM_OUTPUT_LABEL (file, name);
       i960_last_insn_type = I_TYPE_CTRL; 
-    }
+  }
 }
 
 /* Compute and return the frame size.  */
@@ -1290,25 +1270,23 @@ i960_form_reg_groups (int start_reg, int finish_reg, int* regs, int state, struc
   int i;
   int nw = 0;
 
-  for (i = start_reg; i < finish_reg; )
-    {
-      if (regs [i] != state)
-	{
-	  i++;
-	  continue;
-	}
+  for (i = start_reg; i < finish_reg; ) {
+      if (regs [i] != state) {
+          i++;
+          continue;
+      }
       else if (i % 2 != 0 || regs [i + 1] != state)
-	reg_groups [nw].length = 1;
+          reg_groups [nw].length = 1;
       else if (i % 4 != 0 || regs [i + 2] != state)
-	reg_groups [nw].length = 2;
+          reg_groups [nw].length = 2;
       else if (regs [i + 3] != state)
-	reg_groups [nw].length = 3;
+          reg_groups [nw].length = 3;
       else
-	reg_groups [nw].length = 4;
+          reg_groups [nw].length = 4;
       reg_groups [nw].start_reg = i;
       i += reg_groups [nw].length;
       nw++;
-    }
+  }
   return nw;
 }
 
@@ -1355,6 +1333,7 @@ i960_split_reg_group (reg_group* reg_groups, int nw, int subgroup_length)
 static void
 i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 {
+    // TODO figure this garbage out
   int i, j, nr;
   int n_saved_regs = 0;
   int n_remaining_saved_regs;
@@ -1724,8 +1703,8 @@ i960_output_ret_insn (rtx_insn* insn)
   
   if (*epilogue_string != 0)
     {
-      if (! TARGET_CODE_ALIGN && next_real_insn (insn) == 0)
-	return "";
+        if (! TARGET_CODE_ALIGN && next_real_insn (insn) == 0)
+            return "";
 
       sprintf (lbuf, "b	.Li960R%d", ret_label);
       return lbuf;
@@ -1821,14 +1800,9 @@ i960_print_operand (FILE* file, rtx x, int code)
     {
     case 'B':
       /* Branch or jump, depending on assembler.  */
-#if 0
-      if (TARGET_ASM_COMPAT)
-	fputs ("j", file);
-      else
-#endif
-          // only support binutils
-	fputs ("b", file);
-      break;
+        // only support binutils
+        fputs ("b", file);
+        break;
 
     case 'S':
       /* Sign of condition.  */
@@ -1845,7 +1819,7 @@ i960_print_operand (FILE* file, rtx x, int code)
     case 'I':
       /* Inverted condition.  */
       rtxcode = reverse_condition (rtxcode);
-      goto normal;
+      goto normal; // gross
 
     case 'X':
       /* Inverted condition w/ reversed operands.  */
@@ -1859,7 +1833,7 @@ i960_print_operand (FILE* file, rtx x, int code)
 
     case 'C':
       /* Normal condition.  */
-    normal:
+normal: // this is not good if I am seeing a label...
       if (rtxcode == EQ)  { fputs ("e", file); return; }
       else if (rtxcode == NE)  { fputs ("ne", file); return; }
       else if (rtxcode == GT)  { fputs ("g", file); return; }
@@ -1873,22 +1847,7 @@ i960_print_operand (FILE* file, rtx x, int code)
       else abort ();
       break;
 
-      /// @todo support branch prediction hints
-#if 0
-    case '+':
-      /* For conditional branches, substitute ".t" or ".f".  */
-      if (TARGET_BRANCH_PREDICT)
-	{
-	  x = find_reg_note (current_output_insn, REG_BR_PROB, 0);
-	  if (x)
-	    {
-	      int pred_val = INTVAL (XEXP (x, 0));
-	      fputs ((pred_val < REG_BR_PROB_BASE / 2 ? ".f" : ".t"), file);
-	    }
-	}
-      break;
-#endif
-
+      // We do not support branch prediction hints
     case 0:
       output_addr_const (file, x);
       break;
@@ -1995,7 +1954,7 @@ i960_print_operand_addr (FILE* file, rtx addr)
     fprintf (file, "[%s*" HOST_WIDE_INT_PRINT_DEC "]",
 	     reg_names[REGNO (ireg)], INTVAL (scale));
 }
-
+
 /* GO_IF_LEGITIMATE_ADDRESS recognizes an RTL expression
    that is a valid memory address for an instruction.
    The MODE argument is the machine mode for the MEM expression
@@ -2224,7 +2183,7 @@ i960_si_di (rtx base, rtx offset)
 {
   return i960_improve_align (base, offset, 8);
 }
-
+
 /* Return raw values of size and alignment (in words) for the data
    type being accessed.  These values will be rounded by the caller.  */
 
@@ -2495,39 +2454,6 @@ i960_build_builtin_va_list ()
 void
 i960_va_start (tree valist, rtx nextarg)
 {
-#if 0
-    tree t, base, num;
-    rtx fake_arg_pointer_rtx;
-    // so va_start is defined as void va_start(va_list ap, parm_n)
-    // where ap is the va_list to populate with the contents of the name provided by parm_n
-    /* The array type always decays to a pointer before we get here, so we
-       can't use ARRAY_REF.  */
-    // *valist = g14;
-    // all other implementations now use a special "structure"
-    // construct an expression tree that points to the va_list itself indirectly
-    base = build1 (INDIRECT_REF, unsigned_type_node, valist);
-    debug_tree(base);
-    // construct an expression which is the valist plus the unit size of the valist itself
-    num = build1 (INDIRECT_REF, unsigned_type_node,
-                  build2 (PLUS_EXPR, unsigned_type_node, valist, TYPE_SIZE_UNIT (TREE_TYPE (valist))));
-    // Because of the way that g14 is used, we can assume that g14 has been cleaned up via incoming_varargs
-    /* Use a different rtx than arg_pointer_rtx so that cse and friends
-       can go on believing that the argument pointer can never be zero.  */
-    fake_arg_pointer_rtx = gen_raw_REG (Pmode, ARG_POINTER_REGNUM);
-    // make a tree out of this argument block pointer (g14)
-    tree s = make_tree(unsigned_type_node, fake_arg_pointer_rtx);
-    // now we want to modify base to be what was in g14 previously (the argument block pointer)
-    t = build2 (MODIFY_EXPR, unsigned_type_node, base, s);
-    debug_tree(t);
-    TREE_SIDE_EFFECTS (t) = 1;
-    expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-    // *(valist + ?) = (ca_nregparms + ca_nstackparms) * 4
-    t = build2 (MODIFY_EXPR, unsigned_type_node, num,
-                  build_int_cst (integer_type_node, (current_function_args_info.ca_nregparms
-                                                         + current_function_args_info.ca_nstackparms) * UNITS_PER_WORD));
-    TREE_SIDE_EFFECTS (t) = 1;
-    expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-#else
     tree t;
     // st g14, 64(fp)  # arg0 / base
     // mov 4, g4
@@ -2548,7 +2474,6 @@ i960_va_start (tree valist, rtx nextarg)
                build_int_cst(NULL_TREE, (current_function_args_info.ca_nregparms + current_function_args_info.ca_nstackparms) * UNITS_PER_WORD));
     TREE_SIDE_EFFECTS(t) = 1;
     expand_expr(t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-#endif
 }
 
 static tree
@@ -2595,40 +2520,6 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
      *      return result;
      *  }
      */
-#if 0
-    // round up sizeof(type) to a word
-    auto size = (int_size_in_bytes(type) + UNITS_PER_WORD - 1) & -UNITS_PER_WORD;
-    // round up alignment to a word
-    auto ali = TYPE_ALIGN(type);
-    if (ali < BITS_PER_WORD) {
-        ali = BITS_PER_WORD;
-    }
-    ali /= BITS_PER_WORD;
-    // align count appropriate for the argument
-    auto pad = fold(build2(PLUS_EXPR, unsigned_type_node, count, build_int_cst(NULL_TREE, ali - 1))); // count + (ali - 1)
-    pad = fold(build2(BIT_AND_EXPR, unsigned_type_node, pad, build_int_cst(NULL_TREE, -ali))); // (count + (ali - 1)) & (-ali)
-    pad = save_expr(pad);
-
-    // increment vpad past this argument
-    tree next = fold(build2(PLUS_EXPR, unsigned_type_node, pad, build_int_cst(NULL_TREE, size))); // ((count + (ali - 1)) & (-ali)) + size
-    next = save_expr(next);
-
-    // find the offset for the current argument. Mind peculiar overflow from registers to stack
-    auto int48 = build_int_cst(NULL_TREE, 48); // 48
-    auto t2 = size > 16 ? integer_one_node : fold(build2(GT_EXPR, integer_type_node, next, int48)); // next > 48
-    auto t1 = fold(build2(LE_EXPR, integer_type_node, count, int48)) ; // count < 48
-    t1 = fold(build2(TRUTH_AND_EXPR, integer_type_node, t1, t2)); // ((count < 48) & (next > 48)
-    auto _this = fold(build3(COND_EXPR, unsigned_type_node, t1,  int48, pad)); // ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali)
-    // find the address for the current argument
-    t1 = fold(build2(PLUS_EXPR, unsigned_type_node, base, _this)); // A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali)
-    t1 = build1(NOP_EXPR, ptr_type_node, t1); // pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
-    auto addr_rtx = expand_expr(t1, NULL_RTX, Pmode, EXPAND_NORMAL);
-    // increment count
-    t1 = build2(MODIFY_EXPR, unsigned_type_node, count, next); // A[1] = ((count + (ali - 1)) & (-ali)) + size
-    TREE_SIDE_EFFECTS(t1) = 1;
-    expand_expr(t1, const0_rtx, VOIDmode, EXPAND_NORMAL);
-    return addr_rtx; // return pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
-#else
     auto addr = create_tmp_var(ptr_type_node);
     // just gimplify this existing work to start to see how well I can generate the corresponding code
     // round up sizeof(type) to a word
@@ -2662,7 +2553,6 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     gimplify_assign(count, next, pre_p); // update the next pointer
     addr = fold_convert(build_pointer_type(type), addr); // turn temporary into a pointer
     return build_va_arg_indirect_ref(addr); // return pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
-#endif
 
 
 }
