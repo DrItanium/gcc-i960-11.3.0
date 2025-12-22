@@ -2002,80 +2002,87 @@ i960_print_operand_addr (FILE* file, rtx addr)
 bool
 i960_legitimate_address_p (machine_mode mode, rtx addr, bool strict)
 {
-  if (RTX_OK_FOR_BASE_P (addr, strict))
-    return 1;
-  else if (CONSTANT_P (addr))
-    return 1;
-  else if (GET_CODE (addr) == PLUS)
+    if (RTX_OK_FOR_BASE_P (addr, strict))
+        return true;
+    else if (CONSTANT_P (addr))
+        return true;
+    else if (GET_CODE (addr) == PLUS)
     {
-      rtx op0, op1;
+        rtx op0, op1;
 
-      if (! TARGET_COMPLEX_ADDR && ! reload_completed)
-	return 0;
+        if (! TARGET_COMPLEX_ADDR 
+#if 0
+                && ! reload_completed
+#endif
+                )
+            return false;
 
-      op0 = XEXP (addr, 0);
-      op1 = XEXP (addr, 1);
+        op0 = XEXP (addr, 0);
+        op1 = XEXP (addr, 1);
 
-      if (RTX_OK_FOR_BASE_P (op0, strict))
-	{
-	  if (RTX_OK_FOR_INDEX_P (op1, strict))
-	    return 1;
-	  else if (CONSTANT_P (op1))
-	    return 1;
-	  else
-	    return 0;
-	}
-      else if (GET_CODE (op0) == PLUS)
-	{
-	  if (GET_CODE (XEXP (op0, 0)) == MULT)
-	    {
-	      if (! (RTX_OK_FOR_INDEX_P (XEXP (XEXP (op0, 0), 0), strict)
-		     && SCALE_TERM_P (XEXP (XEXP (op0, 0), 1))))
-		return 0;
+        if (RTX_OK_FOR_BASE_P (op0, strict))
+        {
+            if (RTX_OK_FOR_INDEX_P (op1, strict))
+                return true;
+            else if (CONSTANT_P (op1))
+                return true;
+            else
+                return false;
+        }
+        else if (GET_CODE (op0) == PLUS)
+        {
+            if (GET_CODE (XEXP (op0, 0)) == MULT)
+            {
+                if (! (RTX_OK_FOR_INDEX_P (XEXP (XEXP (op0, 0), 0), strict)
+                            && SCALE_TERM_P (XEXP (XEXP (op0, 0), 1))))
+                    return false;
 
-	      if (RTX_OK_FOR_BASE_P (XEXP (op0, 1), strict)
-		  && CONSTANT_P (op1))
-		return 1;
-	      else
-		return 0;
-	    }
-	  else if (RTX_OK_FOR_BASE_P (XEXP (op0, 0), strict))
-	    {
-	      if (RTX_OK_FOR_INDEX_P (XEXP (op0, 1), strict)
-		  && CONSTANT_P (op1))
-		return 1;
-	      else
-		return 0;
-	    }
-	  else
-	    return 0;
-	}
-      else if (GET_CODE (op0) == MULT)
-	{
-	  if (! (RTX_OK_FOR_INDEX_P (XEXP (op0, 0), strict)
-		 && SCALE_TERM_P (XEXP (op0, 1))))
-	    return 0;
+                if (RTX_OK_FOR_BASE_P (XEXP (op0, 1), strict)
+                        && CONSTANT_P (op1))
+                    return true;
+                else
+                    return false;
+            }
+            else if (RTX_OK_FOR_BASE_P (XEXP (op0, 0), strict))
+            {
+                if (RTX_OK_FOR_INDEX_P (XEXP (op0, 1), strict)
+                        && CONSTANT_P (op1))
+                    return true;
+                else
+                    return false;
+            }
+            else
+                return false;
+        }
+        else if (GET_CODE (op0) == MULT)
+        {
+            if (! (RTX_OK_FOR_INDEX_P (XEXP (op0, 0), strict)
+                        && SCALE_TERM_P (XEXP (op0, 1))))
+                return false;
 
-	  if (RTX_OK_FOR_BASE_P (op1, strict))
-	    return 1;
-	  else if (CONSTANT_P (op1))
-	    return 1;
-	  else
-	    return 0;
-	}
-      else
-	return 0;
+            if (RTX_OK_FOR_BASE_P (op1, strict))
+                return true;
+            else if (CONSTANT_P (op1))
+                return true;
+            else
+                return false;
+        }
+        else
+            return false;
     }
-  else if (GET_CODE (addr) == MULT)
+    else if (GET_CODE (addr) == MULT)
     {
-      if (! TARGET_COMPLEX_ADDR && ! reload_completed)
-	return 0;
+        if (! TARGET_COMPLEX_ADDR 
+#if 0
+                && ! reload_completed
+#endif
+                ) return false;
 
-      return (RTX_OK_FOR_INDEX_P (XEXP (addr, 0), strict)
-	      && SCALE_TERM_P (XEXP (addr, 1)));
+        return (RTX_OK_FOR_INDEX_P (XEXP (addr, 0), strict)
+                && SCALE_TERM_P (XEXP (addr, 1)));
     }
-  else
-    return 0;
+    else
+        return false;
 }
 
 

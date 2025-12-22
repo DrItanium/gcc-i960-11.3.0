@@ -40,6 +40,7 @@ Enable i960 Protected Extensions
 
 mtail-call
 Target Mask(TAILCALL)
+
 mno-tail-call
 Target InverseMask(TAILCALL)
 
@@ -48,6 +49,12 @@ Target Mask(LEAFPROC)
 
 mno-leaf-procedures
 Target InverseMask(LEAFPROC)
+
+mcomplex-addr
+Target Mask(COMPLEX_ADDR)
+
+mno-complex-addr
+Target InverseMask(COMPLEX_ADDR)
 
 mka
 Target RejectNegative Mask(K_SERIES) Mask(COMPLEX_ADDR)
