@@ -787,26 +787,6 @@ struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
 #define ASM_OUTPUT_SKIP(FILE,SIZE)  \
   fprintf (FILE, "\t.space %d\n", (int)(SIZE))
 
-
-/* Print operand X (an rtx) in assembler syntax to file FILE.
-   CODE is a letter or dot (`z' in `%z0') or 0 if no letter was specified.
-   For `%' followed by punctuation, CODE is the punctuation and X is null.  */
-
-#define PRINT_OPERAND(FILE, X, CODE)  \
-  i960_print_operand (FILE, X, CODE);
-
-/* Print a memory address as an operand to reference that memory location.  */
-
-#define PRINT_OPERAND_ADDRESS(FILE, ADDR)	\
-  i960_print_operand_addr (FILE, ADDR)
-
-/* Determine which codes are valid without a following integer.  These must
-   not be alphabetic (the characters are chosen so that
-   PRINT_OPERAND_PUNCT_VALID_P translates into a simple range change when
-   using ASCII).  */
-
-#define PRINT_OPERAND_PUNCT_VALID_P(CODE)   ((CODE) == '+')
-
 /* Length in units of the trampoline for entering a nested function.  */
 
 #define TRAMPOLINE_SIZE 20

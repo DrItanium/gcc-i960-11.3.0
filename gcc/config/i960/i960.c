@@ -2010,12 +2010,7 @@ i960_legitimate_address_p (machine_mode mode, rtx addr, bool strict)
     {
         rtx op0, op1;
 
-        if (! TARGET_COMPLEX_ADDR 
-#if 0
-                && ! reload_completed
-#endif
-                )
-            return false;
+        if (! TARGET_COMPLEX_ADDR && ! reload_completed) return false;
 
         op0 = XEXP (addr, 0);
         op1 = XEXP (addr, 1);
@@ -2072,11 +2067,7 @@ i960_legitimate_address_p (machine_mode mode, rtx addr, bool strict)
     }
     else if (GET_CODE (addr) == MULT)
     {
-        if (! TARGET_COMPLEX_ADDR 
-#if 0
-                && ! reload_completed
-#endif
-                ) return false;
+        if (! TARGET_COMPLEX_ADDR && ! reload_completed) return false;
 
         return (RTX_OK_FOR_INDEX_P (XEXP (addr, 0), strict)
                 && SCALE_TERM_P (XEXP (addr, 1)));
@@ -2981,6 +2972,11 @@ i960_function_arg_boundary (machine_mode mode, const_tree type) {
     return X(mode, type);
 #undef X
 }
+static bool
+i960_print_operand_punct_valid_p (unsigned char code)
+{
+  return code == '+';
+}
 /* Return the maximum number of consecutive registers
    needed to represent mode MODE in a register of class CLASS.  */
 /* On 80960, this is the size of MODE in words,
@@ -3048,6 +3044,14 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_GIMPLIFY_VA_ARG_EXPR i960_gimplify_va_arg_expr
 #undef  TARGET_LEGITIMATE_ADDRESS_P
 #define TARGET_LEGITIMATE_ADDRESS_P i960_legitimate_address_p
+#undef  TARGET_PRINT_OPERAND_PUNCT_VALID_P
+#define TARGET_PRINT_OPERAND_PUNCT_VALID_P i960_print_operand_punct_valid_p
+
+#undef  TARGET_PRINT_OPERAND
+#define TARGET_PRINT_OPERAND i960_print_operand
+
+#undef  TARGET_PRINT_OPERAND_ADDRESS
+#define TARGET_PRINT_OPERAND_ADDRESS i960_print_operand_addr
 
 
 struct gcc_target targetm = TARGET_INITIALIZER;
