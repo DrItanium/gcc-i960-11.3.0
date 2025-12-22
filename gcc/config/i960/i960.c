@@ -1865,7 +1865,7 @@ normal: // this is not good if I am seeing a label...
    addresses instead of recognizing them.  */
 
 void
-i960_print_operand_addr (FILE* file, rtx addr)
+i960_print_operand_addr (FILE* file, machine_mode mode, rtx addr)
 {
   rtx breg, ireg;
   rtx scale, offset;
@@ -3044,6 +3044,7 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_GIMPLIFY_VA_ARG_EXPR i960_gimplify_va_arg_expr
 #undef  TARGET_LEGITIMATE_ADDRESS_P
 #define TARGET_LEGITIMATE_ADDRESS_P i960_legitimate_address_p
+
 #undef  TARGET_PRINT_OPERAND_PUNCT_VALID_P
 #define TARGET_PRINT_OPERAND_PUNCT_VALID_P i960_print_operand_punct_valid_p
 
