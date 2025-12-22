@@ -2019,19 +2019,13 @@ i960_legitimate_address_p (machine_mode mode, rtx addr, bool strict)
 
                 return (RTX_OK_FOR_BASE_P (XEXP (op0, 1), strict) && CONSTANT_P (op1));
             } else if (RTX_OK_FOR_BASE_P (XEXP (op0, 0), strict)) {
-                if (RTX_OK_FOR_INDEX_P (XEXP (op0, 1), strict)
-                        && CONSTANT_P (op1))
-                    return true;
-                else
-                    return false;
+                return (RTX_OK_FOR_INDEX_P (XEXP (op0, 1), strict) && CONSTANT_P (op1));
             } else {
                 return false;
             }
         } else if (GET_CODE (op0) == MULT) {
-            if (! (RTX_OK_FOR_INDEX_P (XEXP (op0, 0), strict)
-                        && SCALE_TERM_P (XEXP (op0, 1))))
+            if (! (RTX_OK_FOR_INDEX_P (XEXP (op0, 0), strict) && SCALE_TERM_P (XEXP (op0, 1))))
                 return false;
-
             if (RTX_OK_FOR_BASE_P (op1, strict))
                 return true;
             else if (CONSTANT_P (op1))
