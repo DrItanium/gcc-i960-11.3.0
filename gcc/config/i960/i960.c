@@ -1999,8 +1999,8 @@ i960_print_operand_addr (FILE* file, rtx addr)
        && (STRICT ? REG_OK_FOR_INDEX_P_STRICT (SUBREG_REG (X))		\
 	   : REG_OK_FOR_INDEX_P (SUBREG_REG (X)))))
 
-int
-i960_legitimate_address_p (enum machine_mode mode, rtx addr, int strict)
+bool
+i960_legitimate_address_p (machine_mode mode, rtx addr, bool strict)
 {
   if (RTX_OK_FOR_BASE_P (addr, strict))
     return 1;
@@ -3028,7 +3028,8 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_ADDRESS_COST i960_address_cost
 #undef TARGET_BUILD_BUILTIN_VA_LIST
 #define TARGET_BUILD_BUILTIN_VA_LIST i960_build_builtin_va_list
-// still use the old condition code stuff in the .md file so disable LRA
+// still use the old condition code stuff in the .md file so disable LRA for
+// now
 #undef TARGET_LRA_P
 #define TARGET_LRA_P hook_bool_void_false
 #undef TARGET_CONDITIONAL_REGISTER_USAGE
@@ -3038,6 +3039,8 @@ static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
 #define TARGET_FRAME_POINTER_REQUIRED i960_frame_pointer_required
 #undef  TARGET_GIMPLIFY_VA_ARG_EXPR
 #define TARGET_GIMPLIFY_VA_ARG_EXPR i960_gimplify_va_arg_expr
+#undef  TARGET_LEGITIMATE_ADDRESS_P
+#define TARGET_LEGITIMATE_ADDRESS_P i960_legitimate_address_p
 
 
 struct gcc_target targetm = TARGET_INITIALIZER;

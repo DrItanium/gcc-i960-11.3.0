@@ -43,7 +43,7 @@ extern int i960_literal (rtx, enum machine_mode);
 extern int i960_hard_regno_mode_ok (int, enum machine_mode);
 extern int i960_fp_literal (rtx, enum machine_mode);
 extern int i960_signed_literal (rtx, enum machine_mode);
-extern int i960_legitimate_address_p (enum machine_mode, rtx, int);
+extern bool i960_legitimate_address_p (machine_mode, rtx, bool);
 extern void i960_print_operand (FILE *, rtx, int);
 extern int i960_arith_operand (rtx, enum machine_mode);
 extern int i960_logic_operand (rtx, enum machine_mode);
