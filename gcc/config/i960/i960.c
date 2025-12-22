@@ -1867,92 +1867,82 @@ normal: // this is not good if I am seeing a label...
 void
 i960_print_operand_addr (FILE* file, machine_mode mode, rtx addr)
 {
-  rtx breg, ireg;
-  rtx scale, offset;
+    rtx breg, ireg;
+    rtx scale, offset;
 
-  ireg = 0;
-  breg = 0;
-  offset = 0;
-  scale = const1_rtx;
+    ireg = 0;
+    breg = 0;
+    offset = 0;
+    scale = const1_rtx;
 
-  if (GET_CODE (addr) == REG)
-    breg = addr;
-  else if (CONSTANT_P (addr))
-    offset = addr;
-  else if (GET_CODE (addr) == PLUS)
-    {
-      rtx op0, op1;
+    if (GET_CODE (addr) == REG) {
+        breg = addr;
+    } else if (CONSTANT_P (addr)) {
+        offset = addr;
+    } else if (GET_CODE (addr) == PLUS) {
+        rtx op0 = XEXP (addr, 0);
+        rtx op1 = XEXP (addr, 1);
 
-      op0 = XEXP (addr, 0);
-      op1 = XEXP (addr, 1);
-
-      if (GET_CODE (op0) == REG)
-	{
-	  breg = op0;
-	  if (GET_CODE (op1) == REG)
-	    ireg = op1;
-	  else if (CONSTANT_P (op1))
-	    offset = op1;
-	  else
-	    abort ();
-	}
-      else if (GET_CODE (op0) == PLUS)
-	{
-	  if (GET_CODE (XEXP (op0, 0)) == MULT)
-	    {
-	      ireg = XEXP (XEXP (op0, 0), 0);
-	      scale = XEXP (XEXP (op0, 0), 1);
-	      if (GET_CODE (XEXP (op0, 1)) == REG)
-		{
-		  breg = XEXP (op0, 1);
-		  offset = op1;
-		}
-	      else
-		abort ();
-	    }
-	  else if (GET_CODE (XEXP (op0, 0)) == REG)
-	    {
-	      breg = XEXP (op0, 0);
-	      if (GET_CODE (XEXP (op0, 1)) == REG)
-		{
-		  ireg = XEXP (op0, 1);
-		  offset = op1;
-		}
-	      else
-		abort ();
-	    }
-	  else
-	    abort ();
-	}
-      else if (GET_CODE (op0) == MULT)
-	{
-	  ireg = XEXP (op0, 0);
-	  scale = XEXP (op0, 1);
-	  if (GET_CODE (op1) == REG)
-	    breg = op1;
-	  else if (CONSTANT_P (op1))
-	    offset = op1;
-	  else
-	    abort ();
-	}
-      else
-	abort ();
+        if (GET_CODE (op0) == REG) {
+            breg = op0;
+            if (GET_CODE (op1) == REG) {
+                ireg = op1;
+            } else if (CONSTANT_P (op1)) {
+                offset = op1;
+            } else {
+                abort ();
+            }
+        } else if (GET_CODE (op0) == PLUS) {
+            if (GET_CODE (XEXP (op0, 0)) == MULT) {
+                ireg = XEXP (XEXP (op0, 0), 0);
+                scale = XEXP (XEXP (op0, 0), 1);
+                if (GET_CODE (XEXP (op0, 1)) == REG) {
+                    breg = XEXP (op0, 1);
+                    offset = op1;
+                } else {
+                    abort ();
+                }
+            } else if (GET_CODE (XEXP (op0, 0)) == REG) {
+                breg = XEXP (op0, 0);
+                if (GET_CODE (XEXP (op0, 1)) == REG) {
+                    ireg = XEXP (op0, 1);
+                    offset = op1;
+                } else {
+                    abort ();
+                }
+            } else {
+                abort ();
+            }
+        } else if (GET_CODE (op0) == MULT) {
+            ireg = XEXP (op0, 0);
+            scale = XEXP (op0, 1);
+            if (GET_CODE (op1) == REG) {
+                breg = op1;
+            } else if (CONSTANT_P (op1)) {
+                offset = op1;
+            } else {
+                abort ();
+            }
+        } else {
+            abort ();
+        }
+    } else if (GET_CODE (addr) == MULT) {
+        ireg = XEXP (addr, 0);
+        scale = XEXP (addr, 1);
+    } else {
+        abort ();
     }
-  else if (GET_CODE (addr) == MULT)
-    {
-      ireg = XEXP (addr, 0);
-      scale = XEXP (addr, 1);
-    }
-  else
-    abort ();
 
-  if (offset)
-    output_addr_const (file, offset);
-  if (breg)
-    fprintf (file, "(%s)", reg_names[REGNO (breg)]);
-  if (ireg)
-    fprintf (file, "[%s*" HOST_WIDE_INT_PRINT_DEC "]",
-	     reg_names[REGNO (ireg)], INTVAL (scale));
+    if (offset) {
+        output_addr_const (file, offset);
+    }
+    if (breg) {
+        fprintf (file, "(%s)", reg_names[REGNO (breg)]);
+    }
+    if (ireg) {
+        fprintf (file, "[%s*" HOST_WIDE_INT_PRINT_DEC "]",
+                reg_names[REGNO (ireg)], INTVAL (scale));
+    }
 }
 
 /* GO_IF_LEGITIMATE_ADDRESS recognizes an RTL expression
@@ -2002,55 +1992,42 @@ i960_print_operand_addr (FILE* file, machine_mode mode, rtx addr)
 bool
 i960_legitimate_address_p (machine_mode mode, rtx addr, bool strict)
 {
-    if (RTX_OK_FOR_BASE_P (addr, strict))
+    if (RTX_OK_FOR_BASE_P (addr, strict)) {
         return true;
-    else if (CONSTANT_P (addr))
+    } else if (CONSTANT_P (addr)) {
         return true;
-    else if (GET_CODE (addr) == PLUS)
-    {
+    } else if (GET_CODE (addr) == PLUS) {
         rtx op0, op1;
-
         if (! TARGET_COMPLEX_ADDR && ! reload_completed) return false;
 
         op0 = XEXP (addr, 0);
         op1 = XEXP (addr, 1);
-
         if (RTX_OK_FOR_BASE_P (op0, strict))
         {
-            if (RTX_OK_FOR_INDEX_P (op1, strict))
+            if (RTX_OK_FOR_INDEX_P (op1, strict)) {
                 return true;
-            else if (CONSTANT_P (op1))
+            } else if (CONSTANT_P (op1)) {
                 return true;
-            else
+            } else {
                 return false;
-        }
-        else if (GET_CODE (op0) == PLUS)
-        {
-            if (GET_CODE (XEXP (op0, 0)) == MULT)
-            {
-                if (! (RTX_OK_FOR_INDEX_P (XEXP (XEXP (op0, 0), 0), strict)
-                            && SCALE_TERM_P (XEXP (XEXP (op0, 0), 1))))
-                    return false;
-
-                if (RTX_OK_FOR_BASE_P (XEXP (op0, 1), strict)
-                        && CONSTANT_P (op1))
-                    return true;
-                else
-                    return false;
             }
-            else if (RTX_OK_FOR_BASE_P (XEXP (op0, 0), strict))
-            {
+        } else if (GET_CODE (op0) == PLUS) {
+            if (GET_CODE (XEXP (op0, 0)) == MULT) {
+                if (! (RTX_OK_FOR_INDEX_P (XEXP (XEXP (op0, 0), 0), strict) && SCALE_TERM_P (XEXP (XEXP (op0, 0), 1)))) {
+                    return false;
+                }
+
+                return (RTX_OK_FOR_BASE_P (XEXP (op0, 1), strict) && CONSTANT_P (op1));
+            } else if (RTX_OK_FOR_BASE_P (XEXP (op0, 0), strict)) {
                 if (RTX_OK_FOR_INDEX_P (XEXP (op0, 1), strict)
                         && CONSTANT_P (op1))
                     return true;
                 else
                     return false;
-            }
-            else
+            } else {
                 return false;
-        }
-        else if (GET_CODE (op0) == MULT)
-        {
+            }
+        } else if (GET_CODE (op0) == MULT) {
             if (! (RTX_OK_FOR_INDEX_P (XEXP (op0, 0), strict)
                         && SCALE_TERM_P (XEXP (op0, 1))))
                 return false;
@@ -2061,19 +2038,16 @@ i960_legitimate_address_p (machine_mode mode, rtx addr, bool strict)
                 return true;
             else
                 return false;
-        }
-        else
+        } else {
             return false;
-    }
-    else if (GET_CODE (addr) == MULT)
-    {
+        }
+    } else if (GET_CODE (addr) == MULT) {
         if (! TARGET_COMPLEX_ADDR && ! reload_completed) return false;
 
-        return (RTX_OK_FOR_INDEX_P (XEXP (addr, 0), strict)
-                && SCALE_TERM_P (XEXP (addr, 1)));
-    }
-    else
+        return (RTX_OK_FOR_INDEX_P (XEXP (addr, 0), strict) && SCALE_TERM_P (XEXP (addr, 1)));
+    } else {
         return false;
+    }
 }
 
 
