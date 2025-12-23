@@ -1019,6 +1019,8 @@ i960_output_ldconst (rtx dst, rtx src)
     }
 
   /* If const is a bit string of less than 6 bits (1..31 shifted).  */
+  // I guess at one point the assembler wasn't as good at generating effective
+  // ldconst sequences...
   if (i960_is_mask (rsrc1))
     {
       int s, e;
