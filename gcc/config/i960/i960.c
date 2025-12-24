@@ -927,8 +927,6 @@ i960_output_ldconst (rtx dst, rtx src)
           // otherwise we need to break this up into multiple subwords
           // this is a hack but a good starting point
           split_double(src, &low, &high);
-          printf("intval(low) = %lld\n", INTVAL(low));
-          printf("intval(high) = %lld\n", INTVAL(high));
           operands[0] = gen_rtx_REG(SImode, REGNO(dst));
           operands[1] = low;
           output_asm_insn(i960_output_ldconst(operands[0], operands[1]), operands);
