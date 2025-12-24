@@ -746,10 +746,13 @@ struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
 
 /* The prefix to add to user-visible assembler symbols.  */
 
-#define USER_LABEL_PREFIX ""
+#ifndef USER_LABEL_PREFIX
+#define USER_LABEL_PREFIX	""
+#endif
 
-
+#ifndef LOCAL_LABEL_PREFIX
 #define LOCAL_LABEL_PREFIX ".L"
+#endif
 
 /* This is how to store into the string LABEL
    the symbol_ref name of an internal numbered label where

@@ -36,5 +36,10 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 #undef  ENDFILE_SPEC
 #define ENDFILE_SPEC "crtend.o%s crtn.o%s"
+
+/* elfos.h disables the use of leading underscores... this causes problems
+ * when you name a function sp or any of the registers of the i960 */
+#undef  USER_LABEL_PREFIX
+#define USER_LABEL_PREFIX "_"
 /* End of elf.h */
 #endif

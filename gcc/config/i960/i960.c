@@ -808,12 +808,13 @@ i960_output_move_quad_zero (rtx dst)
   rtx operands[4];
 
   operands[0] = dst;
-    {
-      operands[1] = adjust_address (dst, word_mode, 4);
-      operands[2] = adjust_address (dst, word_mode, 8);
-      operands[3] = adjust_address (dst, word_mode, 12);
-      output_asm_insn ("st	g14,%0\n\tst	g14,%1\n\tst	g14,%2\n\tst	g14,%3", operands);
-    }
+  operands[1] = adjust_address (dst, word_mode, 4);
+  operands[2] = adjust_address (dst, word_mode, 8);
+  operands[3] = adjust_address (dst, word_mode, 12);
+  output_asm_insn("st\tg14, %0", operands);
+  output_asm_insn("st\tg14, %1", operands);
+  output_asm_insn("st\tg14, %2", operands);
+  output_asm_insn("st\tg14, %3", operands);
   return "";
 }
 
@@ -855,7 +856,7 @@ i960_output_ldconst (rtx dst, rtx src)
 
   if (GET_CODE (src) != CONST_INT && GET_CODE (src) != CONST_DOUBLE)
     {
-      output_asm_insn ("ldconst	%1,%0", operands);
+      output_asm_insn ("ldconst	%1,%0 # cool beans", operands);
       return "";
     }
   else if (mode == TFmode)
@@ -1058,9 +1059,8 @@ i960_output_ldconst (rtx dst, rtx src)
      ror	31,3,g0	-> ldconst 0xe0000003,g0
    
      and any 2 instruction cases that might be worthwhile  */
-    return "ldconst %1, %0";
-  //output_asm_insn ("ldconst	%1,%0", operands);
-  //return "";
+    // need to convert a 64-bit constant out to a 32-bit constant
+    return "ldconst %a1, %0";
 }
 
 /* Determine if there is an opportunity for a bypass optimization.
