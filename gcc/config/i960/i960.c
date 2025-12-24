@@ -924,15 +924,26 @@ i960_output_ldconst (rtx dst, rtx src)
       if (tisrc1 >= 0 && tisrc1 < 32)
           return "movq	%1,%0";
       else {
-          // otherwise we need to break this up into multiple subwords
-          // this is a hack but a good starting point
-          split_double(src, &low, &high);
-          operands[0] = gen_rtx_REG(SImode, REGNO(dst));
-          operands[1] = low;
-          output_asm_insn(i960_output_ldconst(operands[0], operands[1]), operands);
-          operands[0] = gen_rtx_REG(SImode, REGNO(dst) + 1);
-          operands[1] = high;
-          output_asm_insn(i960_output_ldconst(operands[0], operands[1]), operands);
+          if (GET_CODE(src) == CONST_INT) {
+              // otherwise we need to break this up into multiple subwords
+              // this is a hack but a good starting point
+              split_double(src, &low, &high);
+              operands[0] = gen_rtx_REG(SImode, REGNO(dst));
+              operands[1] = low;
+              output_asm_insn(i960_output_ldconst(operands[0], operands[1]), operands);
+              operands[0] = gen_rtx_REG(SImode, REGNO(dst) + 1);
+              operands[1] = high;
+              output_asm_insn(i960_output_ldconst(operands[0], operands[1]), operands);
+              // since we got a CONST_INT it means it can fit within the
+              // confines of a single 64-bit number so just emit zeroes after
+              // that!
+              operands[0] = gen_rtx_REG(DImode, REGNO(dst) + 2);
+              operands[1] = const0_rtx; 
+              output_asm_insn(i960_output_ldconst(operands[0], operands[1]), operands);
+          } else {
+              // something beyond a CONST_INT was provided!
+            abort();
+          }
           return "";
       }
       /* Go pick up the low-order word.  */
