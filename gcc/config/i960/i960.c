@@ -863,7 +863,6 @@ i960_output_ldconst (rtx dst, rtx src)
       long value_long[3];
       int i;
 
-      // why? this doesn't make any sense
       if (i960_fp_literal_zero (src, TFmode))
           return "movt	0,%0";
 
@@ -918,16 +917,21 @@ i960_output_ldconst (rtx dst, rtx src)
     }
   else if (mode == TImode)
     {
-      /* ??? This is currently not handled at all.  */
-    // triple integer mode apparently just causes an abort to happen...
-      abort ();
-
+      
       /* Note: lowest order word goes in lowest numbered reg.  */
       rsrc1 = INTVAL (src);
+
       if (rsrc1 >= 0 && rsrc1 < 32)
-	return "movq	%1,%0";
-      else
-	output_asm_insn ("movq\t0,%0\t# ldconstq %1,%0",operands);
+          return "movq	%1,%0";
+      else {
+          for (int i = 0; i < 4; ++i) {
+              // little endian assumed
+              operands[0] = gen_rtx_REG(SImode, REGNO(dst) + i);
+              operands[1] = GEN_INT(CONST_WIDE_INT_ELT(src, i)); // taken from split_double
+              output_asm_insn(i960_output_ldconst(operands[0], operands[1]), operands);
+          }
+          return "";
+      }
       /* Go pick up the low-order word.  */
     }
   else if (mode == DImode) {
