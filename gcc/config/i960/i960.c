@@ -917,19 +917,24 @@ i960_output_ldconst (rtx dst, rtx src)
     }
   else if (mode == TImode)
     {
-      
+      rtx low, high;
       /* Note: lowest order word goes in lowest numbered reg.  */
-      rsrc1 = INTVAL (src);
+      auto tisrc1 = INTVAL(src);
 
-      if (rsrc1 >= 0 && rsrc1 < 32)
+      if (tisrc1 >= 0 && tisrc1 < 32)
           return "movq	%1,%0";
       else {
-          for (int i = 0; i < 4; ++i) {
-              // little endian assumed
-              operands[0] = gen_rtx_REG(SImode, REGNO(dst) + i);
-              operands[1] = GEN_INT(CONST_WIDE_INT_ELT(src, i)); // taken from split_double
-              output_asm_insn(i960_output_ldconst(operands[0], operands[1]), operands);
-          }
+          // otherwise we need to break this up into multiple subwords
+          // this is a hack but a good starting point
+          split_double(src, &low, &high);
+          printf("intval(low) = %lld\n", INTVAL(low));
+          printf("intval(high) = %lld\n", INTVAL(high));
+          operands[0] = gen_rtx_REG(SImode, REGNO(dst));
+          operands[1] = low;
+          output_asm_insn(i960_output_ldconst(operands[0], operands[1]), operands);
+          operands[0] = gen_rtx_REG(SImode, REGNO(dst) + 1);
+          operands[1] = high;
+          output_asm_insn(i960_output_ldconst(operands[0], operands[1]), operands);
           return "";
       }
       /* Go pick up the low-order word.  */
