@@ -811,10 +811,7 @@ i960_output_move_quad_zero (rtx dst)
   operands[1] = adjust_address (dst, word_mode, 4);
   operands[2] = adjust_address (dst, word_mode, 8);
   operands[3] = adjust_address (dst, word_mode, 12);
-  output_asm_insn("st\tg14, %0", operands);
-  output_asm_insn("st\tg14, %1", operands);
-  output_asm_insn("st\tg14, %2", operands);
-  output_asm_insn("st\tg14, %3", operands);
+  output_asm_insn("st\tg14, %0;st\tg14, %1;st\tg14, %2;st\tg14, %3", operands);
   return "";
 }
 
@@ -2318,6 +2315,8 @@ i960_round_align (int align, tree type)
 void 
 i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& info, int * pretend_size, int no_rtl)
 {
+    // TODO reimplement so that g14 isn't used in place of sp in code
+    // generation
   /* Note: for a varargs fn with only a va_alist argument, this is 0.  */
   CUMULATIVE_ARGS *cum = get_cumulative_args (cat);
   int first_reg = cum->ca_nregparms;
@@ -2351,10 +2350,11 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& inf
       // do a cmpsi of g14 with 0
       // bne to target label
       emit_jump_insn(gen_cbranchsi4(
-                  gen_rtx_NE(VOIDmode, fake_arg_pointer_rtx, const0_rtx),
-                  fake_arg_pointer_rtx,
+                  gen_rtx_NE(VOIDmode, arg_pointer_rtx, const0_rtx),
+                  arg_pointer_rtx,
                   const0_rtx,
                   label));
+      {
       // set g14 to sp, it allows it be passed to another function as needed
       emit_insn (gen_rtx_SET (fake_arg_pointer_rtx,
 			      stack_pointer_rtx));
@@ -2365,6 +2365,7 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& inf
                                          stack_pointer_rtx, 48))));
       // emit the label
       emit_label (label);
+      }
 
       /* ??? Note that we unnecessarily store one extra register for stdarg
 	 fns.  We could optimize this, but it's kept as for now.  */
@@ -2372,8 +2373,7 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& inf
 			      plus_constant (Pmode, arg_pointer_rtx, first_reg * 4));
       set_mem_alias_set (regblock, get_varargs_alias_set ());
       set_mem_align (regblock, BITS_PER_WORD);
-      move_block_from_reg (first_reg, regblock,
-			   NPARM_REGS - first_reg);
+      move_block_from_reg (first_reg, regblock, NPARM_REGS - first_reg);
     }
 }
 /* Define the `__builtin_va_list' type for the ABI.  */
