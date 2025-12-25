@@ -292,8 +292,6 @@ extern int i960_last_maxbitalignment;
    in order of preference..  */
 
 #define ELIMINABLE_REGS	 {\
-    {ARG_POINTER_REGNUM, STACK_POINTER_REGNUM}, \
-    {ARG_POINTER_REGNUM, FRAME_POINTER_REGNUM}, \
     {FRAME_POINTER_REGNUM, STACK_POINTER_REGNUM} \
 }
 
