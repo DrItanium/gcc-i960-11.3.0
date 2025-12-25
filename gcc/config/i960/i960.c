@@ -2316,7 +2316,7 @@ i960_round_align (int align, tree type)
    all register parameters to memory.  */
 
 void 
-i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_info& info, int * pretend_size, int no_rtl)
+i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& info, int * pretend_size, int no_rtl)
 {
   /* Note: for a varargs fn with only a va_alist argument, this is 0.  */
   CUMULATIVE_ARGS *cum = get_cumulative_args (cat);
@@ -2334,7 +2334,8 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_inf
 
   if (cum->ca_nstackparms == 0 && first_reg < NPARM_REGS && !no_rtl)
     {
-      rtx label = gen_label_rtx ();
+      //rtx label = gen_label_rtx ();
+	  rtx_code_label *label = gen_label_rtx ();
       rtx regblock, fake_arg_pointer_rtx;
 
       /* Use a different rtx than arg_pointer_rtx so that cse and friends
@@ -2349,7 +2350,7 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_inf
       // this is actually just a cbranchsi4
       // do a cmpsi of g14 with 0
       // bne to target label
-      emit_insn(gen_cbranchsi4(
+      emit_jump_insn(gen_cbranchsi4(
                   gen_rtx_NE(VOIDmode, fake_arg_pointer_rtx, const0_rtx),
                   fake_arg_pointer_rtx,
                   const0_rtx,
@@ -2360,7 +2361,7 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_inf
       // set stack pointer to 48 + sp
       emit_insn (gen_rtx_SET (stack_pointer_rtx,
 			      memory_address (SImode,
-					      plus_constant (info.mode,
+					      plus_constant (Pmode,
                                          stack_pointer_rtx, 48))));
       // emit the label
       emit_label (label);
@@ -2368,7 +2369,7 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const class function_arg_inf
       /* ??? Note that we unnecessarily store one extra register for stdarg
 	 fns.  We could optimize this, but it's kept as for now.  */
       regblock = gen_rtx_MEM (BLKmode,
-			      plus_constant (info.mode, arg_pointer_rtx, first_reg * 4));
+			      plus_constant (Pmode, arg_pointer_rtx, first_reg * 4));
       set_mem_alias_set (regblock, get_varargs_alias_set ());
       set_mem_align (regblock, BITS_PER_WORD);
       move_block_from_reg (first_reg, regblock,
