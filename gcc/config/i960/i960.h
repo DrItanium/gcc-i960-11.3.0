@@ -291,7 +291,11 @@ extern int i960_last_maxbitalignment;
    followed by "to".  Eliminations of the same "from" register are listed
    in order of preference..  */
 
-#define ELIMINABLE_REGS	 {{FRAME_POINTER_REGNUM, STACK_POINTER_REGNUM}}
+#define ELIMINABLE_REGS	 {\
+    {ARG_POINTER_REGNUM, STACK_POINTER_REGNUM}, \
+    {ARG_POINTER_REGNUM, FRAME_POINTER_REGNUM}, \
+    {FRAME_POINTER_REGNUM, STACK_POINTER_REGNUM} \
+}
 
 /* Define the offset between two registers, one to be eliminated, and
    the other its replacement, at the start of a routine.
@@ -810,5 +814,6 @@ extern enum insn_types i960_last_insn_type;
 /* Parse opcodes, and set the insn last insn type based on them.  */
 
 #define ASM_OUTPUT_OPCODE(FILE, INSN)	i960_scan_opcode (INSN)
+
 
 #endif
