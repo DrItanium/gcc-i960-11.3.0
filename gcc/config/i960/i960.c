@@ -2315,8 +2315,12 @@ i960_round_align (int align, tree type)
 void 
 i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& info, int * pretend_size, int no_rtl)
 {
-    // TODO reimplement so that g14 isn't used in place of sp in code
-    // generation
+    // Okay so the idea is to create a register parameter block which is used
+    // to store the 12 registers on the stack. This is relatively simple but
+    // also very strange to me because we check g14 to see if it already is non
+    // zero (which is _very_ dangerous). I think instead we should just
+    // allocate the register parameter block on the stack and just leave it
+    // there to be used.
   /* Note: for a varargs fn with only a va_alist argument, this is 0.  */
   CUMULATIVE_ARGS *cum = get_cumulative_args (cat);
   int first_reg = cum->ca_nregparms;
@@ -2331,9 +2335,7 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& inf
      registers, either there were no extra arguments or the caller
      allocated an argument block.  */
 
-  if (cum->ca_nstackparms == 0 && first_reg < NPARM_REGS && !no_rtl)
-    {
-      //rtx label = gen_label_rtx ();
+  if (cum->ca_nstackparms == 0 && first_reg < NPARM_REGS && !no_rtl) {
 	  rtx_code_label *label = gen_label_rtx ();
       rtx regblock, fake_arg_pointer_rtx;
 
@@ -2354,18 +2356,15 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& inf
                   arg_pointer_rtx,
                   const0_rtx,
                   label));
-      {
       // set g14 to sp, it allows it be passed to another function as needed
-      emit_insn (gen_rtx_SET (fake_arg_pointer_rtx,
-			      stack_pointer_rtx));
+      emit_move_insn(fake_arg_pointer_rtx, stack_pointer_rtx);
       // set stack pointer to 48 + sp
-      emit_insn (gen_rtx_SET (stack_pointer_rtx,
+      emit_move_insn(stack_pointer_rtx,
 			      memory_address (SImode,
 					      plus_constant (Pmode,
-                                         stack_pointer_rtx, 48))));
+                                         stack_pointer_rtx, 48)));
       // emit the label
       emit_label (label);
-      }
 
       /* ??? Note that we unnecessarily store one extra register for stdarg
 	 fns.  We could optimize this, but it's kept as for now.  */
@@ -2451,6 +2450,8 @@ i960_va_start (tree valist, rtx nextarg)
     tree base = build3(COMPONENT_REF, TREE_TYPE(f_base), valist, f_base, NULL_TREE);
     tree count = build3(COMPONENT_REF, TREE_TYPE(f_count), valist, f_count, NULL_TREE);
     // setup the base operation
+    /* Use a different rtx than arg_pointer_rtx so that cse and friends can go
+     * on believing that the argument pointer can never be zero. */
     auto fakeArgPointer = gen_raw_REG(Pmode, ARG_POINTER_REGNUM);
     t = make_tree(TREE_TYPE(base), fakeArgPointer);
     t = build2(MODIFY_EXPR, TREE_TYPE(base), base, t);
