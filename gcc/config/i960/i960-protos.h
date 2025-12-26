@@ -83,4 +83,5 @@ extern int i960_bitstr (unsigned int, int *, int *);
 extern int i960_process_pragma (int(*)(void), void(*)(int), const char *);
 extern int i960_object_bytes_bitalign (int);
 extern void i960_initialize (void);
+extern HOST_WIDE_INT i960_compute_initial_elimination_offset (unsigned int, unsigned int);
 #endif /* ! GCC_I960_PROTOS_H  */

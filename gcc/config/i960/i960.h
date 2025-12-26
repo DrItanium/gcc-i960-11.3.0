@@ -276,13 +276,19 @@ extern int i960_last_maxbitalignment;
 
 /* Register to use for pushing function arguments.  */
 #define STACK_POINTER_REGNUM 17
+/* Base register for access to local variables of the function.  */
+#define FRAME_POINTER_REGNUM 15
+/* Base register for access to arguments of the function.  */
+#define ARG_POINTER_REGNUM 14
+/* Register in which static-chain is passed to a function.
+   On i960, we use g12.  We can't use any local register, because we need
+   a register that can be set before a call or before a jump.  */
+#define STATIC_CHAIN_REGNUM 12
 
 /* Actual top-of-stack address is same as
    the contents of the stack pointer register.  */
-#define STACK_POINTER_OFFSET (crtl->outgoing_args_size)
+#define STACK_POINTER_OFFSET (-crtl->outgoing_args_size)
 
-/* Base register for access to local variables of the function.  */
-#define FRAME_POINTER_REGNUM 15
 
 /* Definitions for register eliminations.
 
@@ -292,8 +298,6 @@ extern int i960_last_maxbitalignment;
    in order of preference..  */
 
 #define ELIMINABLE_REGS	 {\
-    {ARG_POINTER_REGNUM, STACK_POINTER_REGNUM}, \
-    {ARG_POINTER_REGNUM, FRAME_POINTER_REGNUM}, \
     {FRAME_POINTER_REGNUM, STACK_POINTER_REGNUM} \
 }
 
@@ -305,15 +309,9 @@ extern int i960_last_maxbitalignment;
    the frame.  */
 
 #define INITIAL_ELIMINATION_OFFSET(FROM, TO, OFFSET)			\
-  do { (OFFSET) = (64 + i960_compute_frame_size (get_frame_size ())); } while (0)
+    (OFFSET) = i960_compute_initial_elimination_offset((FROM), (TO))
 
-/* Base register for access to arguments of the function.  */
-#define ARG_POINTER_REGNUM 14
 
-/* Register in which static-chain is passed to a function.
-   On i960, we use g12.  We can't use any local register, because we need
-   a register that can be set before a call or before a jump.  */
-#define STATIC_CHAIN_REGNUM 12
  
 /* The order in which to allocate registers.  */
 
@@ -415,13 +413,13 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 
 /* Define this if pushing a word on the stack
    makes the stack pointer a smaller address.  */
-/* #define STACK_GROWS_DOWNWARD */
+#define STACK_GROWS_DOWNWARD 0
 
 /* Define this if the nominal address of the stack frame
    is at the high-address end of the local variables;
    that is, each additional local variable allocated
    goes at a more negative offset in the frame.  */
-/* #define FRAME_GROWS_DOWNWARD */
+#define FRAME_GROWS_DOWNWARD 0
 
 
 /* If we generate an insn to push BYTES bytes,

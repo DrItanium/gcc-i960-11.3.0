@@ -2976,7 +2976,15 @@ i960_print_operand_punct_valid_p (unsigned char code)
   ((CLASS) == FP_REGS ? 1 : TARGET_HARD_REGNO_NREGS (0, (MODE)))
 #define TARGET_STARTING_FRAME_OFFSET 64
 #endif
-static HOST_WIDE_INT i960_starting_frame_offset(void) { return 64; }
+static HOST_WIDE_INT i960_starting_frame_offset() { return 64; }
+
+HOST_WIDE_INT
+i960_compute_initial_elimination_offset(unsigned int from, unsigned int to) {
+    // initial implementation (well I took out the - since it was causing problems)
+    // This implementation sucks!
+    return -(64 + i960_compute_frame_size(get_frame_size()));
+}
+  //do { (OFFSET) = (64 + i960_compute_frame_size (get_frame_size ())); } while (0)
 
 #undef  TARGET_OPTION_OVERRIDE
 #define TARGET_OPTION_OVERRIDE i960_option_override
