@@ -266,7 +266,7 @@ extern int i960_last_maxbitalignment;
   1, 1, 1, 1, 1, 1, 1, 1,	\
   1, 1, 1, 0, 0, 0, 0, 0,	\
   0, 0, 0, 0, 0, 0, 0, 0,	\
-  0, 0, 0, 0, 1, 1}
+  1, 1, 1, 1, 1, 1}
 
 /* Specify the registers used for certain standard purposes.
    The values of these macros are register numbers.  */
@@ -279,7 +279,7 @@ extern int i960_last_maxbitalignment;
 
 /* Actual top-of-stack address is same as
    the contents of the stack pointer register.  */
-#define STACK_POINTER_OFFSET (-crtl->outgoing_args_size)
+#define STACK_POINTER_OFFSET (crtl->outgoing_args_size)
 
 /* Base register for access to local variables of the function.  */
 #define FRAME_POINTER_REGNUM 15
@@ -303,7 +303,7 @@ extern int i960_last_maxbitalignment;
    the frame.  */
 
 #define INITIAL_ELIMINATION_OFFSET(FROM, TO, OFFSET)			\
-  do { (OFFSET) = - (64 + i960_compute_frame_size (get_frame_size ())); } while (0)
+  do { (OFFSET) = (64 + i960_compute_frame_size (get_frame_size ())); } while (0)
 
 /* Base register for access to arguments of the function.  */
 #define ARG_POINTER_REGNUM 14
@@ -313,7 +313,6 @@ extern int i960_last_maxbitalignment;
    a register that can be set before a call or before a jump.  */
 #define STATIC_CHAIN_REGNUM 12
  
-
 /* The order in which to allocate registers.  */
 
 #define	REG_ALLOC_ORDER	\
