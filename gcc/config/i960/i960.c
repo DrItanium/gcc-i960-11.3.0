@@ -1252,13 +1252,13 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
 int
 i960_compute_frame_size (poly_int64 size)
 {
-  int actual_fsize;
+  int actual_fsize = 0;
   int outgoing_args_size = crtl->outgoing_args_size;
 
   /* The STARTING_FRAME_OFFSET is totally hidden to us as far
      as size is concerned.  */
-  actual_fsize = (size + 15) & -16;
-  actual_fsize += (outgoing_args_size + 15) & -16;
+  actual_fsize = (size + 15) & (~0xF);
+  actual_fsize += (outgoing_args_size + 15) & (~0xF);
 
   return actual_fsize;
 }
@@ -1291,15 +1291,15 @@ i960_form_reg_groups (int start_reg, int finish_reg, int* regs, int state, struc
       if (regs [i] != state) {
           i++;
           continue;
-      }
-      else if (i % 2 != 0 || regs [i + 1] != state)
+      } else if (i % 2 != 0 || regs [i + 1] != state) {
           reg_groups [nw].length = 1;
-      else if (i % 4 != 0 || regs [i + 2] != state)
+      } else if (i % 4 != 0 || regs [i + 2] != state) {
           reg_groups [nw].length = 2;
-      else if (regs [i + 3] != state)
+      } else if (regs [i + 3] != state) {
           reg_groups [nw].length = 3;
-      else
+      } else {
           reg_groups [nw].length = 4;
+      }
       reg_groups [nw].start_reg = i;
       i += reg_groups [nw].length;
       nw++;
