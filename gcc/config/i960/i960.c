@@ -1175,18 +1175,19 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
   /* Can not be a leaf routine if any non-call clobbered registers are
      used in this function.  */
 
-  if (leaf_proc_ok)
-    for (i = 0, j = 0; i < FIRST_PSEUDO_REGISTER; i++)
-      if (df_regs_ever_live_p(i)
-	  && ((! call_used_regs[i]) || (i > 7 && i < 12)))
-	{
-	  /* Global registers.  */
-	  if (i < 16 && i > 7 && i != 13)
-	    leaf_proc_ok = 0;
-	  /* Local registers.  */
-	  else if (i < 32)
-	    leaf_proc_ok = 0;
-	}
+  if (leaf_proc_ok) {
+      for (i = 0, j = 0; i < FIRST_PSEUDO_REGISTER; i++) {
+          if (df_regs_ever_live_p(i)
+                  && ((! call_used_regs[i]) || (i > 7 && i < 12))) {
+              /* Global registers.  */
+              if (i < 16 && i > 7 && i != 13)
+                  leaf_proc_ok = 0;
+              /* Local registers.  */
+              else if (i < 32)
+                  leaf_proc_ok = 0;
+          }
+      }
+  }
 
   /* Now choose a leaf return register, if we can find one, and if it is
      OK for this to be a leaf routine.  */
@@ -1257,6 +1258,11 @@ i960_compute_frame_size (poly_int64 size)
 
   /* The STARTING_FRAME_OFFSET is totally hidden to us as far
      as size is concerned.  */
+  printf("%s: ctrl->outgoing_args_size: %d\n", __PRETTY_FUNCTION__, outgoing_args_size);
+  printf("%s: (%d + 15) & %x = %d\n", __PRETTY_FUNCTION__,
+          size,
+          -16,
+          (size + 15) & -16);
   actual_fsize = (size + 15) & (~0xF);
   actual_fsize += (outgoing_args_size + 15) & (~0xF);
 
@@ -1286,7 +1292,6 @@ i960_form_reg_groups (int start_reg, int finish_reg, int* regs, int state, struc
 {
   int i;
   int nw = 0;
-
   for (i = start_reg; i < finish_reg; ) {
       if (regs [i] != state) {
           i++;
@@ -1374,8 +1379,10 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
           && !(i == STATIC_CHAIN_REGNUM && cfun->static_chain_decl)) {
           regs[i] = -1;
           /* Count global registers that need saving.  */
-          if (i < 16)
+          if (i < 16) {
+              printf("%s: need to save global register %d\n", __PRETTY_FUNCTION__, i);
               n_saved_regs++;
+          }
       } else {
           regs[i] = 0;
       }
@@ -1395,7 +1402,8 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
           regs[i] = -1;
       }
     }
-
+  // I think this code is trying to construct a safe move table to allow
+  // register to register saves. However, it is very hard to track
   gnw = i960_form_reg_groups (0, 16, regs, -1, global_reg_groups);
   lnw = i960_form_reg_groups (19, 32, regs, 0, local_reg_groups);
   qsort (global_reg_groups, gnw, sizeof (struct reg_group),
@@ -1434,7 +1442,9 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
         }
     }
 
-  actual_fsize = i960_compute_frame_size (get_frame_size()) + 4 * n_remaining_saved_regs;
+  printf("%s: get_frame_size(): %d\n", __PRETTY_FUNCTION__, get_frame_size());
+  printf("%s: n_remaining_saved_regs: %d\n", __PRETTY_FUNCTION__, n_remaining_saved_regs);
+  actual_fsize = i960_compute_frame_size (get_frame_size()) + (4 * n_remaining_saved_regs);
 #if 0
   /* ??? The 1.2.1 compiler does this also.  This is meant to round the frame
      size up to the nearest multiple of 16.  I don't know whether this is
@@ -1483,7 +1493,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 
   /* Take hardware register save area created by the call instruction
      into account, but store them before the argument block area.  */
-  lvar_size = actual_fsize - i960_compute_frame_size (0) - n_remaining_saved_regs * 4;
+  lvar_size = actual_fsize - i960_compute_frame_size (0) - (n_remaining_saved_regs * 4);
   offset = compat_STARTING_FRAME_OFFSET + lvar_size;
   /* Save registers on stack if needed.  */
   /* ??? Is it worth to use the same algorithm as one for saving
@@ -2987,17 +2997,6 @@ i960_compute_initial_elimination_offset(unsigned int from, unsigned int to) {
                 case FRAME_POINTER_REGNUM:
                     return 0;
                 case STACK_POINTER_REGNUM:
-                    return i960_starting_frame_offset() + i960_compute_frame_size(get_frame_size());
-                default:
-                    gcc_unreachable();
-            }
-            gcc_unreachable();
-        case STACK_POINTER_REGNUM:
-            switch (to) {
-                case STACK_POINTER_REGNUM:
-                    return 0;
-                case FRAME_POINTER_REGNUM:
-                    // stack pointer comes after the frame pointer
                     return -(i960_starting_frame_offset() + i960_compute_frame_size(get_frame_size()));
                 default:
                     gcc_unreachable();

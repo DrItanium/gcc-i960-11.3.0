@@ -284,6 +284,11 @@ extern int i960_last_maxbitalignment;
    On i960, we use g12.  We can't use any local register, because we need
    a register that can be set before a call or before a jump.  */
 #define STATIC_CHAIN_REGNUM 12
+/* 
+ * Functions which return large structures get the address to place the wanted
+ * value at in g13 (poisoned in gcc 11)
+ */
+// #define STRUCT_VALUE_REGNUM 13
 
 /* Actual top-of-stack address is same as
    the contents of the stack pointer register.  */
@@ -623,14 +628,12 @@ struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
    && (INTVAL (X) == 1 || INTVAL (X) == 2 || INTVAL (X) == 4 		\
        || INTVAL(X) == 8 || INTVAL (X) == 16))
 
-#if 0
 #ifdef REG_OK_STRICT
 #define GO_IF_LEGITIMATE_ADDRESS(MODE, X, ADDR) \
   { if (i960_legitimate_address_p (MODE, X, 1)) goto ADDR; }
 #else
 #define GO_IF_LEGITIMATE_ADDRESS(MODE, X, ADDR) \
   { if (i960_legitimate_address_p (MODE, X, 0)) goto ADDR; }
-#endif
 #endif
 
 
