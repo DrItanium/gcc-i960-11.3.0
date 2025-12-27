@@ -627,12 +627,15 @@ struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
    && (INTVAL (X) == 1 || INTVAL (X) == 2 || INTVAL (X) == 4 		\
        || INTVAL(X) == 8 || INTVAL (X) == 16))
 
+#if 0
+// legacy
 #ifdef REG_OK_STRICT
 #define GO_IF_LEGITIMATE_ADDRESS(MODE, X, ADDR) \
   { if (i960_legitimate_address_p (MODE, X, 1)) goto ADDR; }
 #else
 #define GO_IF_LEGITIMATE_ADDRESS(MODE, X, ADDR) \
   { if (i960_legitimate_address_p (MODE, X, 0)) goto ADDR; }
+#endif
 #endif
 
 

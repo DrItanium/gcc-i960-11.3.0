@@ -2520,7 +2520,7 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     auto addr = create_tmp_var(ptr_type_node);
     // just gimplify this existing work to start to see how well I can generate the corresponding code
     // round up sizeof(type) to a word
-    auto size = (int_size_in_bytes(type) + UNITS_PER_WORD - 1) & -UNITS_PER_WORD;
+    auto size = (int_size_in_bytes(type) + UNITS_PER_WORD - 1) & (-UNITS_PER_WORD);
     // round up alignment to a word
     auto ali = TYPE_ALIGN(type);
     if (ali < BITS_PER_WORD) {
