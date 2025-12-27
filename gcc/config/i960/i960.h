@@ -231,7 +231,7 @@ extern int i960_last_maxbitalignment;
    instruction pointer (r2), and the argument pointer (g14).  */
 #define FIXED_REGISTERS  \
  {0, 0, 0, 0, 0, 0, 0, 0,	\
-  0, 0, 0, 0, 0, 0, 1, 1,	\
+  0, 0, 0, 0, 0, 1, 1, 1,	\
   1, 1, 1, 0, 0, 0, 0, 0,	\
   0, 0, 0, 0, 0, 0, 0, 0,	\
   0, 0, 0, 0, 1, 1}
@@ -279,7 +279,7 @@ extern int i960_last_maxbitalignment;
 /* Base register for access to local variables of the function.  */
 #define FRAME_POINTER_REGNUM 15
 /* Base register for access to arguments of the function.  */
-#define ARG_POINTER_REGNUM 14
+#define ARG_POINTER_REGNUM 13
 /* Register in which static-chain is passed to a function.
    On i960, we use g12.  We can't use any local register, because we need
    a register that can be set before a call or before a jump.  */
@@ -321,13 +321,13 @@ extern int i960_last_maxbitalignment;
 /* The order in which to allocate registers.  */
 
 #define	REG_ALLOC_ORDER	\
-{  4, 5, 6, 7, 0, 1, 2, 3, 13,	 /* g4, g5, g6, g7, g0, g1, g2, g3, g13  */ \
+{  4, 5, 6, 7, 0, 1, 2, 3, 	 /* g4, g5, g6, g7, g0, g1, g2, g3 */ \
   20, 21, 22, 23, 24, 25, 26, 27,/* r4, r5, r6, r7, r8, r9, r10, r11  */    \
   28, 29, 30, 31, 19, 8, 9, 10,	 /* r12, r13, r14, r15, r3, g8, g9, g10  */ \
   11, 12,			 /* g11, g12  */			    \
   32, 33, 34, 35,		 /* fp0, fp1, fp2, fp3  */		    \
   /* We can't actually allocate these.  */				    \
-  16, 17, 18, 14, 15, 36, 37}	 /* r0, r1, r2, g14, g15, cc  */
+  16, 17, 18, 13, 14, 15, 36, 37}	 /* r0, r1, r2, g13, g14, g15, cc  */
 
 /* Define the classes of registers for register constraints in the
    machine description.  Also define ranges of constants.
