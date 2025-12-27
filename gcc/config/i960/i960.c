@@ -2342,7 +2342,6 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& inf
       /* Use a different rtx than arg_pointer_rtx so that cse and friends
 	 can go on believing that the argument pointer can never be zero.  */
       fake_arg_pointer_rtx = gen_raw_REG (Pmode, ARG_POINTER_REGNUM);
-
       /* If the argument pointer is 0, no arguments were passed on the stack
 	 and we need to allocate a chunk to save the registers (if any
 	 arguments were passed on the stack the caller would allocate the
@@ -2361,7 +2360,7 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& inf
       // set stack pointer to 48 + sp
       emit_move_insn(stack_pointer_rtx,
 			      memory_address (SImode,
-					      plus_constant (Pmode,
+					      plus_constant (Pmode, /* info.mode previously */
                                          stack_pointer_rtx, 48)));
       // emit the label
       emit_label (label);
@@ -2369,7 +2368,7 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& inf
       /* ??? Note that we unnecessarily store one extra register for stdarg
 	 fns.  We could optimize this, but it's kept as for now.  */
       regblock = gen_rtx_MEM (BLKmode,
-			      plus_constant (Pmode, arg_pointer_rtx, first_reg * 4));
+			      plus_constant (Pmode/* info.mode */, arg_pointer_rtx, first_reg * 4));
       set_mem_alias_set (regblock, get_varargs_alias_set ());
       set_mem_align (regblock, BITS_PER_WORD);
       move_block_from_reg (first_reg, regblock, NPARM_REGS - first_reg);
