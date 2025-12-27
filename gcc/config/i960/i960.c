@@ -1784,6 +1784,7 @@ i960_print_operand (FILE* file, rtx x, int code)
     }
   else if (rtxcode == CONST_INT)
     {
+        // TODO fix this so that we don't output a 64-bit number!
       HOST_WIDE_INT val = INTVAL (x);
       if (code == 'C')
 	val = ~val;
@@ -2981,7 +2982,22 @@ HOST_WIDE_INT
 i960_compute_initial_elimination_offset(unsigned int from, unsigned int to) {
     // initial implementation (well I took out the - since it was causing problems)
     // This implementation sucks!
-    return -(64 + i960_compute_frame_size(get_frame_size()));
+    switch (from) {
+        case FRAME_POINTER_REGNUM:
+            switch (to) {
+                case FRAME_POINTER_REGNUM:
+                    return 0;
+                case STACK_POINTER_REGNUM:
+                    return 64 + i960_compute_frame_size(get_frame_size());
+                default:
+                    gcc_unreachable();
+            }
+        default:
+            // anything else doesn't make sense right now
+            gcc_unreachable();
+    }
+    gcc_unreachable();
+    //return -(64 + i960_compute_frame_size(get_frame_size()));
 }
   //do { (OFFSET) = (64 + i960_compute_frame_size (get_frame_size ())); } while (0)
 
