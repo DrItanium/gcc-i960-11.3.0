@@ -2556,15 +2556,6 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
 
 
 
-/* Calculate the final size of the reg parm stack space for the current
-   function, based on how many bytes would be allocated on the stack.  */
-
-int
-i960_final_reg_parm_stack_space (int const_size, tree var_size)
-{
-    return (var_size || (const_size > 48)) ? 48 : 0;
-}
-
 /* Calculate the size of the reg parm stack space.  This is a bit complicated
    on the i960.  */
 
@@ -2994,10 +2985,8 @@ i960_compute_initial_elimination_offset(unsigned int from, unsigned int to) {
     switch (from) {
         case FRAME_POINTER_REGNUM:
             switch (to) {
-                case FRAME_POINTER_REGNUM:
-                    return 0;
                 case STACK_POINTER_REGNUM:
-                    return -(i960_starting_frame_offset() + i960_compute_frame_size(get_frame_size()));
+                    return -(64 + i960_compute_frame_size(get_frame_size()));
                 default:
                     gcc_unreachable();
             }
@@ -3009,7 +2998,7 @@ i960_compute_initial_elimination_offset(unsigned int from, unsigned int to) {
     gcc_unreachable();
     //return -(64 + i960_compute_frame_size(get_frame_size()));
 }
-  //do { (OFFSET) = (64 + i960_compute_frame_size (get_frame_size ())); } while (0)
+  //do { (OFFSET) = -(64 + i960_compute_frame_size (get_frame_size ())); } while (0)
 
 #undef  TARGET_OPTION_OVERRIDE
 #define TARGET_OPTION_OVERRIDE i960_option_override

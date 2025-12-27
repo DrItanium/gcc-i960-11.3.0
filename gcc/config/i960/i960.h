@@ -437,7 +437,6 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
 /* When a parameter is passed in a register, no stack space is
    allocated for it.  However, when args are passed in the
    stack, space is allocated for every register parameter.  */
-#define TARGET_MAYBE_REG_PARM_STACK_SPACE 48
 #define REG_PARM_STACK_SPACE(DECL) i960_reg_parm_stack_space (DECL)
 #define OUTGOING_REG_PARM_STACK_SPACE(FNTYPE) 0
 
