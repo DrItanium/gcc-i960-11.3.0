@@ -2339,7 +2339,6 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& inf
   if (cum->ca_nstackparms == 0 && first_reg < NPARM_REGS && !no_rtl) {
 	  rtx_code_label *label = gen_label_rtx ();
       rtx regblock, fake_arg_pointer_rtx;
-
       /* Use a different rtx than arg_pointer_rtx so that cse and friends
 	 can go on believing that the argument pointer can never be zero.  */
       fake_arg_pointer_rtx = gen_raw_REG (Pmode, ARG_POINTER_REGNUM);
@@ -2352,8 +2351,8 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& inf
       // do a cmpsi of g14 with 0
       // bne to target label
       emit_jump_insn(gen_cbranchsi4(
-                  gen_rtx_NE(VOIDmode, arg_pointer_rtx, const0_rtx),
-                  arg_pointer_rtx,
+                  gen_rtx_NE(VOIDmode, fake_arg_pointer_rtx, const0_rtx),
+                  fake_arg_pointer_rtx,
                   const0_rtx,
                   label));
       // set g14 to sp, it allows it be passed to another function as needed
@@ -2988,10 +2987,22 @@ i960_compute_initial_elimination_offset(unsigned int from, unsigned int to) {
                 case FRAME_POINTER_REGNUM:
                     return 0;
                 case STACK_POINTER_REGNUM:
-                    return 64 + i960_compute_frame_size(get_frame_size());
+                    return i960_starting_frame_offset() + i960_compute_frame_size(get_frame_size());
                 default:
                     gcc_unreachable();
             }
+            gcc_unreachable();
+        case STACK_POINTER_REGNUM:
+            switch (to) {
+                case STACK_POINTER_REGNUM:
+                    return 0;
+                case FRAME_POINTER_REGNUM:
+                    // stack pointer comes after the frame pointer
+                    return -(i960_starting_frame_offset() + i960_compute_frame_size(get_frame_size()));
+                default:
+                    gcc_unreachable();
+            }
+            gcc_unreachable();
         default:
             // anything else doesn't make sense right now
             gcc_unreachable();
