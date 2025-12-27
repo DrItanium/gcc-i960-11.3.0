@@ -1380,8 +1380,6 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
           regs[i] = 0;
       }
   }
-
-
   n_remaining_saved_regs = n_saved_regs;
 
   epilogue_string[0] = '\0';
@@ -1391,11 +1389,11 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
       /* When profiling, we may use registers 20 to 27 to save arguments, so
 	 they can't be used here for saving globals.  J is the number of
 	 argument registers the mcount call will save.  */
-      for (j = 7; j >= 0 && ! df_regs_ever_live_p(j); j--)
-	;
+      for (j = 7; j >= 0 && ! df_regs_ever_live_p(j); j--); 
 
-      for (i = 20; i <= j + 20; i++)
-	regs[i] = -1;
+      for (i = 20; i <= j + 20; i++) {
+          regs[i] = -1;
+      }
     }
 
   gnw = i960_form_reg_groups (0, 16, regs, -1, global_reg_groups);
