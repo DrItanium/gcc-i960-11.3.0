@@ -681,7 +681,7 @@ i960_output_move_double (rtx dst, rtx src) {
                 ("lda	%1,%2\n\tld	%3,%0\n\tld	%4,%D0", operands);
             return "";
         } else {
-            return "ldl	%1,%0";
+            return "ldl	%1,%0 # load long 3";
         }
     } else if (GET_CODE (dst) == MEM && GET_CODE (src) == REG) {
         if (REGNO (src) & 1) {
@@ -694,7 +694,7 @@ i960_output_move_double (rtx dst, rtx src) {
             output_asm_insn ("st	%2,%0\n\tst	%D2,%1", operands);
             return "";
         }
-        return "stl	%1,%0";
+        return "stl	%1,%0 # store long 3";
     } else {
         abort ();
     }
@@ -2217,23 +2217,23 @@ i960_arg_size_and_align (enum machine_mode mode, tree type, int* size_out, int* 
 /* Update CUM to advance past an argument described by MODE and TYPE.  */
 
 void 
-i960_function_arg_advance (cumulative_args_t cat, const class function_arg_info& info)
+i960_function_arg_advance (cumulative_args_t cat, const function_arg_info& info)
 {
-  int size, align;
-  i960_arg_size_and_align (info.mode, info.type, &size, &align);
+    int size, align;
+    i960_arg_size_and_align (info.mode, info.type, &size, &align);
 
-CUMULATIVE_ARGS *cum = get_cumulative_args (cat);
-if (size > 4 || cum->ca_nstackparms != 0
-      || (size + ROUND_PARM (cum->ca_nregparms, align)) > NPARM_REGS
-      || TARGET_MUST_PASS_IN_STACK (info))
+    CUMULATIVE_ARGS *cum = get_cumulative_args (cat);
+    if (size > 4 || cum->ca_nstackparms != 0
+            || (size + ROUND_PARM (cum->ca_nregparms, align)) > NPARM_REGS
+            || TARGET_MUST_PASS_IN_STACK (info))
     {
-      /* Indicate that all the registers are in use, even if all are not,
-	 so va_start will compute the right value.  */
-      cum->ca_nregparms = NPARM_REGS;
-      cum->ca_nstackparms = ROUND_PARM (cum->ca_nstackparms, align) + size;
+        /* Indicate that all the registers are in use, even if all are not,
+           so va_start will compute the right value.  */
+        cum->ca_nregparms = NPARM_REGS;
+        cum->ca_nstackparms = ROUND_PARM (cum->ca_nstackparms, align) + size;
     }
-  else
-    cum->ca_nregparms = ROUND_PARM (cum->ca_nregparms, align) + size;
+    else
+        cum->ca_nregparms = ROUND_PARM (cum->ca_nregparms, align) + size;
 }
 
 /* Return the register that the argument described by MODE and TYPE is
@@ -2311,10 +2311,12 @@ i960_round_align (int align, tree type)
 
 /* Do any needed setup for a varargs function.  For the i960, we must
    create a register parameter block if one doesn't exist, and then copy
-   all register parameters to memory.  */
+   all register parameters to memory.  Use the function arg info block to
+   figure out information about the register set!
+*/
 
 void 
-i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& info, int * pretend_size, int no_rtl)
+i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& arg, int * pretend_size, int no_rtl)
 {
     // Okay so the idea is to create a register parameter block which is used
     // to store the 12 registers on the stack. This is relatively simple but
