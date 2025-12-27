@@ -2015,6 +2015,12 @@ i960_print_operand_addr (FILE* file, machine_mode mode, rtx addr)
        && (STRICT ? REG_OK_FOR_INDEX_P_STRICT (SUBREG_REG (X))		\
 	   : REG_OK_FOR_INDEX_P (SUBREG_REG (X)))))
 
+/* Returns 1 if the scale factor of an index term is valid.  */
+#define SCALE_TERM_P(X)							\
+  (GET_CODE (X) == CONST_INT						\
+   && (INTVAL (X) == 1 || INTVAL (X) == 2 || INTVAL (X) == 4 		\
+       || INTVAL(X) == 8 || INTVAL (X) == 16))
+
 bool
 i960_legitimate_address_p (machine_mode mode, rtx addr, bool strict)
 {
@@ -2445,6 +2451,32 @@ i960_build_builtin_va_list ()
  *
  * However, the design seems to be relatively straightforward so I will keep using it.
  *
+ * ------
+ * 2025/12/27
+ *
+ * This idea that you can determine the kind of g14 usage is really annoying
+ * since it introduces some problems with the register allocator in gcc 11. It
+ * seems to believe that g14 is the same as sp but I have no way of convincing
+ * the compiler in any other way that this is false... 
+ *
+ * The g13 register used to be used for the struct return register but gcc has
+ * eliminated that concept entirely and so will I. So now we have a free
+ * register for whatever we want. I now prefer that this register be used as a
+ * temporary for setting up an argument block. 
+ *
+ * Also, the idea that if g14/g13 is non zero then there is no need to
+ * reallocate space is absolute nonsense. What if g13/g14 got trashed by accident or we missed 
+ * something in the code generator? It would be almost impossible to determine
+ * this. It also is a major security hole as well, I could just have internal
+ * kernel structures get their data stashed to somewhere in user space since
+ * g14/g13 was already set before the interrupt/system call/etc... not a good
+ * idea... 
+ *
+ * If we drop the uses of g14 to just zero and link register then life becomes
+ * much easier (ideally, I would like it so that we don't even waste time) to
+ * statically determine lifetimes and such.
+ *
+ * In fact, we need to rewrite the stack frame tracking data.
  */
 void
 i960_va_start (tree valist, rtx nextarg)

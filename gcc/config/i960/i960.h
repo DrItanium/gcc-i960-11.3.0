@@ -242,9 +242,8 @@ extern int i960_last_maxbitalignment;
 	g0..g7 may always be used for parameters,
 	g8..g11 may be used for parameters, but are preserved if they aren't,
 	g12 is the static chain if needed, otherwise is preserved
-	g13 is the struct return ptr if used, or temp, but may be trashed,
-	g14 is the leaf return ptr or the arg block ptr otherwise zero,
-		must be reset to zero before returning if it was used,
+	g13 is the arg block pointer
+	g14 is the leaf return ptr or zero (must be reset to zero before returning if used)
 	g15 is the frame pointer,
 	r0 is the previous FP,
 	r1 is the stack pointer,
@@ -284,11 +283,6 @@ extern int i960_last_maxbitalignment;
    On i960, we use g12.  We can't use any local register, because we need
    a register that can be set before a call or before a jump.  */
 #define STATIC_CHAIN_REGNUM 12
-/* 
- * Functions which return large structures get the address to place the wanted
- * value at in g13 (poisoned in gcc 11)
- */
-// #define STRUCT_VALUE_REGNUM 13
 
 /* Actual top-of-stack address is same as
    the contents of the stack pointer register.  */
@@ -621,22 +615,6 @@ struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
 
 	In each case, scale can be 1, 2, 4, 8, or 16.  */
 
-/* Returns 1 if the scale factor of an index term is valid.  */
-#define SCALE_TERM_P(X)							\
-  (GET_CODE (X) == CONST_INT						\
-   && (INTVAL (X) == 1 || INTVAL (X) == 2 || INTVAL (X) == 4 		\
-       || INTVAL(X) == 8 || INTVAL (X) == 16))
-
-#if 0
-// legacy
-#ifdef REG_OK_STRICT
-#define GO_IF_LEGITIMATE_ADDRESS(MODE, X, ADDR) \
-  { if (i960_legitimate_address_p (MODE, X, 1)) goto ADDR; }
-#else
-#define GO_IF_LEGITIMATE_ADDRESS(MODE, X, ADDR) \
-  { if (i960_legitimate_address_p (MODE, X, 0)) goto ADDR; }
-#endif
-#endif
 
 
 /* Specify the machine mode that this machine uses
