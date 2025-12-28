@@ -94,27 +94,16 @@ static bool i960_frame_pointer_required(void);
 /* Per-function machine data.  */
 struct GTY(()) machine_function
 {
-
   /* Number of bytes saved on the stack for outgoing/sub-function args.  */
   HOST_WIDE_INT args_size;
 
 };
-
-/* Save the operands last given to a compare for use when we
-   generate a scc or bcc insn.  */
-
-//rtx i960_compare_op0, i960_compare_op1;
 
 /* Used to implement #pragma align/noalign.  Initialized by OVERRIDE_OPTIONS
    macro in i960.h.  */
 
 int i960_maxbitalignment;
 int i960_last_maxbitalignment;
-
-/* Used to implement switching between MEM and ALU insn types, for better
-   C series performance.  */
-
-enum insn_types i960_last_insn_type;
 
 /* The leaf-procedure return register.  Set only if this is a leaf routine.  */
 
@@ -237,7 +226,6 @@ i960_frame_pointer_required(void)
 
 /* Return truth value of whether OP can be used as an operands in a three
    address arithmetic insn (such as add %o1,7,%l2) of mode MODE.  */
-
 int
 i960_arith_operand (rtx op, enum machine_mode mode)
 {
@@ -315,16 +303,26 @@ i960_signed_literal(rtx op, enum machine_mode )
 /* Return truth value of statement that OP is a symbolic memory
    operand of mode MODE.  */
 
-int
+bool
 i960_symbolic_memory_operand (rtx op, enum machine_mode)
 {
-  if (GET_CODE (op) == SUBREG)
-    op = SUBREG_REG (op);
-  if (GET_CODE (op) != MEM)
-    return 0;
-  op = XEXP (op, 0);
-  return (GET_CODE (op) == SYMBOL_REF || GET_CODE (op) == CONST
-	  || GET_CODE (op) == HIGH || GET_CODE (op) == LABEL_REF);
+    rtx tmp = op;
+    if (GET_CODE(tmp) == SUBREG) {
+        tmp = SUBREG_REG(tmp);
+    }
+    if (GET_CODE(tmp) != MEM) {
+        return false;
+    }
+    tmp = XEXP(tmp, 0);
+    switch (GET_CODE(tmp)) {
+        case SYMBOL_REF:
+        case CONST:
+        case HIGH:
+        case LABEL_REF:
+            return true;
+        default:
+            return false;
+    }
 }
 
 /* OP is an integer register or a constant.  */
@@ -460,9 +458,15 @@ i960_bitstr (unsigned int val, int* s, int* e)
 enum machine_mode
 i960_select_cc_mode (RTX_CODE op, rtx x)
 {
-  if (op == GTU || op == LTU || op == GEU || op == LEU)
-    return CC_UNSmode;
-  return CCmode;
+    switch (op) {
+        case GTU:
+        case LTU:
+        case GEU:
+        case LEU:
+            return CC_UNSmode;
+        default:
+            return CCmode;
+    }
 }
 
 /* X and Y are two things to compare using CODE.  Emit the compare insn and
@@ -471,9 +475,8 @@ i960_select_cc_mode (RTX_CODE op, rtx x)
 rtx
 i960_gen_compare_reg (enum rtx_code code, rtx x, rtx y)
 {
-  rtx cc_reg;
-  enum machine_mode ccmode = SELECT_CC_MODE (code, x, y);
-  enum machine_mode mode
+  machine_mode ccmode = SELECT_CC_MODE (code, x, y);
+  machine_mode mode
     = GET_MODE (x) == VOIDmode ? GET_MODE (y) : GET_MODE (x);
 
     if (mode == SImode) {
@@ -485,7 +488,7 @@ i960_gen_compare_reg (enum rtx_code code, rtx x, rtx y)
         }
     }
 
-  cc_reg = gen_rtx_REG (ccmode, 36);
+  rtx cc_reg = gen_rtx_REG (ccmode, 36);
   emit_insn (gen_rtx_SET (cc_reg,
 			  gen_rtx_COMPARE (ccmode, x, y)));
 

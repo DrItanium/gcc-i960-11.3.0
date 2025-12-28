@@ -51,7 +51,7 @@ extern int i960_fp_arith_operand (rtx, enum machine_mode);
 extern int i960_signed_arith_operand (rtx, enum machine_mode);
 extern int i960_fp_literal_one (rtx, enum machine_mode);
 extern int i960_fp_literal_zero (rtx, enum machine_mode);
-extern int i960_symbolic_memory_operand (rtx, enum machine_mode);
+extern bool i960_symbolic_memory_operand (rtx, enum machine_mode);
 extern int i960_arith32_operand (rtx, enum machine_mode);
 extern int i960_power2_operand (rtx, enum machine_mode);
 extern int i960_cmplpower2_operand (rtx, enum machine_mode);
