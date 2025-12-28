@@ -71,12 +71,6 @@ Boston, MA 02111-1307, USA.  */
 #define current_function_args_info (crtl->args.info)
 #define current_function_stdarg (cfun->stdarg)
 #define compat_STARTING_FRAME_OFFSET 64
-#ifdef compat_CONST_OK_FOR_LETTER_P 
-#warning "CONST_OK_FOR_LETTER_P needs to be reimplemented in gcc11 terms"
-#endif
-#ifdef compat_HARD_REGNO_MODE_OK
-#warning "HARD_REGNO_MODE_OK needs to be reimplemented in gcc11 terms"
-#endif
 static unsigned int i960_function_arg_boundary (machine_mode, const_tree);
 static void i960_output_function_prologue (FILE * /*, HOST_WIDE_INT*/);
 static void i960_output_function_epilogue (FILE * /*, HOST_WIDE_INT*/);
@@ -420,7 +414,6 @@ i960_is_mask (unsigned int val)
 int
 i960_bitstr (unsigned int val, int* s, int* e)
 {
-
     int start = -1;
     int end = -1;
     for (int i = 0; val != 0; val >>= 1, ++i) {
@@ -567,7 +560,8 @@ i960_emit_move_sequence (rtx* operands, enum machine_mode mode)
   
     if (GET_CODE (operands[0]) == MEM && 
         GET_CODE (operands[1]) != REG && 
-        (operands[1] != const0_rtx || current_function_args_size
+        (operands[1] != const0_rtx 
+                || current_function_args_size
                 || current_function_stdarg
                 || currently_expanding_to_rtl)) {
         /* Here we use the same test as movsi+1 pattern -- see i960.md.  */
@@ -1114,6 +1108,7 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
 
   ret_label++;
 
+  /// TODO add support for leaf functions and tail call optimizations
   /* Compute whether tail calls and leaf routine optimizations can be performed
      for this function.  */
 
@@ -1257,11 +1252,6 @@ i960_compute_frame_size (poly_int64 size)
 
   /* The STARTING_FRAME_OFFSET is totally hidden to us as far
      as size is concerned.  */
-  printf("%s: ctrl->outgoing_args_size: %d\n", __PRETTY_FUNCTION__, outgoing_args_size);
-  printf("%s: (%d + 15) & %x = %d\n", __PRETTY_FUNCTION__,
-          size,
-          -16,
-          (size + 15) & -16);
   actual_fsize = (size + 15) & (~0xF);
   actual_fsize += (outgoing_args_size + 15) & (~0xF);
 
@@ -1379,7 +1369,6 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
           regs[i] = -1;
           /* Count global registers that need saving.  */
           if (i < 16) {
-              printf("%s: need to save global register %d\n", __PRETTY_FUNCTION__, i);
               n_saved_regs++;
           }
       } else {
@@ -1441,8 +1430,6 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
         }
     }
 
-  printf("%s: get_frame_size(): %d\n", __PRETTY_FUNCTION__, get_frame_size());
-  printf("%s: n_remaining_saved_regs: %d\n", __PRETTY_FUNCTION__, n_remaining_saved_regs);
   actual_fsize = i960_compute_frame_size (get_frame_size()) + (4 * n_remaining_saved_regs);
 #if 0
   /* ??? The 1.2.1 compiler does this also.  This is meant to round the frame
@@ -2694,9 +2681,9 @@ i960_rtx_costs (rtx x, machine_mode, int code, int outer_code, int* total, bool)
     case CONST_DOUBLE:
       if (x == CONST0_RTX (DFmode) || x == CONST0_RTX (SFmode)
 	  || x == CONST1_RTX (DFmode) || x == CONST1_RTX (SFmode))
-	*total = 1;
+          *total = 1;
       else
-	*total = 12;
+          *total = 12;
       return true;
 
     default:
