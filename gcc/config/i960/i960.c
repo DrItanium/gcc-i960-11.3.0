@@ -1433,8 +1433,8 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
     }
 
   actual_fsize = i960_compute_frame_size (get_frame_size()) + (4 * n_remaining_saved_regs);
-  printf("%s: resultant size: %d\n", __PRETTY_FUNCTION__, actual_fsize);
-  printf("%s: resultant size w current args size: %d\n", __PRETTY_FUNCTION__, i960_compute_frame_size(get_frame_size() + current_function_args_size) + (4 * n_remaining_saved_regs));
+  //printf("%s: resultant size: %d\n", __PRETTY_FUNCTION__, actual_fsize);
+  //printf("%s: resultant size w current args size: %d\n", __PRETTY_FUNCTION__, i960_compute_frame_size(get_frame_size() + current_function_args_size) + (4 * n_remaining_saved_regs));
 #if 0
   /* ??? The 1.2.1 compiler does this also.  This is meant to round the frame
      size up to the nearest multiple of 16.  I don't know whether this is
