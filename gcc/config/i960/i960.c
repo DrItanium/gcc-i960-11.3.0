@@ -1362,6 +1362,8 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
   struct reg_group local_reg_groups [16];
 
 
+  // figure out which of the global registers that are less than 12 which are
+  // unused need to be saved.
   for (i = 0; i < FIRST_PSEUDO_REGISTER; i++) {
       if (df_regs_ever_live_p(i) && ((!call_used_regs[i]) || (i > 7 && i < 12))
           /* No need to save the static chain pointer.  */
@@ -1431,6 +1433,8 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
     }
 
   actual_fsize = i960_compute_frame_size (get_frame_size()) + (4 * n_remaining_saved_regs);
+  printf("%s: resultant size: %d\n", __PRETTY_FUNCTION__, actual_fsize);
+  printf("%s: resultant size w current args size: %d\n", __PRETTY_FUNCTION__, i960_compute_frame_size(get_frame_size() + current_function_args_size) + (4 * n_remaining_saved_regs));
 #if 0
   /* ??? The 1.2.1 compiler does this also.  This is meant to round the frame
      size up to the nearest multiple of 16.  I don't know whether this is
