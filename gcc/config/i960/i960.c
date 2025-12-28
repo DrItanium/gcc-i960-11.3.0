@@ -509,9 +509,7 @@ i960_address_cost (rtx x, machine_mode, addr_space_t, bool)
   }
 
   /* This is a MEMA operand -- it's free.  */
-  if (GET_CODE (x) == CONST_INT
-      && INTVAL (x) >= 0
-      && INTVAL (x) < 4096) {
+  if (GET_CODE (x) == CONST_INT && INTVAL (x) >= 0 && INTVAL (x) < 4096) {
       return 0;
   }
 
@@ -531,7 +529,7 @@ i960_address_cost (rtx x, machine_mode, addr_space_t, bool)
               return 2;
           }
           if (GET_CODE (offset) == CONST_INT) {
-              if ((unsigned)INTVAL (offset) < 2047) {
+              if ((unsigned)INTVAL(offset) < 2047) {
                   return 2;
               }
               return 4;
