@@ -1241,10 +1241,8 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
       fprintf (file, "%s.lf:\n", (name[0] == '*' ? &name[1] : name));
       fprintf (file, "\tmov    g14,g%d\n", i960_leaf_ret_reg);
       fprintf (file, "\tmov    0,g14\n");
-      i960_last_insn_type = I_TYPE_REG;
   } else {
       ASM_OUTPUT_LABEL (file, name);
-      i960_last_insn_type = I_TYPE_CTRL; 
   }
 }
 
@@ -2639,74 +2637,6 @@ i960_secondary_reload_class (enum reg_class theClass, enum machine_mode mode, rt
   return LOCAL_OR_GLOBAL_REGS;
 }
 
-/* Look at the opcode P, and set i96_last_insn_type to indicate which
-   function unit it executed on.  */
-
-/* ??? This would make more sense as an attribute.  */
-
-void
-i960_scan_opcode (const char* p)
-{
-  switch (*p)
-    {
-    case 'a':
-    case 'd':
-    case 'e':
-    case 'm':
-    case 'n':
-    case 'o':
-    case 'r':
-      /* Ret is not actually of type REG, but it won't matter, because no
-	 insn will ever follow it.  */
-    case 'u':
-    case 'x':
-      i960_last_insn_type = I_TYPE_REG;
-      break;
-
-    case 'b':
-      if (p[1] == 'x' || p[3] == 'x')
-        i960_last_insn_type = I_TYPE_MEM;
-      i960_last_insn_type = I_TYPE_CTRL;
-      break;
-
-    case 'f':
-    case 't':
-      i960_last_insn_type = I_TYPE_CTRL;
-      break;
-
-    case 'c':
-      if (p[1] == 'a')
-	{
-	  if (p[4] == 'x')
-	    i960_last_insn_type = I_TYPE_MEM;
-	  else
-	    i960_last_insn_type = I_TYPE_CTRL;
-	}
-      else if (p[1] == 'm')
-	{
-	  if (p[3] == 'd')
-	    i960_last_insn_type = I_TYPE_REG;
-	  else if (p[4] == 'b' || p[4] == 'j')
-	    i960_last_insn_type = I_TYPE_CTRL;
-	  else
-	    i960_last_insn_type = I_TYPE_REG;
-	}
-      else
-        i960_last_insn_type = I_TYPE_REG;
-      break;
-
-    case 'l':
-      i960_last_insn_type = I_TYPE_MEM;
-      break;
-
-    case 's':
-      if (p[1] == 't')
-        i960_last_insn_type = I_TYPE_MEM;
-      else
-        i960_last_insn_type = I_TYPE_REG;
-      break;
-    }
-}
 
 static void
 i960_output_mi_thunk (FILE* file, tree /*thunk*/, HOST_WIDE_INT delta, HOST_WIDE_INT vcall_offset, tree function)

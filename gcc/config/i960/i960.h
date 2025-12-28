@@ -782,18 +782,5 @@ struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
    available.  */
 #define SETUP_FRAME_ADDRESSES()		\
   emit_insn (gen_flush_register_windows ())
-/* Instruction type definitions.  Used to alternate instructions types for
-   better performance on the C series chips.  */
-
-enum insn_types { I_TYPE_REG, I_TYPE_MEM, I_TYPE_CTRL };
-
-/* Holds the insn type of the last insn output to the assembly file.  */
-
-extern enum insn_types i960_last_insn_type;
-
-/* Parse opcodes, and set the insn last insn type based on them.  */
-
-#define ASM_OUTPUT_OPCODE(FILE, INSN)	i960_scan_opcode (INSN)
-
 
 #endif
