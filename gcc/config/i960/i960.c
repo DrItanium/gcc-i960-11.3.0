@@ -1287,13 +1287,9 @@ i960_compute_frame_size (poly_int64 size)
      as size is concerned.  */
   actual_fsize = tryBumpFrameSize(size);
   actual_fsize += tryBumpFrameSize(crtl->outgoing_args_size);
-  actual_fsize += tryBumpFrameSize(current_function_args_size);
 #if 0
-  printf("%s: Alignment Components:\n\tsize: %d\n\toutgoing_args: %d\n\tcurr_func_args_size: %d\n",
-          __PRETTY_FUNCTION__,
-          size,
-          crtl->outgoing_args_size,
-          current_function_args_size);
+  // I thought I might need this but it turns out that the answer is NO!
+  //actual_fsize += tryBumpFrameSize(current_function_args_size);
 #endif
   return actual_fsize;
 }
