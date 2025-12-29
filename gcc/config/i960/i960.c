@@ -1274,21 +1274,27 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
 }
 
 namespace {
-constexpr int tryBumpFrameSize(poly_int64 value) noexcept { return (value + 15) & (~0xF); }
+constexpr poly_int64 tryBumpFrameSize(poly_int64 value) noexcept { return (value + 15) & (~0xF); }
 
 }
 /* Compute and return the frame size.  */
 int
 i960_compute_frame_size (poly_int64 size)
 {
-  int actual_fsize = 0;
+  poly_int64 actual_fsize = 0;
 
   /* The STARTING_FRAME_OFFSET is totally hidden to us as far
      as size is concerned.  */
   actual_fsize = tryBumpFrameSize(size);
   actual_fsize += tryBumpFrameSize(crtl->outgoing_args_size);
   actual_fsize += tryBumpFrameSize(current_function_args_size);
-
+#if 0
+  printf("%s: Alignment Components:\n\tsize: %d\n\toutgoing_args: %d\n\tcurr_func_args_size: %d\n",
+          __PRETTY_FUNCTION__,
+          size,
+          crtl->outgoing_args_size,
+          current_function_args_size);
+#endif
   return actual_fsize;
 }
 
@@ -2270,8 +2276,6 @@ i960_function_arg_advance (cumulative_args_t cat, const function_arg_info& info)
     }
     else
         cum->ca_nregparms = ROUND_PARM (cum->ca_nregparms, align) + size;
-    //printf("%s: cum->ca_nregparms = %d\n", __PRETTY_FUNCTION__, cum->ca_nregparms);
-    //printf("%s: cum->ca_nstackparms = %d\n", __PRETTY_FUNCTION__, cum->ca_nstackparms);
 }
 
 /* Return the register that the argument described by MODE and TYPE is
