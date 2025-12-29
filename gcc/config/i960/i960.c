@@ -1287,6 +1287,7 @@ i960_compute_frame_size (poly_int64 size)
      as size is concerned.  */
   actual_fsize = tryBumpFrameSize(size);
   actual_fsize += tryBumpFrameSize(crtl->outgoing_args_size);
+  actual_fsize += tryBumpFrameSize(current_function_args_size);
 
   return actual_fsize;
 }
@@ -1470,7 +1471,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
   printf("%s: outgoing args size: %d\n", __PRETTY_FUNCTION__, crtl->outgoing_args_size);
   printf("%s: current function args size: %d\n", __PRETTY_FUNCTION__, current_function_args_size);
   printf("%s: non bumped frame size: %d\n", __PRETTY_FUNCTION__, get_frame_size() + crtl->outgoing_args_size + current_function_args_size);
-  printf("%s: resultant size w current args size: %d\n", __PRETTY_FUNCTION__, i960_compute_frame_size(get_frame_size() + current_function_args_size) + (4 * n_remaining_saved_regs));
+  printf("%s: actual_fsize: %d\n", __PRETTY_FUNCTION__, actual_fsize);
 #if 0
   /* ??? The 1.2.1 compiler does this also.  This is meant to round the frame
      size up to the nearest multiple of 16.  I don't know whether this is
@@ -2630,22 +2631,37 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
 int
 i960_reg_parm_stack_space (tree fndecl)
 {
+#if 1
   /* In this case, we are called from emit_library_call, and we don't need
      to pretend we have more space for parameters than what's apparent.  */
-  if (!fndecl)
+  if (!fndecl) {
+      printf("!fndecl so return 0\n");
     return 0;
+  }
 
   /* In this case, we are called from locate_and_pad_parms when we're
      not IN_REGS, so we have an arg block.  */
-  if (fndecl != current_function_decl)
+  if (fndecl != current_function_decl) {
+      printf("fndecl != current_function_decl so return 48\n");
     return 48;
+  }
 
   /* Otherwise, we have an arg block if the current function has more than
      48 bytes of parameters.  */
-  if (current_function_args_size != 0 || VARARGS_STDARG_FUNCTION (fndecl))
+  if (current_function_args_size != 0 || VARARGS_STDARG_FUNCTION (fndecl)) {
+      if (current_function_args_size != 0) {
+          printf("current_function_args_size(%d) != 0 so return 48\n", current_function_args_size);
+      }
+      if (VARARGS_STDARG_FUNCTION(fndecl)) {
+          printf("fndecl is VARARGS_STDARG_FUNCTION so return 48\n");
+      }
     return 48;
-
+  }
+  printf("nothing matched so return 0\n");
   return 0;
+#else
+  return 48; // just always return 48 since it is cached now
+#endif
 }
 
 /* Return the register class of a scratch register needed to copy IN into
