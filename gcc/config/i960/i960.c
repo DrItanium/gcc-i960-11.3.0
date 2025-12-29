@@ -552,14 +552,42 @@ i960_address_cost (rtx x, machine_mode, addr_space_t, bool)
    Return true if we have written out everything that needs to be done to
    do the move.  Otherwise, return false and the caller will emit the move
    normally.  */
+namespace {
+constexpr bool
+isMultiWordSequence(unsigned int value) noexcept {
+    return value > UNITS_PER_WORD;
+}
+constexpr bool isNonPseudoRegister(unsigned int value) noexcept {
+    return value < FIRST_PSEUDO_REGISTER;
+}
+constexpr bool isPseudoRegister(unsigned int value) noexcept {
+    return value >= FIRST_PSEUDO_REGISTER;
+}
 
+template<typename T>
+bool isOperandType(T value, decltype(MEM) kind) noexcept {
+    return GET_CODE(value) == kind;
+}
+template<typename T> bool isMemoryOperand(T value) noexcept { return isOperandType<T>(value, MEM); }
+template<typename T> bool isRegisterOperand(T value) noexcept { return isOperandType<T>(value, REG); }
+template<typename T>
+bool isNonPseudoRegister(T value) noexcept {
+    return isNonPseudoRegister(REGNO(value));
+}
+template<typename T>
+bool isPseudoRegister(T value) noexcept {
+    return isPseudoRegister(REGNO(value));
+}
+constexpr bool isMultiWordSequence(machine_mode mode) noexcept {
+    return isMultiWordSequence(GET_MODE_SIZE(mode));
+}
+}
 bool
-i960_emit_move_sequence (rtx* operands, enum machine_mode mode)
+i960_emit_move_sequence (rtx* operands, machine_mode mode)
 {
   /* We can only store registers to memory.  */
   
-    if (GET_CODE (operands[0]) == MEM && 
-        GET_CODE (operands[1]) != REG && 
+    if (isMemoryOperand(operands[0]) && !isRegisterOperand(operands[1]) &&
         (operands[1] != const0_rtx 
                 || current_function_args_size
                 || current_function_stdarg
@@ -577,12 +605,12 @@ i960_emit_move_sequence (rtx* operands, enum machine_mode mode)
   /* ??? We must also handle stores to pseudos here, because the pseudo may be
      replaced with a MEM later.  This would be cleaner if we didn't have
      a separate pattern for unaligned DImode/TImode stores.  */
-  if (GET_MODE_SIZE(mode) > UNITS_PER_WORD
-      && (GET_CODE (operands[0]) == MEM
-	  || (GET_CODE (operands[0]) == REG
-	      && REGNO (operands[0]) >= FIRST_PSEUDO_REGISTER))
-      && GET_CODE (operands[1]) == REG
-      && REGNO (operands[1]) < FIRST_PSEUDO_REGISTER
+  if (isMultiWordSequence(mode)
+      && (isMemoryOperand(operands[0]) 
+	  || (isRegisterOperand(operands[0])
+          && isPseudoRegister(REGNO(operands[0]))))
+      && isRegisterOperand(operands[1])
+      && isNonPseudoRegister(operands[1])
       && ! TARGET_HARD_REGNO_MODE_OK (REGNO (operands[1]), mode))
     {
         // what the hell is this?
