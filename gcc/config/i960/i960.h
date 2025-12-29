@@ -420,7 +420,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    goes at a more negative offset in the frame.  */
 #define FRAME_GROWS_DOWNWARD 0
 
-
+#define ARGS_GROW_DOWNWARD 0
 /* If we generate an insn to push BYTES bytes,
    this says how many the stack pointer really advances by.
    On 80960, don't define this because there are no push insns.  */
@@ -432,7 +432,7 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    allocated for it.  However, when args are passed in the
    stack, space is allocated for every register parameter.  */
 #define REG_PARM_STACK_SPACE(DECL) i960_reg_parm_stack_space (DECL)
-#define OUTGOING_REG_PARM_STACK_SPACE(FNTYPE) 0
+#define OUTGOING_REG_PARM_STACK_SPACE(FNTYPE) 1
 
 /* Keep the stack pointer constant throughout the function.  */
 #define ACCUMULATE_OUTGOING_ARGS 1
