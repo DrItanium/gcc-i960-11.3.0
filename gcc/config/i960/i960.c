@@ -2503,6 +2503,16 @@ i960_build_builtin_va_list ()
  * statically determine lifetimes and such.
  *
  * In fact, we need to rewrite the stack frame tracking data.
+ * ------
+ * 2025/12/29
+ *
+ * After further examination, the argument pointer is being properly setup so I
+ * have reverted to using g14. Even the i960 blue book talks about this as
+ * well. I am also just leaving g13 alone for now as the "struct pointer" which
+ * is no longer a thing in modern gcc but that's fine. What is an actual
+ * problem is that the frame size is broken, fixing this will be the next step
+ * that I need to work with.
+ *
  */
 void
 i960_va_start (tree valist, rtx nextarg)
