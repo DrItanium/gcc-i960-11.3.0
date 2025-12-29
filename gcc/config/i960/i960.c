@@ -1273,18 +1273,20 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
   }
 }
 
-/* Compute and return the frame size.  */
+namespace {
+constexpr int tryBumpFrameSize(poly_int64 value) noexcept { return (value + 15) & (~0xF); }
 
+}
+/* Compute and return the frame size.  */
 int
 i960_compute_frame_size (poly_int64 size)
 {
   int actual_fsize = 0;
-  int outgoing_args_size = crtl->outgoing_args_size;
 
   /* The STARTING_FRAME_OFFSET is totally hidden to us as far
      as size is concerned.  */
-  actual_fsize = (size + 15) & (~0xF);
-  actual_fsize += (outgoing_args_size + 15) & (~0xF);
+  actual_fsize = tryBumpFrameSize(size);
+  actual_fsize += tryBumpFrameSize(crtl->outgoing_args_size);
 
   return actual_fsize;
 }
@@ -2779,11 +2781,11 @@ i960_hard_regno_mode_ok (unsigned int regno, machine_mode mode) {
 
             case DImode:
             case DFmode:
-                return (regno & 1) == 0;
+                return isLongRegisterAligned(regno);
 
             case TImode:
             case TFmode:
-                return (regno & 3) == 0;
+                return isQuadRegisterAligned(regno);
 
             default:
                 return true;
