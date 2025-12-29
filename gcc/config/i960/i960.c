@@ -661,13 +661,18 @@ i960_emit_move_sequence (rtx* operands, machine_mode mode)
   ((TARGET_NUMERICS) &&							\
    (((C) == 'G' && (VALUE) == CONST0_RTX (GET_MODE (VALUE)))		\
     || ((C) == 'H' && ((VALUE) == CONST1_RTX (GET_MODE (VALUE))))))
+constexpr bool pairMatches(rtx_code a, rtx_code aExpect, rtx_code b, rtx_code bExpect) noexcept {
+    return a == aExpect && b == bExpect;
+}
+bool pairMatches(rtx a, rtx_code aExpect, rtx b, rtx_code bExpect) noexcept {
+    return pairMatches(GET_CODE(a), aExpect, GET_CODE(b), bExpect);
+}
 /* Output assembler to move a double word value.  */
-
 const char *
 i960_output_move_double (rtx dst, rtx src) {
     rtx operands[5];
     /// @todo cleanup the if conditionals?
-    if (GET_CODE (dst) == REG && GET_CODE (src) == REG) {
+    if (pairMatches(dst, REG, src, REG)) {
         if ((REGNO (src) & 1) || (REGNO (dst) & 1)) {
             /* We normally copy the low-numbered register first.  However, if
                the second source register is the same as the first destination
@@ -680,16 +685,14 @@ i960_output_move_double (rtx dst, rtx src) {
         } else {
             return "movl	%1,%0 # m4";
         }
-    } else if (GET_CODE (dst) == REG
-            && GET_CODE (src) == CONST_INT
+    } else if (pairMatches(dst, REG, src, CONST_INT)
             && TARGET_CONST_OK_FOR_LETTER_P(INTVAL (src), 'I')) {
         if (REGNO (dst) & 1) {
             return "mov	%1,%0\n\tmov	0,%D0";
         } else {
             return "movl	%1,%0";
         }
-    } else if (GET_CODE (dst) == REG
-            && GET_CODE (src) == MEM) {
+    } else if (pairMatches(dst, REG, src, MEM)) {
         if (REGNO (dst) & 1) {
             /* One can optimize a few cases here, but you have to be
                careful of clobbering registers used in the address and
@@ -706,7 +709,7 @@ i960_output_move_double (rtx dst, rtx src) {
         } else {
             return "ldl	%1,%0 # load long 3";
         }
-    } else if (GET_CODE (dst) == MEM && GET_CODE (src) == REG) {
+    } else if (pairMatches(dst, MEM, src, REG)) {
         if (REGNO (src) & 1) {
             operands[0] = dst;
             operands[1] = adjust_address (dst, word_mode, UNITS_PER_WORD);
