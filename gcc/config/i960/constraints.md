@@ -25,6 +25,16 @@
 (define_register_constraint "l" "LOCAL_REGS" "Local registers (r0-r15)")
 (define_register_constraint "b" "GLOBAL_REGS" "Global registers (g0-g15)")
 (define_register_constraint "d" "LOCAL_OR_GLOBAL_REGS" "Any local or global register")
+(define_constraint "G"
+ "constant 0.0"
+ (and (match_code "const_double")
+      (match_test "((TARGET_NUMERICS) && (op == CONST0_RTX(GET_MODE(op))))")))
+
+(define_constraint "H"
+ "constant 1.0"
+ (and (match_code "const_double")
+      (match_test "((TARGET_NUMERICS) && (op == CONST1_RTX(GET_MODE(op))))")))
+
 (define_constraint "I" 
  "Literal values [0, 31]"
  (and (match_code "const_int")
@@ -41,18 +51,13 @@
  (and (match_code "const_int")
       (match_test "IN_RANGE(ival, -31, 0)")))
 
+(define_constraint "L"
+ "Literal that is too large to fit in smaller groups (LDA form)"
+ (and (match_code "const_int")
+      (match_test "(((ival) < -31) || ((ival > 31)))")))
 
 (define_constraint "M"
  "Defined in i960.h -32...0 ????"
  (and (match_code "const_int")
       (match_test "IN_RANGE(ival, -32, 0)")))
 
-(define_constraint "G"
- "constant 0.0"
- (and (match_code "const_double")
-      (match_test "((TARGET_NUMERICS) && (op == CONST0_RTX(GET_MODE(op))))")))
-
-(define_constraint "H"
- "constant 1.0"
- (and (match_code "const_double")
-      (match_test "((TARGET_NUMERICS) && (op == CONST1_RTX(GET_MODE(op))))")))

@@ -1087,7 +1087,7 @@ i960_output_ldconst (rtx dst, rtx src)
    
      and any 2 instruction cases that might be worthwhile  */
     // need to convert a 64-bit constant out to a 32-bit constant
-    return "ldconst %1, %0";
+    return "ldconst %a1, %0";
 }
 
 /* Determine if there is an opportunity for a bypass optimization.

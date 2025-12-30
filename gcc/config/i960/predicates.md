@@ -38,6 +38,9 @@
  (define_predicate "signed_literal"
     (and (match_code "const_int")
          (match_test "INTVAL(op) > -32 && INTVAL(op) < 32")))
+ (define_predicate "lda_literal"
+  (and (match_code "const_int")
+       (match_test "(INTVAL(op) < -31) || (INTVAL(op) > 31)")))
 (define_predicate "arith_operand"
     (ior (match_operand 0 "register_operand")
          (match_operand 0 "literal")))
