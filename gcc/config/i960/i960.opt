@@ -80,6 +80,10 @@ msc
 Target RejectNegative Mask(S_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS) Mask(PROTECTED)
 ; i960 SC CPU
 
+mmc
+Target RejectNegative Mask(M_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS) Mask(PROTECTED)
+; i960 MC CPU
+
 mca
 Target RejectNegative Mask(C_SERIES) Mask(COMPLEX_ADDR) Mask(BRANCH_PREDICT) Mask(CODE_ALIGN)
 ; i960 CA CPU
@@ -91,7 +95,7 @@ Target RejectNegative Mask(C_SERIES) Mask(NUMERICS) Mask(COMPLEX_ADDR) Mask(BRAN
 mcc
 Target RejectNegative Mask(C_SERIES) Mask(PROTECTED) Mask(NUMERICS) Mask(COMPLEX_ADDR) Mask(BRANCH_PREDICT) Mask(CODE_ALIGN)
 ; i960 CC CPU
+
+
+
 ; @todo add support for other cpus (MC, Cx, Jx, Hx, Rx, Vx)
-
-
-
