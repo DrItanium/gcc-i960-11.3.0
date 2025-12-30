@@ -149,39 +149,43 @@ i960_option_override (void)
 void
 i960_initialize ()
 {
-    //if (TARGET_K_SERIES && TARGET_C_SERIES) {
-    //    warning (0, "conflicting architectures defined - using C series");
-    //    target_flags &= ~TARGET_FLAG_K_SERIES;
-    //}
-    //if (TARGET_K_SERIES && TARGET_MC) {
-    //    warning (0, "conflicting architectures defined - using K series");
-    //    target_flags &= ~TARGET_FLAG_MC;
-    //}
-    //if (TARGET_C_SERIES && TARGET_MC) {
-    //    warning (0, "conflicting architectures defined - using C series");
-    //    target_flags &= ~TARGET_FLAG_MC;
-    //}
-    //if (TARGET_IC_COMPAT3_0) {
-    //    flag_short_enums = 1;
-    //    flag_signed_char = 1;
-    //    target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
-    //    if (TARGET_IC_COMPAT2_0) {
-    //        warning (0, "iC2.0 and iC3.0 are incompatible - using iC3.0");
-    //        target_flags &= ~TARGET_FLAG_IC_COMPAT2_0;
-    //    }
-    //}
-    //if (TARGET_IC_COMPAT2_0) {
-    //    flag_signed_char = 1;
-    //    target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
-    //}
+#if 0
+    if (TARGET_K_SERIES && TARGET_C_SERIES) {
+        warning (0, "conflicting architectures defined - using C series");
+        target_flags &= ~TARGET_FLAG_K_SERIES;
+    }
+    if (TARGET_K_SERIES && TARGET_MC) {
+        warning (0, "conflicting architectures defined - using K series");
+        target_flags &= ~TARGET_FLAG_MC;
+    }
+    if (TARGET_C_SERIES && TARGET_MC) {
+        warning (0, "conflicting architectures defined - using C series");
+        target_flags &= ~TARGET_FLAG_MC;
+    }
+    if (TARGET_IC_COMPAT3_0) {
+        flag_short_enums = 1;
+        flag_signed_char = 1;
+        target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
+        if (TARGET_IC_COMPAT2_0) {
+            warning (0, "iC2.0 and iC3.0 are incompatible - using iC3.0");
+            target_flags &= ~TARGET_FLAG_IC_COMPAT2_0;
+        }
+    }
+    if (TARGET_IC_COMPAT2_0) {
+        flag_signed_char = 1;
+        target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
+    }
 
-    //if (TARGET_IC_COMPAT2_0) {
-    //    i960_maxbitalignment = 8;
-    //    i960_last_maxbitalignment = 128;
-    //} else {
+    if (TARGET_IC_COMPAT2_0) {
+        i960_maxbitalignment = 8;
+        i960_last_maxbitalignment = 128;
+    } else {
+#endif
         i960_maxbitalignment = 128;
         i960_last_maxbitalignment = 8;
-    //}
+#if 0
+    }
+#endif
 }
 
 static void
