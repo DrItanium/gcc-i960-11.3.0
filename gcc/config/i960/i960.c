@@ -1083,7 +1083,7 @@ i960_output_ldconst (rtx dst, rtx src)
    
      and any 2 instruction cases that might be worthwhile  */
     // need to convert a 64-bit constant out to a 32-bit constant
-    return "ldconst %a1, %0";
+    return "ldconst %1, %0";
 }
 
 /* Determine if there is an opportunity for a bypass optimization.
@@ -2408,7 +2408,7 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& arg
       /* ??? Note that we unnecessarily store one extra register for stdarg
 	 fns.  We could optimize this, but it's kept as for now.  */
       regblock = gen_rtx_MEM (BLKmode,
-			      plus_constant (Pmode/* info.mode */, arg_pointer_rtx, first_reg * 4));
+			      plus_constant (Pmode/* info.mode */, fake_arg_pointer_rtx, first_reg * 4));
       set_mem_alias_set (regblock, get_varargs_alias_set ());
       set_mem_align (regblock, BITS_PER_WORD);
       move_block_from_reg (first_reg, regblock, NPARM_REGS - first_reg);
