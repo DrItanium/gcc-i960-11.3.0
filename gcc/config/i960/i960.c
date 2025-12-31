@@ -2519,6 +2519,31 @@ i960_build_builtin_va_list ()
 void
 i960_va_start (tree valist, rtx nextarg)
 {
+#if 0
+  tree s, t, base, num;
+  rtx fake_arg_pointer_rtx;
+
+  /* The array type always decays to a pointer before we get here, so we
+     can't use ARRAY_REF.  */
+  base = build1 (INDIRECT_REF, unsigned_type_node, valist);
+  num = build1 (INDIRECT_REF, unsigned_type_node,
+		build (PLUS_EXPR, unsigned_type_node, valist,
+		       TYPE_SIZE_UNIT (TREE_TYPE (valist))));
+
+  /* Use a different rtx than arg_pointer_rtx so that cse and friends
+     can go on believing that the argument pointer can never be zero.  */
+  fake_arg_pointer_rtx = gen_raw_REG (Pmode, ARG_POINTER_REGNUM);
+  s = make_tree (unsigned_type_node, fake_arg_pointer_rtx);
+  t = build (MODIFY_EXPR, unsigned_type_node, base, s);
+  TREE_SIDE_EFFECTS (t) = 1;
+  expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
+
+  s = build_int_2 ((current_function_args_info.ca_nregparms
+		    + current_function_args_info.ca_nstackparms) * 4, 0);
+  t = build (MODIFY_EXPR, unsigned_type_node, num, s);
+  TREE_SIDE_EFFECTS (t) = 1;
+  expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
+#else
     tree t;
     // st g14, 64(fp)  # arg0 / base
     // mov 4, g4
@@ -2541,6 +2566,7 @@ i960_va_start (tree valist, rtx nextarg)
                build_int_cst(NULL_TREE, (current_function_args_info.ca_nregparms + current_function_args_info.ca_nstackparms) * UNITS_PER_WORD));
     TREE_SIDE_EFFECTS(t) = 1;
     expand_expr(t, const0_rtx, VOIDmode, EXPAND_NORMAL);
+#endif
 }
 
 static tree
