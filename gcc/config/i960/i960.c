@@ -2423,7 +2423,7 @@ i960_setup_incoming_varargs (cumulative_args_t cat, const function_arg_info& arg
 static tree
 i960_build_builtin_va_list ()
 {
-#if 0
+#if 1
     // generate an array that can accept up to one item
   return build_array_type (unsigned_type_node,
 			   build_index_type (size_one_node));
