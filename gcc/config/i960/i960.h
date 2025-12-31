@@ -53,17 +53,17 @@ Boston, MA 02111-1307, USA.  */
 			%{mca:-D__i960CA}%{mcc:-D__i960CC}\
 			%{mcf:-D__i960CF}}\
 	%{msoft-float:-D_SOFT_FLOAT}\
-	%{mka:-D__i960KA__ -D__i960Kx__}\
-	%{mkb:-D__i960KB__ -D__i960Kx__}\
-	%{msa:-D__i960SA__ -D__i960Sx__}\
-	%{msb:-D__i960SB__ -D__i960Sx__}\
-	%{mmc:-D__i960MC__ -D__i960Mx__}\
-	%{mca:-D__i960CA__ -D__i960Cx__}\
-	%{mcc:-D__i960CC__ -D__i960Cx__}\
-	%{mcf:-D__i960CF__ -D__i960Cx__}\
-    %{mja:-D__i960JA__ -D__i960Jx__}\
-    %{mjd:-D__i960JD__ -D__i960Jx__}\
-    %{mjf:-D__i960JF__ -D__i960Jx__}\
+	%{mka:-D__i960KA__ -D__i960Kx__ -mcomplex-addr}\
+	%{mkb:-D__i960KB__ -D__i960Kx__ -mcomplex-addr -mnumerics}\
+	%{msa:-D__i960SA__ -D__i960Sx__ -mcomplex-addr}\
+	%{msb:-D__i960SB__ -D__i960Sx__ -mcomplex-addr -mnumerics}\
+	%{mmc:-D__i960MC__ -D__i960Mx__ -mcomplex-addr -mnumerics -mprotected}\
+	%{mca:-D__i960CA__ -D__i960Cx__ -mcomplex-addr -mbranch-predict -mcode-align}\
+	%{mcc:-D__i960CC__ -D__i960Cx__ -mcomplex-addr -mbranch-predict -mcode-align}\
+	%{mcf:-D__i960CF__ -D__i960Cx__ -mcomplex-addr -mbranch-predict -mcode-align}\
+    %{mja:-D__i960JA__ -D__i960Jx__ -mcomplex-addr -mcode-align}\
+    %{mjd:-D__i960JD__ -D__i960Jx__ -mcomplex-addr -mcode-align}\
+    %{mjf:-D__i960JF__ -D__i960Jx__ -mcomplex-addr -mcode-align}\
 	%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:\
 		%{!mcc:%{!mcf:-D__i960_KB -D__i960KB__ %{mic*:-D__i960KB}}}}}}}}}\
 	%{mlong-double-64:-D__LONG_DOUBLE_64__}"

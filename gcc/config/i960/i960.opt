@@ -34,132 +34,58 @@ mprotected
 Target Mask(PROTECTED)
 Enable i960 Protected Extensions (OS Scheduling + String operations)
 
-mno-protected
-Target RejectNegative InverseMask(PROTECTED)
-Enable i960 Protected Extensions
-
 mtail-call
 Target Mask(TAILCALL)
-
-mno-tail-call
-Target RejectNegative InverseMask(TAILCALL)
 
 mleaf-procedures
 Target Mask(LEAFPROC)
 
-mno-leaf-procedures
-Target RejectNegative InverseMask(LEAFPROC)
 
 mcomplex-addr
 Target Mask(COMPLEX_ADDR)
 Enable Complex addressing modes
 
-mno-complex-addr
-Target RejectNegative InverseMask(COMPLEX_ADDR)
-Disable Complex Addressing Modes
 
 mcode-align
 Target Mask(CODE_ALIGN)
 Enable Code Alignment
 
-mno-code-align
-Target RejectNegative InverseMask(CODE_ALIGN)
+mbranch-predict
+Target Mask(BRANCH_PREDICT)
+Enable Branch Prediction Bits
+
 
 
 mka
-Target RejectNegative Mask(K_SERIES) 
-
-mka
-Target RejectNegative Mask(COMPLEX_ADDR)
+Target RejectNegative Mask(K_SERIES) Mask(COMPLEX_ADDR)
 ; i960 KA CPU Target
 
 mkb
-Target RejectNegative Mask(K_SERIES)
-; i960 KB CPU Target
-
-mkb
-Target RejectNegative Mask(COMPLEX_ADDR)
-; i960 KB CPU Target
-mkb
-Target RejectNegative Mask(NUMERICS) 
+Target RejectNegative Mask(K_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS)
 ; i960 KB CPU Target
 
 mkc
-Target RejectNegative Mask(K_SERIES)
-; i960 KB CPU Target
-
-mkc
-Target RejectNegative Mask(COMPLEX_ADDR)
-; i960 KB CPU Target
-
-mkc
-Target RejectNegative Mask(NUMERICS) 
-; i960 KB CPU Target
-
-mkc
-Target RejectNegative Mask(PROTECTED) 
-; i960 KB CPU Target
-
+Target RejectNegative Mask(K_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS) Mask(PROTECTED)
+; i960 KC CPU (Not real) Target
 
 msa
-Target RejectNegative Mask(S_SERIES)
-; i960 SA CPU
-msa
-Target RejectNegative Mask(COMPLEX_ADDR)
+Target RejectNegative Mask(S_SERIES) Mask(COMPLEX_ADDR)
 ; i960 SA CPU
 
-
 msb
-Target RejectNegative Mask(S_SERIES) 
-; i960 SC CPU
-msb
-Target RejectNegative Mask(COMPLEX_ADDR) 
-; i960 SC CPU
-msb
-Target RejectNegative Mask(NUMERICS) 
-; i960 SC CPU
+Target RejectNegative Mask(S_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS)
+; i960 SB CPU
 
 msc
-Target RejectNegative Mask(S_SERIES) 
-; i960 SC CPU
-msc
-Target RejectNegative Mask(COMPLEX_ADDR) 
-; i960 SC CPU
-msc
-Target RejectNegative Mask(NUMERICS) 
-; i960 SC CPU
-msc
-Target RejectNegative Mask(PROTECTED) 
+Target RejectNegative Mask(S_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS) Mask(PROTECTED)
 ; i960 SC CPU
 
 mmc
-Target RejectNegative Mask(M_SERIES) 
-; i960 MC CPU
-mmc
-Target RejectNegative Mask(COMPLEX_ADDR) 
-; i960 MC CPU
-
-mmc
-Target RejectNegative Mask(NUMERICS)
-; i960 MC CPU
-
-mmc
-Target RejectNegative Mask(PROTECTED) 
+Target RejectNegative Mask(M_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS) Mask(PROTECTED) Mask(TARGET_MC)
 ; i960 MC CPU
 
 mca
-Target RejectNegative Mask(C_SERIES) 
-; i960 CA CPU
-
-mca
-Target RejectNegative Mask(COMPLEX_ADDR) 
-; i960 CA CPU
-
-mca
-Target RejectNegative Mask(BRANCH_PREDICT) 
-; i960 CA CPU
-mca
-Target RejectNegative Mask(CODE_ALIGN)
+Target RejectNegative Mask(C_SERIES) Mask(COMPLEX_ADDR) Mask(BRANCH_PREDICT) Mask(CODE_ALIGN)
 ; i960 CA CPU
 
 ; @todo add support for other cpus (Jx, Hx, Rx, Vx)
