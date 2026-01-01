@@ -432,6 +432,10 @@ enum reg_class { NO_REGS, GLOBAL_REGS, LOCAL_REGS, LOCAL_OR_GLOBAL_REGS,
    allocated for it.  However, when args are passed in the
    stack, space is allocated for every register parameter.  */
 #define REG_PARM_STACK_SPACE(DECL) i960_reg_parm_stack_space (DECL)
+/* Define to a non zero value if it is the responsibility of the caller to
+ * allocate the area reserved for argument passed in registers. Yes! gcc 3.4.6
+ * has a slightly different design which made it hard to understand
+ */
 #define OUTGOING_REG_PARM_STACK_SPACE(FNTYPE) 1
 
 /* Keep the stack pointer constant throughout the function.  */

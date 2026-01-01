@@ -1278,7 +1278,7 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
 }
 
 namespace {
-constexpr poly_int64 tryBumpFrameSize(poly_int64 value) noexcept { return (value + 15) & (~0xF); }
+poly_int64 tryBumpFrameSize(poly_int64 value) noexcept { return (value + 15) & (-16); }
 
 }
 /* Compute and return the frame size.  */
@@ -1291,10 +1291,6 @@ i960_compute_frame_size (poly_int64 size)
      as size is concerned.  */
   actual_fsize = tryBumpFrameSize(size);
   actual_fsize += tryBumpFrameSize(crtl->outgoing_args_size);
-#if 0
-  // I thought I might need this but it turns out that the answer is NO!
-  //actual_fsize += tryBumpFrameSize(current_function_args_size);
-#endif
   return actual_fsize;
 }
 
@@ -2538,10 +2534,12 @@ i960_va_start (tree valist, rtx nextarg)
   TREE_SIDE_EFFECTS (t) = 1;
   expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
 #else
+      //printf("%s: TYPE_SIZE_UNIT(TREE_TYPE(valist)) = %d\n", __PRETTY_FUNCTION__, int_size_in_bytes(TYPE_SIZE_UNIT(TREE_TYPE(valist))));
       tree t;
       // st g14, 64(fp)  # arg0 / base
       // mov 4, g4
       // st g4, 68(fp)   # arg1 / count / skip 
+      auto structureSize = int_size_in_bytes(TYPE_SIZE_UNIT(TREE_TYPE(valist)));
       tree f_base = TYPE_FIELDS(va_list_type_node);
       tree f_count = DECL_CHAIN(f_base);
 
@@ -2556,8 +2554,10 @@ i960_va_start (tree valist, rtx nextarg)
       TREE_SIDE_EFFECTS(t) = 1;
       expand_expr(t, const0_rtx, VOIDmode, EXPAND_NORMAL);
       // setup the count store operation
-      auto computedCount = (current_function_args_info.ca_nregparms + current_function_args_info.ca_nstackparms) * UNITS_PER_WORD;
-      printf("%s: count/skip = %d\n", __PRETTY_FUNCTION__, computedCount);
+      auto computedCount = ((current_function_args_info.ca_nregparms + current_function_args_info.ca_nstackparms) * UNITS_PER_WORD);
+      printf("%s: count/skip = %d, nreg = %d, nstack = %d\n", __PRETTY_FUNCTION__, computedCount, 
+              current_function_args_info.ca_nregparms,
+              current_function_args_info.ca_nstackparms);
       t = build2(MODIFY_EXPR, TREE_TYPE(count), count, build_int_cst(NULL_TREE, computedCount));
       TREE_SIDE_EFFECTS(t) = 1;
       expand_expr(t, const0_rtx, VOIDmode, EXPAND_NORMAL);
