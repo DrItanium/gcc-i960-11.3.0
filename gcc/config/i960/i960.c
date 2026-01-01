@@ -2509,31 +2509,6 @@ i960_build_builtin_va_list ()
 void
 i960_va_start (tree valist, rtx nextarg)
 {
-#if 0
-  tree s, t, base, num;
-  rtx fake_arg_pointer_rtx;
-
-  /* The array type always decays to a pointer before we get here, so we
-     can't use ARRAY_REF.  */
-  base = build1 (INDIRECT_REF, unsigned_type_node, valist);
-  num = build1 (INDIRECT_REF, unsigned_type_node,
-		build (PLUS_EXPR, unsigned_type_node, valist,
-		       TYPE_SIZE_UNIT (TREE_TYPE (valist))));
-
-  /* Use a different rtx than arg_pointer_rtx so that cse and friends
-     can go on believing that the argument pointer can never be zero.  */
-  fake_arg_pointer_rtx = gen_raw_REG (Pmode, ARG_POINTER_REGNUM);
-  s = make_tree (unsigned_type_node, fake_arg_pointer_rtx);
-  t = build (MODIFY_EXPR, unsigned_type_node, base, s);
-  TREE_SIDE_EFFECTS (t) = 1;
-  expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-
-  s = build_int_2 ((current_function_args_info.ca_nregparms
-		    + current_function_args_info.ca_nstackparms) * 4, 0);
-  t = build (MODIFY_EXPR, unsigned_type_node, num, s);
-  TREE_SIDE_EFFECTS (t) = 1;
-  expand_expr (t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-#else
       //printf("%s: TYPE_SIZE_UNIT(TREE_TYPE(valist)) = %d\n", __PRETTY_FUNCTION__, int_size_in_bytes(TYPE_SIZE_UNIT(TREE_TYPE(valist))));
       tree t;
       // st g14, 64(fp)  # arg0 / base
@@ -2555,112 +2530,14 @@ i960_va_start (tree valist, rtx nextarg)
       expand_expr(t, const0_rtx, VOIDmode, EXPAND_NORMAL);
       // setup the count store operation
       auto computedCount = ((current_function_args_info.ca_nregparms + current_function_args_info.ca_nstackparms) * UNITS_PER_WORD);
-      printf("%s: count/skip = %d, nreg = %d, nstack = %d\n", __PRETTY_FUNCTION__, computedCount, 
-              current_function_args_info.ca_nregparms,
-              current_function_args_info.ca_nstackparms);
       t = build2(MODIFY_EXPR, TREE_TYPE(count), count, build_int_cst(NULL_TREE, computedCount));
       TREE_SIDE_EFFECTS(t) = 1;
       expand_expr(t, const0_rtx, VOIDmode, EXPAND_NORMAL);
-#endif
 }
 
 static tree
 i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq *post_p ) {
-#if 0
-
-  HOST_WIDE_INT siz, ali;
-  tree base, num, pad, next, this, t1, t2, int48;
-  rtx addr_rtx;
-
-  /* The array type always decays to a pointer before we get here, so we
-     can't use ARRAY_REF.  */
-  base = build1 (INDIRECT_REF, unsigned_type_node, valist);
-  num = build1 (INDIRECT_REF, unsigned_type_node,
-		build (PLUS_EXPR, unsigned_type_node, valist,
-		       TYPE_SIZE_UNIT (TREE_TYPE (valist))));
-
-  /* Round up sizeof(type) to a word.  */
-  siz = (int_size_in_bytes (type) + UNITS_PER_WORD - 1) & -UNITS_PER_WORD;
-
-  /* Round up alignment to a word.  */
-  ali = TYPE_ALIGN (type);
-  if (ali < BITS_PER_WORD)
-    ali = BITS_PER_WORD;
-  ali /= BITS_PER_UNIT;
-
-  /* Align NUM appropriate for the argument.  */
-  pad = fold (build (PLUS_EXPR, unsigned_type_node, num, 
-		      build_int_2 (ali - 1, 0)));
-  pad = fold (build (BIT_AND_EXPR, unsigned_type_node, pad,
-		      build_int_2 (-ali, -1)));
-  pad = save_expr (pad);
-
-  /* Increment VPAD past this argument.  */
-  next = fold (build (PLUS_EXPR, unsigned_type_node, pad,
-		      build_int_2 (siz, 0)));
-  next = save_expr (next);
-
-  /* Find the offset for the current argument.  Mind peculiar overflow
-     from registers to stack.  */
-  int48 = build_int_2 (48, 0);
-  if (siz > 16)
-    t2 = integer_one_node;
-  else
-    t2 = fold (build (GT_EXPR, integer_type_node, next, int48));
-  t1 = fold (build (LE_EXPR, integer_type_node, num, int48));
-  t1 = fold (build (TRUTH_AND_EXPR, integer_type_node, t1, t2));
-  this = fold (build (COND_EXPR, unsigned_type_node, t1, int48, pad));
-
-  /* Find the address for the current argument.  */
-  t1 = fold (build (PLUS_EXPR, unsigned_type_node, base, this));
-  t1 = build1 (NOP_EXPR, ptr_type_node, t1);
-  addr_rtx = expand_expr (t1, NULL_RTX, Pmode, EXPAND_NORMAL);
-
-  /* Increment NUM.  */
-  t1 = build (MODIFY_EXPR, unsigned_type_node, num, next);
-  TREE_SIDE_EFFECTS (t1) = 1;
-  expand_expr (t1, const0_rtx, VOIDmode, EXPAND_NORMAL);
-  
-  return addr_rtx;
-#else
-    // adapted from gcc 3.4.6 but updated for using a structure instead of the hack job that was being done before
-    // the old 3.4.6 gcc code was a hard implementation of the following macro from 2.95 (modified to be easier to read)
-    /*
-     * __vsiz(T): (((sizeof(T) + 3) / 4) * 4)
-     * __vali(T): (__alignof__(T) >= 4 ? __alignof__(T) : 4)
-     * __vpad(I, T) (((I) + __vali(T) - 1) / __vali (T)) * __vali(T) + __vsiz(T))
-     * va_arg(AP, T):
-     *  (
-     *      (
-     *          ((AP)[1] <= 48 && (__vpad((AP)[1], T) > 48 || __vsiz(T) > 16))
-     *          ? ((AP)[1] = 48 + __vsiz(T))
-     *          : ((AP)[1] = __Vpad((AP)[1], T))
-     *      ),
-     *      *((T*)(void*)((char*) *(AP) + (AP)[1] - __vsiz(T)))
-     *  )
-     */
-    // This translates to the following easier to read code:
-    /*
-     * __vsiz(T a) { return ((sizeof(a) + 3) / 4) * 4; }
-     * __vali(T a) {
-     *      if (__alignof__(a) >= 4) {
-     *          return __alignof__(a);
-     *      } else {
-     *          return 4;
-     *      }
-     *  }
-     *  __vpad(I a, T b) { return ((a + __vali(b) - 1) / __vali(b)) * __vali(b) + __vsiz(b);  }
-     *  va_arg(AP a, T b) {
-     *      auto result = *((T*)(void*)((char*)a[0] + a[1] - __vsiz(b)));
-     *      // increment address
-     *      if (a[1] <= 48 && (__vpad(a[1], b) > 48 || __vsiz(b) > 16)) {
-     *          a[1] = 48 + __vsiz(b);
-     *      } else {
-     *          a[1] = __Vpad(a[1], b)
-     *      }
-     *      return result;
-     *  }
-     */
+    auto int48 = size_int(48);
     tree f_base = TYPE_FIELDS(va_list_type_node);
     tree f_count = DECL_CHAIN(f_base);
     auto base = build3(COMPONENT_REF, TREE_TYPE(f_base), valist, f_base, NULL_TREE);
@@ -2677,16 +2554,14 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     }
     ali /= BITS_PER_WORD;
     // align count appropriate for the argument
-    auto pad = fold_build2(PLUS_EXPR, TREE_TYPE(count), count, build_int_cst(NULL_TREE, ali - 1)); // count + (ali - 1)
-    pad = fold_build2(BIT_AND_EXPR, TREE_TYPE(pad), pad, build_int_cst(NULL_TREE, -ali)); // (count + (ali - 1)) & (-ali)
+    auto pad = fold_build2(PLUS_EXPR, TREE_TYPE(count), count, size_int(ali - 1)); // count + (ali - 1)
+    pad = fold_build2(BIT_AND_EXPR, TREE_TYPE(pad), pad, size_int(~ali)); // (count + (ali - 1)) & (-ali)
     pad = save_expr(pad); // turn it into a reusable code component
 
     // increment vpad past this argument
-    tree next = fold_build2(PLUS_EXPR, TREE_TYPE(pad), pad, build_int_cst(NULL_TREE, size)); // ((count + (ali - 1)) & (-ali)) + size
+    tree next = fold_build2(PLUS_EXPR, TREE_TYPE(pad), pad, size_int(size)); // ((count + (ali - 1)) & (-ali)) + size
     next = save_expr(next); // turn it into a reusable code component
 
-    // find the offset for the current argument. Mind peculiar overflow from registers to stack
-    auto int48 = size_int(48);
     // if size > 16 then we just and with 1 later on
     auto t2 = size > 16 ? integer_one_node : fold_build2(GT_EXPR, TREE_TYPE(next), next, int48); // next > 48
     auto t1 = fold_build2(LE_EXPR, boolean_type_node, count, int48) ; // count < 48
@@ -2700,7 +2575,6 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     gimplify_assign(count, next, pre_p); // update the next pointer
     addr = fold_convert(build_pointer_type(type), addr); // turn temporary into a pointer
     return build_va_arg_indirect_ref(addr); // return pointer(A[0] + ((count < 48) & (next > 48)) ? 48 : (count + (ali - 1)) & (-ali))
-#endif
 }
 
 
