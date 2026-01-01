@@ -2704,31 +2704,29 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
 }
 
 
-
 /* Calculate the size of the reg parm stack space.  This is a bit complicated
    on the i960.  */
-
 int
 i960_reg_parm_stack_space (tree fndecl)
 {
-  /* In this case, we are called from emit_library_call, and we don't need
-     to pretend we have more space for parameters than what's apparent.  */
-  if (!fndecl) {
+    /* In this case, we are called from emit_library_call, and we don't need
+       to pretend we have more space for parameters than what's apparent.  */
+    if (!fndecl) {
+        return 0;
+    }
+
+    /* In this case, we are called from locate_and_pad_parms when we're
+       not IN_REGS, so we have an arg block.  */
+    if (fndecl != current_function_decl) {
+        return 48;
+    }
+
+    /* Otherwise, we have an arg block if the current function has more than
+       48 bytes of parameters.  */
+    if (current_function_args_size != 0 || VARARGS_STDARG_FUNCTION (fndecl)) {
+        return 48;
+    }
     return 0;
-  }
-
-  /* In this case, we are called from locate_and_pad_parms when we're
-     not IN_REGS, so we have an arg block.  */
-  if (fndecl != current_function_decl) {
-    return 48;
-  }
-
-  /* Otherwise, we have an arg block if the current function has more than
-     48 bytes of parameters.  */
-  if (current_function_args_size != 0 || VARARGS_STDARG_FUNCTION (fndecl)) {
-    return 48;
-  }
-  return 0;
 }
 
 /* Return the register class of a scratch register needed to copy IN into
