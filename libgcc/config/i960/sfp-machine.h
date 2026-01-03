@@ -23,9 +23,9 @@
 #define _FP_NANSIGN_Q 1
 /* taken from i386's 32-bit implementation... */
 #define _FP_NANFRAC_S		_FP_QNANBIT_S
-#define _FP_NANFRAC_D		_FP_QNANBIT_D, -1
-#define _FP_NANFRAC_E		_FP_QNANBIT_E, -1, -1, -1
-#define _FP_NANFRAC_Q		_FP_QNANBIT_Q, -1, -1, -1
+#define _FP_NANFRAC_D		_FP_QNANBIT_D, 0
+#define _FP_NANFRAC_E		_FP_QNANBIT_E, 0, 0, 0
+#define _FP_NANFRAC_Q		_FP_QNANBIT_Q, 0, 0, 0
 /* pulled from ia64 implementation... seems it is the same design as the other cpus (i386 and i960) */
 /* Here is something Intel misdesigned: the specs don't define
    the case where we have two NaNs with same mantissas, but
