@@ -2553,7 +2553,6 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     // just gimplify this existing work to start to see how well I can generate the corresponding code
     // round up sizeof(type) to a word
     auto size = (int_size_in_bytes(type) + UNITS_PER_WORD - 1) & (-UNITS_PER_WORD);
-    printf("%s: size: %d\n", __PRETTY_FUNCTION__, size);
     // round up alignment to a word
     auto ali = TYPE_ALIGN(type);
     if (ali < BITS_PER_WORD) {
@@ -2562,9 +2561,8 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     ali /= BITS_PER_WORD;
     // align count appropriate for the argument
     auto pad = fold_build2(PLUS_EXPR, TREE_TYPE(count), count, size_int(ali - 1)); // count + (ali - 1)
-    pad = fold_build2(BIT_AND_EXPR, TREE_TYPE(pad), pad, size_int(~ali)); // (count + (ali - 1)) & (-ali)
+    pad = fold_build2(BIT_AND_EXPR, TREE_TYPE(pad), pad, size_int(-ali)); // (count + (ali - 1)) & (-ali)
     pad = save_expr(pad); // turn it into a reusable code component
-
     // increment vpad past this argument
     tree next = fold_build2(PLUS_EXPR, TREE_TYPE(pad), pad, size_int(size)); // ((count + (ali - 1)) & (-ali)) + size
     next = save_expr(next); // turn it into a reusable code component
