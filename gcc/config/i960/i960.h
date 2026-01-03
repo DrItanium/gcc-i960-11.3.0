@@ -163,8 +163,6 @@ extern int i960_last_maxbitalignment;
 #define UNITS_PER_WORD 4
 
 /* Width in bits of a long double.  */
-//#define	LONG_DOUBLE_TYPE_SIZE (TARGET_LONG_DOUBLE_64 ? 64 : 128)
-/// @todo does it make sense to support long double being 64 bits? I think no
 #define LONG_DOUBLE_TYPE_SIZE 128
 /* Allocation boundary (in *bits*) for storing pointers in memory.  */
 #define POINTER_BOUNDARY 32
