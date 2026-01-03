@@ -1885,15 +1885,22 @@ i960_print_operand (FILE* file, rtx x, int code)
       /* Normal condition.  */
 normal: // this is not good if I am seeing a label...
       if (rtxcode == EQ)  { fputs ("e", file); return; }
+      else if (rtxcode == UNEQ) { fputs("e", file); return; }
       else if (rtxcode == NE)  { fputs ("ne", file); return; }
       else if (rtxcode == GT)  { fputs ("g", file); return; }
       else if (rtxcode == GTU) { fputs ("g", file); return; }
+      else if (rtxcode == UNGT)  { fputs ("g", file); return; }
       else if (rtxcode == LT)  { fputs ("l", file); return; }
       else if (rtxcode == LTU) { fputs ("l", file); return; }
+      else if (rtxcode == UNLT)  { fputs ("l", file); return; }
       else if (rtxcode == GE)  { fputs ("ge", file); return; }
       else if (rtxcode == GEU) { fputs ("ge", file); return; }
+      else if (rtxcode == UNGE) { fputs ("ge", file); return; }
       else if (rtxcode == LE)  { fputs ("le", file); return; }
       else if (rtxcode == LEU) { fputs ("le", file); return; }
+      else if (rtxcode == UNLE) { fputs ("le", file); return; }
+      else if (rtxcode == UNORDERED) { fputs ("no", file); return; }
+      else if (rtxcode == ORDERED) { fputs ("o", file); return; }
       else abort ();
       break;
 
