@@ -1,6 +1,5 @@
 softfp_int_modes := si di
-softfp_float_modes := sf df 
-softfp_extensions := sfdf dftf
-softfp_truncations := dfsf tfdf
+softfp_float_modes := sf df tf
+softfp_extensions := sfdf sftf dftf
+softfp_truncations := dfsf tfsf tfdf
 softfp_exclude_libgcc2 := n
-softfp_extras := eqtf2
