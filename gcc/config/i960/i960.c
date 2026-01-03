@@ -2552,20 +2552,25 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     auto addr = create_tmp_var(ptr_type_node);
     // just gimplify this existing work to start to see how well I can generate the corresponding code
     // round up sizeof(type) to a word
-    auto size = (int_size_in_bytes(type) + UNITS_PER_WORD - 1) & (-UNITS_PER_WORD);
+#define SIGN0 -
+#define SIGN1 -
+    auto size = (int_size_in_bytes(type) + UNITS_PER_WORD - 1) & (SIGN0 UNITS_PER_WORD);
+    printf("%s: size: %d\n", __PRETTY_FUNCTION__, size);
     // round up alignment to a word
     auto ali = TYPE_ALIGN(type);
     if (ali < BITS_PER_WORD) {
         ali = BITS_PER_WORD;
     }
     ali /= BITS_PER_WORD;
+    printf("%s: ali: %d, (ali-1): %d\n", __PRETTY_FUNCTION__, ali, (ali-1));
     // align count appropriate for the argument
     auto pad = fold_build2(PLUS_EXPR, TREE_TYPE(count), count, size_int(ali - 1)); // count + (ali - 1)
-    pad = fold_build2(BIT_AND_EXPR, TREE_TYPE(pad), pad, size_int(-ali)); // (count + (ali - 1)) & (-ali)
+    pad = fold_build2(BIT_AND_EXPR, TREE_TYPE(pad), pad, size_int(SIGN1 ali)); // (count + (ali - 1)) & (-ali)
     pad = save_expr(pad); // turn it into a reusable code component
     // increment vpad past this argument
     tree next = fold_build2(PLUS_EXPR, TREE_TYPE(pad), pad, size_int(size)); // ((count + (ali - 1)) & (-ali)) + size
     next = save_expr(next); // turn it into a reusable code component
+    printf("%s: next without count: %d\n", __PRETTY_FUNCTION__, ((ali - 1) & (SIGN1 ali)) + (size));
 
     // if size > 16 then we just and with 1 later on
     auto t2 = size > 16 ? integer_one_node : fold_build2(GT_EXPR, TREE_TYPE(next), next, int48); // next > 48
