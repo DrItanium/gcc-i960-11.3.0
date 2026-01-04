@@ -2561,7 +2561,7 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     if (ali < BITS_PER_WORD) {
         ali = BITS_PER_WORD;
     }
-    ali /= BITS_PER_WORD;
+    ali /= BITS_PER_UNIT;
     printf("%s: ali: %d, (ali-1): %d\n", __PRETTY_FUNCTION__, ali, (ali-1));
     // align count appropriate for the argument
     auto pad = fold_build2(PLUS_EXPR, TREE_TYPE(count), count, size_int(ali - 1)); // count + (ali - 1)
