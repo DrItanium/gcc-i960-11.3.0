@@ -2516,7 +2516,6 @@ i960_build_builtin_va_list ()
 void
 i960_va_start (tree valist, rtx nextarg)
 {
-      //printf("%s: TYPE_SIZE_UNIT(TREE_TYPE(valist)) = %d\n", __PRETTY_FUNCTION__, int_size_in_bytes(TYPE_SIZE_UNIT(TREE_TYPE(valist))));
       tree t;
       // st g14, 64(fp)  # arg0 / base
       // mov 4, g4
@@ -2555,14 +2554,12 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
 #define SIGN0 -
 #define SIGN1 -
     auto size = (int_size_in_bytes(type) + UNITS_PER_WORD - 1) & (SIGN0 UNITS_PER_WORD);
-    printf("%s: size: %d\n", __PRETTY_FUNCTION__, size);
     // round up alignment to a word
     auto ali = TYPE_ALIGN(type);
     if (ali < BITS_PER_WORD) {
         ali = BITS_PER_WORD;
     }
     ali /= BITS_PER_UNIT;
-    printf("%s: ali: %d, (ali-1): %d\n", __PRETTY_FUNCTION__, ali, (ali-1));
     // align count appropriate for the argument
     auto pad = fold_build2(PLUS_EXPR, TREE_TYPE(count), count, size_int(ali - 1)); // count + (ali - 1)
     pad = fold_build2(BIT_AND_EXPR, TREE_TYPE(pad), pad, size_int(SIGN1 ali)); // (count + (ali - 1)) & (-ali)
@@ -2570,7 +2567,6 @@ i960_gimplify_va_arg_expr (tree valist, tree type, gimple_seq *pre_p, gimple_seq
     // increment vpad past this argument
     tree next = fold_build2(PLUS_EXPR, TREE_TYPE(pad), pad, size_int(size)); // ((count + (ali - 1)) & (-ali)) + size
     next = save_expr(next); // turn it into a reusable code component
-    printf("%s: next without count: %d\n", __PRETTY_FUNCTION__, ((ali - 1) & (SIGN1 ali)) + (size));
 
     // if size > 16 then we just and with 1 later on
     auto t2 = size > 16 ? integer_one_node : fold_build2(GT_EXPR, TREE_TYPE(next), next, int48); // next > 48
