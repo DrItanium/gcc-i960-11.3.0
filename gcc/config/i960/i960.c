@@ -1724,10 +1724,10 @@ i960_output_call_insn (rtx target, rtx argsize_rtx, rtx arg_pointer, rtx_insn* i
       && (nexti == 0 || GET_CODE (PATTERN (nexti)) == RETURN))
     {
       /* Delete following return insn.  */
-      if (nexti && no_labels_between_p (insn, nexti))
-	delete_insn (nexti);
-      output_asm_insn ("bx	%0", operands);
-      return "# notreached";
+        if (nexti && no_labels_between_p (insn, nexti))
+            delete_insn (nexti);
+        output_asm_insn ("bx	%0", operands);
+        return "# notreached";
     }
 
   output_asm_insn ("callx	%0", operands);
