@@ -10,14 +10,14 @@
 
 ;; Matched 5/28/91
 (define_peephole
-  [(set (match_operand:SI 0 "register_operand" "=r")
-	(match_operand:SI 1 "register_operand" "r"))
-   (set (match_operand:SI 2 "register_operand" "=r")
-	(match_operand:SI 3 "register_operand" "r"))
-   (set (match_operand:SI 4 "register_operand" "=r")
-	(match_operand:SI 5 "register_operand" "r"))
-   (set (match_operand:SI 6 "register_operand" "=r")
-	(match_operand:SI 7 "register_operand" "r"))]
+ [(parallel [(set (match_operand:SI 0 "register_operand" "=r")
+         (match_operand:SI 1 "register_operand" "r"))
+     (set (match_operand:SI 2 "register_operand" "=r")
+      (match_operand:SI 3 "register_operand" "r"))
+     (set (match_operand:SI 4 "register_operand" "=r")
+      (match_operand:SI 5 "register_operand" "r"))
+     (set (match_operand:SI 6 "register_operand" "=r")
+      (match_operand:SI 7 "register_operand" "r"))])]
   "isQuadRegisterAligned(REGNO(operands[0]))
    && isQuadRegisterAligned(REGNO(operands[1]))
    && (REGNO (operands[0]) + 1 == REGNO (operands[2]))
@@ -116,18 +116,18 @@
 
 ;; Matched 6/15/91
 (define_peephole
-  [(set (match_operand:SI 0 "register_operand" "=r")
-	(mem:SI (plus:SI (match_operand:SI 1 "register_operand" "r")
-			 (match_operand:SI 2 "immediate_operand" "n"))))
-   (set (match_operand:SI 3 "register_operand" "=r")
-	(mem:SI (plus:SI (match_dup 1)
-			 (match_operand:SI 4 "immediate_operand" "n"))))
-   (set (match_operand:SI 5 "register_operand" "=r")
-	(mem:SI (plus:SI (match_dup 1)
-			 (match_operand:SI 6 "immediate_operand" "n"))))
-   (set (match_operand:SI 7 "register_operand" "=r")
-	(mem:SI (plus:SI (match_dup 1)
-			 (match_operand:SI 8 "immediate_operand" "n"))))]
+ [(parallel [(set (match_operand:SI 0 "register_operand" "=r")
+         (mem:SI (plus:SI (match_operand:SI 1 "register_operand" "r")
+                  (match_operand:SI 2 "immediate_operand" "n"))))
+     (set (match_operand:SI 3 "register_operand" "=r")
+      (mem:SI (plus:SI (match_dup 1)
+               (match_operand:SI 4 "immediate_operand" "n"))))
+     (set (match_operand:SI 5 "register_operand" "=r")
+      (mem:SI (plus:SI (match_dup 1)
+               (match_operand:SI 6 "immediate_operand" "n"))))
+     (set (match_operand:SI 7 "register_operand" "=r")
+      (mem:SI (plus:SI (match_dup 1)
+               (match_operand:SI 8 "immediate_operand" "n"))))])]
   "(i960_si_ti (operands[1], operands[2]) && ((REGNO (operands[0]) & 3) == 0)
    && (REGNO (operands[1]) != REGNO (operands[0]))
    && (REGNO (operands[0]) + 1 == REGNO (operands[3]))
@@ -142,12 +142,12 @@
 
 ;; Matched 5/28/91
 (define_peephole
-  [(set (match_operand:DF 0 "register_operand" "=d")
+  [(parallel [(set (match_operand:DF 0 "register_operand" "=d")
 	(mem:DF (plus:SI (match_operand:SI 1 "register_operand" "d")
 			 (match_operand:SI 2 "immediate_operand" "n"))))
    (set (match_operand:DF 3 "register_operand" "=d")
 	(mem:DF (plus:SI (match_dup 1)
-			 (match_operand:SI 4 "immediate_operand" "n"))))]
+			 (match_operand:SI 4 "immediate_operand" "n"))))])]
   "(i960_si_ti (operands[1], operands[2]) && ((REGNO (operands[0]) & 3) == 0)
    && (REGNO (operands[1]) != REGNO (operands[0]))
    && (REGNO (operands[0]) + 2 == REGNO (operands[3]))
@@ -157,12 +157,12 @@
 
 ;; Matched 1/24/92
 (define_peephole
-  [(set (match_operand:DI 0 "register_operand" "=d")
-	(mem:DI (plus:SI (match_operand:SI 1 "register_operand" "d")
-			 (match_operand:SI 2 "immediate_operand" "n"))))
-   (set (match_operand:DI 3 "register_operand" "=d")
-	(mem:DI (plus:SI (match_dup 1)
-			 (match_operand:SI 4 "immediate_operand" "n"))))]
+ [(parallel [(set (match_operand:DI 0 "register_operand" "=d")
+         (mem:DI (plus:SI (match_operand:SI 1 "register_operand" "d")
+                  (match_operand:SI 2 "immediate_operand" "n"))))
+     (set (match_operand:DI 3 "register_operand" "=d")
+      (mem:DI (plus:SI (match_dup 1)
+               (match_operand:SI 4 "immediate_operand" "n"))))])]
   "(i960_si_ti (operands[1], operands[2]) && ((REGNO (operands[0]) & 3) == 0)
    && (REGNO (operands[1]) != REGNO (operands[0]))
    && (REGNO (operands[0]) + 2 == REGNO (operands[3]))
@@ -172,17 +172,17 @@
 
 ;; Matched 4/17/92
 (define_peephole
-  [(set (match_operand:SI 0 "register_operand" "=d")
-	(mem:SI (match_operand:SI 1 "register_operand" "d")))
-   (set (match_operand:SI 2 "register_operand" "=d")
-	(mem:SI (plus:SI (match_dup 1)
-			 (match_operand:SI 3 "immediate_operand" "n"))))
-   (set (match_operand:SI 4 "register_operand" "=d")
-	(mem:SI (plus:SI (match_dup 1)
-			 (match_operand:SI 5 "immediate_operand" "n"))))
-   (set (match_operand:SI 6 "register_operand" "=d")
-	(mem:SI (plus:SI (match_dup 1)
-			 (match_operand:SI 7 "immediate_operand" "n"))))]
+ [(parallel [(set (match_operand:SI 0 "register_operand" "=d")
+         (mem:SI (match_operand:SI 1 "register_operand" "d")))
+     (set (match_operand:SI 2 "register_operand" "=d")
+      (mem:SI (plus:SI (match_dup 1)
+               (match_operand:SI 3 "immediate_operand" "n"))))
+     (set (match_operand:SI 4 "register_operand" "=d")
+      (mem:SI (plus:SI (match_dup 1)
+               (match_operand:SI 5 "immediate_operand" "n"))))
+     (set (match_operand:SI 6 "register_operand" "=d")
+      (mem:SI (plus:SI (match_dup 1)
+               (match_operand:SI 7 "immediate_operand" "n"))))])]
   "(i960_si_ti (operands[1], 0) && ((REGNO (operands[0]) & 3) == 0)
    && (REGNO (operands[1]) != REGNO (operands[0]))
    && (REGNO (operands[0]) + 1 == REGNO (operands[2]))
@@ -197,15 +197,15 @@
 
 ;; Matched 5/28/91
 (define_peephole
-  [(set (match_operand:SI 0 "register_operand" "=d")
-	(mem:SI (plus:SI (match_operand:SI 1 "register_operand" "d")
-			 (match_operand:SI 2 "immediate_operand" "n"))))
-   (set (match_operand:SI 3 "register_operand" "=d")
-	(mem:SI (plus:SI (match_dup 1)
-			 (match_operand:SI 4 "immediate_operand" "n"))))
-   (set (match_operand:SI 5 "register_operand" "=d")
-	(mem:SI (plus:SI (match_dup 1)
-			 (match_operand:SI 6 "immediate_operand" "n"))))]
+ [(parallel [(set (match_operand:SI 0 "register_operand" "=d")
+         (mem:SI (plus:SI (match_operand:SI 1 "register_operand" "d")
+                  (match_operand:SI 2 "immediate_operand" "n"))))
+     (set (match_operand:SI 3 "register_operand" "=d")
+      (mem:SI (plus:SI (match_dup 1)
+               (match_operand:SI 4 "immediate_operand" "n"))))
+     (set (match_operand:SI 5 "register_operand" "=d")
+      (mem:SI (plus:SI (match_dup 1)
+               (match_operand:SI 6 "immediate_operand" "n"))))])]
   "(i960_si_ti (operands[1], operands[2]) && ((REGNO (operands[0]) & 3) == 0)
    && (REGNO (operands[1]) != REGNO (operands[0]))
    && (REGNO (operands[0]) + 1 == REGNO (operands[3]))
@@ -217,14 +217,14 @@
 
 ;; Matched 6/15/91
 (define_peephole
-  [(set (match_operand:SI 0 "register_operand" "=d")
-	(mem:SI (match_operand:SI 1 "register_operand" "d")))
-   (set (match_operand:SI 2 "register_operand" "=d")
-	(mem:SI (plus:SI (match_dup 1)
-			 (match_operand:SI 3 "immediate_operand" "n"))))
-   (set (match_operand:SI 4 "register_operand" "=d")
-	(mem:SI (plus:SI (match_dup 1)
-			 (match_operand:SI 5 "immediate_operand" "n"))))]
+ [(parallel [(set (match_operand:SI 0 "register_operand" "=d")
+         (mem:SI (match_operand:SI 1 "register_operand" "d")))
+     (set (match_operand:SI 2 "register_operand" "=d")
+      (mem:SI (plus:SI (match_dup 1)
+               (match_operand:SI 3 "immediate_operand" "n"))))
+     (set (match_operand:SI 4 "register_operand" "=d")
+      (mem:SI (plus:SI (match_dup 1)
+               (match_operand:SI 5 "immediate_operand" "n"))))])]
   "(i960_si_ti (operands[1], 0) && ((REGNO (operands[0]) & 3) == 0)
    && (REGNO (operands[1]) != REGNO (operands[0]))
    && (REGNO (operands[0]) + 1 == REGNO (operands[2]))
@@ -236,12 +236,12 @@
 
 ;; Matched 5/28/91
 (define_peephole
-  [(set (match_operand:SI 0 "register_operand" "=d")
-	(mem:SI (plus:SI (match_operand:SI 1 "register_operand" "d")
-			 (match_operand:SI 2 "immediate_operand" "n"))))
-   (set (match_operand:SI 3 "register_operand" "=d")
-	(mem:SI (plus:SI (match_dup 1)
-			 (match_operand:SI 4 "immediate_operand" "n"))))]
+ [(parallel [(set (match_operand:SI 0 "register_operand" "=d")
+         (mem:SI (plus:SI (match_operand:SI 1 "register_operand" "d")
+                  (match_operand:SI 2 "immediate_operand" "n"))))
+     (set (match_operand:SI 3 "register_operand" "=d")
+      (mem:SI (plus:SI (match_dup 1)
+               (match_operand:SI 4 "immediate_operand" "n"))))])]
   "(i960_si_di (operands[1], operands[2]) && ((REGNO (operands[0]) & 1) == 0)
    && (REGNO (operands[1]) != REGNO (operands[0]))
    && (REGNO (operands[0]) + 1 == REGNO (operands[3]))
@@ -251,11 +251,11 @@
 ;; Matched 5/28/91
 ;; load long
 (define_peephole
-  [(set (match_operand:SI 0 "register_operand" "=d")
-	(mem:SI (match_operand:SI 1 "register_operand" "d")))
-   (set (match_operand:SI 2 "register_operand" "=d")
-	(mem:SI (plus:SI (match_dup 1)
-			 (match_operand:SI 3 "immediate_operand" "n"))))]
+ [(parallel [(set (match_operand:SI 0 "register_operand" "=d")
+         (mem:SI (match_operand:SI 1 "register_operand" "d")))
+     (set (match_operand:SI 2 "register_operand" "=d")
+      (mem:SI (plus:SI (match_dup 1)
+               (match_operand:SI 3 "immediate_operand" "n"))))])]
   "(i960_si_di (operands[1], 0) && ((REGNO (operands[0]) & 1) == 0)
    && (REGNO (operands[1]) != REGNO (operands[0]))
    && (REGNO (operands[0]) + 1 == REGNO (operands[2]))
@@ -267,18 +267,18 @@
 ;; Matched 5/28/91
 ;; emit store quad
 (define_peephole
-  [(set (mem:SI (plus:SI (match_operand:SI 0 "register_operand" "d")
-			 (match_operand:SI 1 "immediate_operand" "n")))
-	(match_operand:SI 2 "register_operand" "d"))
-   (set (mem:SI (plus:SI (match_dup 0)
-			 (match_operand:SI 3 "immediate_operand" "n")))
-	(match_operand:SI 4 "register_operand" "d"))
-   (set (mem:SI (plus:SI (match_dup 0)
-			 (match_operand:SI 5 "immediate_operand" "n")))
-	(match_operand:SI 6 "register_operand" "d"))
-   (set (mem:SI (plus:SI (match_dup 0)
-			 (match_operand:SI 7 "immediate_operand" "n")))
-	(match_operand:SI 8 "register_operand" "d"))]
+ [(parallel [(set (mem:SI (plus:SI (match_operand:SI 0 "register_operand" "d")
+                 (match_operand:SI 1 "immediate_operand" "n")))
+         (match_operand:SI 2 "register_operand" "d"))
+     (set (mem:SI (plus:SI (match_dup 0)
+                   (match_operand:SI 3 "immediate_operand" "n")))
+      (match_operand:SI 4 "register_operand" "d"))
+     (set (mem:SI (plus:SI (match_dup 0)
+                   (match_operand:SI 5 "immediate_operand" "n")))
+      (match_operand:SI 6 "register_operand" "d"))
+     (set (mem:SI (plus:SI (match_dup 0)
+                   (match_operand:SI 7 "immediate_operand" "n")))
+      (match_operand:SI 8 "register_operand" "d"))])]
   "(i960_si_ti (operands[0], operands[1]) && ((REGNO (operands[2]) & 3) == 0)
    && (REGNO (operands[2]) + 1 == REGNO (operands[4]))
    && (REGNO (operands[2]) + 2 == REGNO (operands[6]))
