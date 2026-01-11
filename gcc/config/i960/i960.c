@@ -682,19 +682,19 @@ i960_output_move_double (rtx dst, rtx src) {
                the second source register is the same as the first destination
                register, we must copy in the opposite order.  */
             if (REGNO (src) + 1 == REGNO (dst)) {
-                return "mov	%D1,%D0\n\tmov	%1,%0";
+                return "mov\t%D1,%D0\n\tmov	%1,%0";
             } else {
-                return "mov	%1,%0\n\tmov	%D1,%D0";
+                return "mov\t%1,%0\n\tmov\t%D1,%D0";
             }
         } else {
-            return "movl	%1,%0 # m4";
+            return "movl\t%1,%0 # m4";
         }
     } else if (pairMatches(dst, REG, src, CONST_INT)
             && TARGET_CONST_OK_FOR_LETTER_P(INTVAL (src), 'I')) {
         if (REGNO (dst) & 1) {
-            return "mov	%1,%0\n\tmov	0,%D0";
+            return "mov	%1,%0\n\tmov\t0,%D0";
         } else {
-            return "movl	%1,%0";
+            return "movl\t%1,%0";
         }
     } else if (pairMatches(dst, REG, src, MEM)) {
         if (REGNO (dst) & 1) {
@@ -708,10 +708,10 @@ i960_output_move_double (rtx dst, rtx src) {
             operands[4] = adjust_address (operands[3], word_mode,
                     UNITS_PER_WORD);
             output_asm_insn
-                ("lda	%1,%2\n\tld	%3,%0\n\tld	%4,%D0", operands);
+                ("lda\t%1,%2\n\tld\t%3,%0\n\tld\t%4,%D0", operands);
             return "";
         } else {
-            return "ldl	%1,%0 # load long 3";
+            return "ldl	%1,%0";
         }
     } else if (pairMatches(dst, MEM, src, REG)) {
         if (REGNO (src) & 1) {
@@ -721,10 +721,10 @@ i960_output_move_double (rtx dst, rtx src) {
                 abort ();
             }
             operands[2] = src;
-            output_asm_insn ("st	%2,%0\n\tst	%D2,%1", operands);
+            output_asm_insn ("st\t%2,%0\n\tst\t%D2,%1", operands);
             return "";
         }
-        return "stl	%1,%0 # store long 3";
+        return "stl\t%1,%0";
     } else {
         abort ();
     }
