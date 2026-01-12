@@ -2901,11 +2901,13 @@ i960_constant_alignment (const_tree exp, HOST_WIDE_INT basic_align)
    base type's minimal alignment requirement.  This allows strings to be
    aligned on word boundaries, and optimizes calls to the str* and mem*
    library functions.  */
+    HOST_WIDE_INT result = 0;
     if (TREE_CODE(exp) == STRING_CST && (i960_object_bytes_bitalign(int_size_in_bytes(TREE_TYPE(exp))) > basic_align)) {
-        return i960_object_bytes_bitalign(int_size_in_bytes(TREE_TYPE(exp)));
+        result = i960_object_bytes_bitalign(int_size_in_bytes(TREE_TYPE(exp)));
     } else {
-        return basic_align;
+        result = basic_align;
     }
+    return result;
 }
 static unsigned int 
 i960_function_arg_boundary (machine_mode mode, const_tree type) {
