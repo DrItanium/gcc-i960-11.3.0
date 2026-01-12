@@ -54,7 +54,9 @@ mbranch-predict
 Target Mask(BRANCH_PREDICT)
 Enable Branch Prediction Bits
 
-
+mstrict-alignment
+Target Mask(STRICT_ALIGN)
+Do not allow misaligned data accesses
 
 mka
 Target RejectNegative Mask(K_SERIES) Mask(COMPLEX_ADDR)

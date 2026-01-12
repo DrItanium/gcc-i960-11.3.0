@@ -195,8 +195,7 @@ extern int i960_last_maxbitalignment;
    when given unaligned data.
    80960 will work even with unaligned data, but it is slow.  */
 /// @todo should we support unaligned data? I'm thinking no!
-//#define STRICT_ALIGNMENT TARGET_STRICT_ALIGN
-#define STRICT_ALIGNMENT 1
+#define STRICT_ALIGNMENT TARGET_STRICT_ALIGN
 
 /* Macros to determine size of aggregates (structures and unions
    in C).  Normally, these may be defined to simply return the maximum
