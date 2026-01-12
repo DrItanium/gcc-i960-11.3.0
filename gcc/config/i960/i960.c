@@ -2963,6 +2963,11 @@ i960_compute_initial_elimination_offset(unsigned int from, unsigned int to) {
 }
   //do { (OFFSET) = -(64 + i960_compute_frame_size (get_frame_size ())); } while (0)
 
+static bool
+i960_enable_lra() {
+    return false;
+}
+
 #undef  TARGET_OPTION_OVERRIDE
 #define TARGET_OPTION_OVERRIDE i960_option_override
 #undef TARGET_HARD_REGNO_NREGS
@@ -3009,7 +3014,7 @@ i960_compute_initial_elimination_offset(unsigned int from, unsigned int to) {
 // still use the old condition code stuff in the .md file so disable LRA for
 // now
 #undef TARGET_LRA_P
-#define TARGET_LRA_P hook_bool_void_false
+#define TARGET_LRA_P i960_enable_lra
 #undef TARGET_CONDITIONAL_REGISTER_USAGE
 #define TARGET_CONDITIONAL_REGISTER_USAGE i960_conditional_register_usage
 
