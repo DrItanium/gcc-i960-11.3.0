@@ -3056,4 +3056,13 @@ struct gcc_target targetm = TARGET_INITIALIZER;
  *      storing these registers. The first parameter passed in the argument block starts at an address 48 bytes above the base of the argument block.
  */
 
-// Things to fix: nested functions
+// Things to fix/implement
+// nested functions
+// TARGET_REGISTER_MOVE_COST
+// TARGET_MEMORY_MOVE_COST
+// BRANCH_COST
+// SLOW_BRANCH_ACCESS
+// TARGET_SLOW_UNALIGNED_ACCESS (?)
+// MOVE_RATIO
+// TARGET_INSN_COST
+//
