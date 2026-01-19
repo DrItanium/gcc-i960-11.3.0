@@ -2721,19 +2721,14 @@ i960_hard_regno_nregs (unsigned int regno, machine_mode mode)
    together to hold double or extended precision floating point numbers,
    and the floating point registers hold any size floating point number */
     if (isHardRegister(regno)) {
-        if (mode == VOIDmode) {
-            return 1;
-        } else {
-            return ((GET_MODE_SIZE(mode) + UNITS_PER_WORD - 1) / UNITS_PER_WORD);
-        }
+        return ((GET_MODE_SIZE(mode) + UNITS_PER_WORD - 1) / UNITS_PER_WORD);
+    } else if (regno < FIRST_PSEUDO_REGISTER) {
+        return 1;
     } else {
-        if (regno < FIRST_PSEUDO_REGISTER) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return 0;
     }
 }
+
 bool i960_modes_tieable_p			(machine_mode mode1, machine_mode mode2) {
 /* Value is 1 if it is a good idea to tie two pseudo registers
    when one has mode MODE1 and one has mode MODE2.
@@ -2968,6 +2963,13 @@ i960_enable_lra() {
     return false;
 }
 
+static bool
+i960_return_in_memory(const_tree type, const_tree fntype) {
+/* Force aggregates and objects larger than 16 bytes to be returned in memory,
+   since we only have 4 registers available for return values.  */
+  return (TYPE_MODE (type) == BLKmode || int_size_in_bytes (type) > 16);
+}
+
 #undef  TARGET_OPTION_OVERRIDE
 #define TARGET_OPTION_OVERRIDE i960_option_override
 #undef TARGET_HARD_REGNO_NREGS
@@ -3034,6 +3036,9 @@ i960_enable_lra() {
 #undef  TARGET_PRINT_OPERAND_ADDRESS
 #define TARGET_PRINT_OPERAND_ADDRESS i960_print_operand_addr
 
+#undef TARGET_RETURN_IN_MEMORY
+#define TARGET_RETURN_IN_MEMORY i960_return_in_memory
+
 
 struct gcc_target targetm = TARGET_INITIALIZER;
 #include "gt-i960.h"
@@ -3050,3 +3055,5 @@ struct gcc_target targetm = TARGET_INITIALIZER;
  *      space at the beginning to store all possible parameter registers g0-g11. Thus the first 48 bytes of an argument block are reserved for
  *      storing these registers. The first parameter passed in the argument block starts at an address 48 bytes above the base of the argument block.
  */
+
+// Things to fix: nested functions

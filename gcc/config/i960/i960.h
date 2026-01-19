@@ -500,12 +500,6 @@ struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
 #define FUNCTION_VALUE(TYPE, FUNC) \
   gen_rtx_REG (TYPE_MODE (TYPE), 0)
 
-/* Force aggregates and objects larger than 16 bytes to be returned in memory,
-   since we only have 4 registers available for return values.  */
-
-#define RETURN_IN_MEMORY(TYPE) \
-  (TYPE_MODE (TYPE) == BLKmode || int_size_in_bytes (TYPE) > 16)
-
 /* Don't default to pcc-struct-return, because we have already specified
    exactly how to return structures in the RETURN_IN_MEMORY macro.  */
 #define DEFAULT_PCC_STRUCT_RETURN 0
