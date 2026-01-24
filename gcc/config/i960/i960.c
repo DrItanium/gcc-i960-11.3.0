@@ -687,7 +687,7 @@ i960_output_move_double (rtx dst, rtx src) {
                 return "mov\t%1,%0\n\tmov\t%D1,%D0";
             }
         } else {
-            return "movl\t%1,%0 # m4";
+            return "movl\t%1,%0";
         }
     } else if (pairMatches(dst, REG, src, CONST_INT)
             && TARGET_CONST_OK_FOR_LETTER_P(INTVAL (src), 'I')) {
@@ -883,7 +883,7 @@ i960_output_ldconst (rtx dst, rtx src)
 
   if (GET_CODE (src) != CONST_INT && GET_CODE (src) != CONST_DOUBLE)
     {
-      output_asm_insn ("ldconst	%1,%0 # cool beans", operands);
+      output_asm_insn ("ldconst	%1,%0", operands);
       return "";
     }
   else if (mode == TFmode)
