@@ -1237,7 +1237,16 @@ i960_split_reg_group (reg_group* reg_groups, int nw, int subgroup_length)
 static void
 i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 {
-    // TODO figure this garbage out
+    // This code is responsible for generating scaffolding prior to actual code
+    // execution of a given function. As it stands right now, the body of the
+    // function has not executed anything yet. 
+    //
+    // We want the compiler to save globals to locals and anything else to the
+    // stack.
+    //
+    // The problem with this code currently is that it operates solely on
+    // strings instead of something more concrete which makes life far more
+    // painful.
   int i, j, nr;
   int n_saved_regs = 0;
   int n_remaining_saved_regs;
@@ -1332,9 +1341,9 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
             warning (0, "stack limit expression is not supported");
     }
 
+    printf("%s: actual_fsize = %d\n", __PRETTY_FUNCTION__, actual_fsize);
   /* Allocate space for register save and locals.  */
     if (actual_fsize > 0) {
-        printf("%s: actual_fsize = %d\n", __PRETTY_FUNCTION__, actual_fsize);
         if (actual_fsize < 32) {
             fprintf (file, "\taddo	" HOST_WIDE_INT_PRINT_DEC ",sp,sp\n", actual_fsize);
         } else {
@@ -1346,6 +1355,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
      into account, but store them before the argument block area.  */
   lvar_size = actual_fsize - i960_compute_frame_size (0) - (n_remaining_saved_regs * 4);
   offset = compat_STARTING_FRAME_OFFSET + lvar_size;
+  printf("%s: lvar_size: %d, offset: %d\n", __PRETTY_FUNCTION__, lvar_size, offset);
   /* Save registers on stack if needed.  */
   /* ??? Is it worth to use the same algorithm as one for saving
      global registers in local registers? */
