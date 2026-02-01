@@ -39,20 +39,12 @@ Boston, MA 02111-1307, USA.  */
     }						\
   while (0)
 
-#define MULTILIB_DEFAULTS { "mnumerics" }
+#define MULTILIB_DEFAULTS { "mnumerics", "msoft-float" }
 
 /* Name to predefine in the preprocessor for processor variations.
    -mic* options make characters signed by default.  */
 #undef CPP_SPEC
-#define	CPP_SPEC "%{mic*:-D__i960 -fsigned-char\
-			%{mka:-D__i960KA}%{mkb:-D__i960KB}\
-			%{mja:-D__i960JA}%{mjd:-D__i960JD}%{mjf:-D__i960JF}\
-			%{mrp:-D__i960RP}\
-			%{msa:-D__i960SA}%{msb:-D__i960SB}\
-			%{mmc:-D__i960MC}\
-			%{mca:-D__i960CA}%{mcc:-D__i960CC}\
-			%{mcf:-D__i960CF}}\
-	%{msoft-float:-D_SOFT_FLOAT}\
+#define	CPP_SPEC "%{msoft-float:-D_SOFT_FLOAT}\
 	%{mka:-D__i960KA__ -D__i960Kx__ -mcomplex-addr}\
 	%{mkb:-D__i960KB__ -D__i960Kx__ -mcomplex-addr -mnumerics}\
 	%{msa:-D__i960SA__ -D__i960Sx__ -mcomplex-addr}\
@@ -65,20 +57,14 @@ Boston, MA 02111-1307, USA.  */
     %{mjd:-D__i960JD__ -D__i960Jx__ -mcomplex-addr -mcode-align}\
     %{mjf:-D__i960JF__ -D__i960Jx__ -mcomplex-addr -mcode-align}\
 	%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:\
-		%{!mcc:%{!mcf:-D__i960_KB -D__i960KB__ %{mic*:-D__i960KB}}}}}}}}}\
-	%{mlong-double-64:-D__LONG_DOUBLE_64__}"
+		%{!mcc:%{!mcf:-D__i960_KA -D__i960KA__}}}}}}}}"
 
 /* Specs for the compiler, to handle processor variations. 
    If the user gives an explicit -gstabs or -gcoff option, then do not
    try to add an implicit one, as this will fail. 
    -mic* options make characters signed by default.  */
 #undef CC1_SPEC
-#define CC1_SPEC \
-	"%{mic*:-fsigned-char}\
-%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:%{!mcc:%{!mcf:%{!mja:%{!mjd:%{!mjf:%{!mrp:-mka}}}}}}}}}}}}\
-	 %{!gs*:%{!gc*:%{mbout:%{g*:-gstabs}}\
-		       %{mcoff:%{g*:-gcoff}}\
-		       %{!mbout:%{!mcoff:%{g*:-gstabs}}}}}"
+#define CC1_SPEC "%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:%{!mcc:%{!mcf:%{!mja:%{!mjd:%{!mjf:%{!mrp:-mka}}}}}}}}}}}}"
 
 /* Specs for the assembler, to handle processor variations.
    For compatibility with Intel's gnu960 tool chain, pass -A options to
@@ -88,8 +74,7 @@ Boston, MA 02111-1307, USA.  */
 	"%{mka:-AKA}%{mkb:-AKB}%{msa:-ASA}%{msb:-ASB}\
 	%{mmc:-AMC}%{mca:-ACA}%{mcc:-ACC}%{mcf:-ACF}\
         %{mja:-AJX}%{mjd:-AJX}%{mjf:-AJX}%{mrp:-AJX}\
-	%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:%{!mcc:%{!mcf:%{!mja:%{!mjd:%{!mjf:%{!mrp:-AKB}}}}}}}}}}}}\
-	%{mlink-relax:-linkrelax}"
+	%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:%{!mcc:%{!mcf:%{!mja:%{!mjd:%{!mjf:%{!mrp:-AKB}}}}}}}}}}}}"
 
 /* Specs for the linker, to handle processor variations.
    For compatibility with Intel's gnu960 tool chain, pass -F and -A options
@@ -98,22 +83,7 @@ Boston, MA 02111-1307, USA.  */
 #define LINK_SPEC \
 	"%{mka:-AKA}%{mkb:-AKB}%{msa:-ASA}%{msb:-ASB}\
 	%{mmc:-AMC}%{mca:-ACA}%{mcc:-ACC}%{mcf:-ACF}\
-        %{mja:-AJX}%{mjd:-AJX}%{mjf:-AJX}%{mrp:-AJX}\
-	%{mbout:-Fbout}%{mcoff:-Fcoff}\
-	%{mlink-relax:-relax}"
-
-/* Specs for the libraries to link with, to handle processor variations.
-   Compatible with Intel's gnu960 tool chain.  */
-//#undef LIB_SPEC
-// #define LIB_SPEC "%{!nostdlib:-lcg %{p:-lprof}%{pg:-lgprof} %{mka:-lfpg}%{msa:-lfpg}%{mca:-lfpg}%{mcf:-lfpg} -lgnu}"
-
-/* Defining the macro shows we can debug even without a frame pointer.
-   Actually, we can debug without FP.  But defining the macro results in
-   that -O means FP elimination.  Addressing through sp requires
-   negative offset and more one word addressing in the most cases
-   (offsets except for 0-4095 require one more word).  Therefore we've
-   not defined the macro.  */
-/*#define CAN_DEBUG_WITHOUT_FP*/
+        %{mja:-AJX}%{mjd:-AJX}%{mjf:-AJX}%{mrp:-AJX}"
 
 /* Generate DBX debugging information.  */
 #define DBX_DEBUGGING_INFO 1

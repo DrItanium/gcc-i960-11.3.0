@@ -103,10 +103,6 @@ int i960_last_maxbitalignment;
 
 static int i960_leaf_ret_reg;
 
-/* True if replacing tail calls with jumps is OK.  */
-
-static int tail_call_ok;
-
 /* A string containing a list of insns to emit in the epilogue so as to
    restore all registers saved by the prologue.  Created by the prologue
    code as it saves registers away.  */
@@ -1131,98 +1127,10 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
 
   ret_label++;
 
-  /// TODO add support for leaf functions and tail call optimizations
-  /* Compute whether tail calls and leaf routine optimizations can be performed
-     for this function.  */
-
-  if (TARGET_TAILCALL)
-    tail_call_ok = 1;
-  else
-    tail_call_ok = 0;
-
-  if (TARGET_LEAFPROC)
-    leaf_proc_ok = 1;
-  else
-    leaf_proc_ok = 0;
-
-  /* Even if nobody uses extra parms, can't have leafproc or tail calls if
-     argblock, because argblock uses g14 implicitly.  */
-
-  if (current_function_args_size != 0 || VARARGS_STDARG_FUNCTION (fndecl))
-    {
-      tail_call_ok = 0;
-      leaf_proc_ok = 0;
-    }
-      
-  /* See if caller passes in an address to return value.  */
-
-  if (aggregate_value_p (DECL_RESULT (fndecl), fndecl))
-    {
-      tail_call_ok = 0;
-      leaf_proc_ok = 0;
-    }
-
-  /* Can not use tail calls or make this a leaf routine if there is a non
-     zero frame size.  */
-
-  if (get_frame_size().to_constant() != 0)
-    leaf_proc_ok = 0;
-
-  /* I don't understand this condition, and do not think that it is correct.
-     Apparently this is just checking whether the frame pointer is used, and
-     we can't trust regs_ever_live[fp] since it is (almost?) always set.  */
-
-  if (tail_call_ok)
-    for (insn = get_insns (); insn; insn = NEXT_INSN (insn))
-      if (GET_CODE (insn) == INSN
-	  && reg_mentioned_p (frame_pointer_rtx, insn))
-	{
-	  tail_call_ok = 0;
-	  break;
-	}
-
-  /* Check for CALL insns.  Can not be a leaf routine if there are any.  */
-
-  if (leaf_proc_ok)
-    for (insn = get_insns (); insn; insn = NEXT_INSN (insn))
-      if (GET_CODE (insn) == CALL_INSN)
-	{
-	  leaf_proc_ok = 0;
-	  break;
-	}
-
-  /* Can not be a leaf routine if any non-call clobbered registers are
-     used in this function.  */
-
-  if (leaf_proc_ok) {
-      for (i = 0, j = 0; i < FIRST_PSEUDO_REGISTER; i++) {
-          if (df_regs_ever_live_p(i)
-                  && ((! call_used_regs[i]) || (i > 7 && i < 12))) {
-              /* Global registers.  */
-              if (i < 16 && i > 7 && i != 13)
-                  leaf_proc_ok = 0;
-              /* Local registers.  */
-              else if (i < 32)
-                  leaf_proc_ok = 0;
-          }
-      }
-  }
-
   /* Now choose a leaf return register, if we can find one, and if it is
      OK for this to be a leaf routine.  */
 
   i960_leaf_ret_reg = -1;
-
-  if (optimize && leaf_proc_ok)
-    {
-      for (i960_leaf_ret_reg = -1, i = 0; i < 8; i++)
-	if (!df_regs_ever_live_p(i))
-	  {
-	    i960_leaf_ret_reg = i;
-        df_set_regs_ever_live (i, true);
-	    break;
-	  }
-    }
 
   /* Do this after choosing the leaf return register, so it will be listed
      if one was chosen.  */
@@ -1707,16 +1615,6 @@ i960_output_call_insn (rtx target, rtx argsize_rtx, rtx arg_pointer, rtx_insn* i
      feature is now implemented by relaxing in the GNU linker.  It can convert
      bx to b if in range, and callx to calls/call/balx/bal as appropriate.  */
 
-  /* Nexti could be zero if the called routine is volatile.  */
-  if (optimize && (*epilogue_string == 0) && argsize == 0 && tail_call_ok 
-      && (nexti == 0 || GET_CODE (PATTERN (nexti)) == RETURN))
-    {
-      /* Delete following return insn.  */
-        if (nexti && no_labels_between_p (insn, nexti))
-            delete_insn (nexti);
-        output_asm_insn ("bx	%0", operands);
-        return "# notreached";
-    }
 
   output_asm_insn ("callx	%0", operands);
 
@@ -1767,7 +1665,6 @@ void
 i960_print_operand (FILE* file, rtx x, int code)
 {
   enum rtx_code rtxcode = GET_CODE (x);
-
   if (rtxcode == REG)
     {
       switch (code)
@@ -1889,7 +1786,7 @@ normal: // this is not good if I am seeing a label...
       else if (rtxcode == UNLE) { fputs ("le", file); return; }
       else if (rtxcode == UNORDERED) { fputs ("no", file); return; }
       else if (rtxcode == ORDERED) { fputs ("o", file); return; }
-      else abort ();
+      else gcc_unreachable();
       break;
 
       // We do not support branch prediction hints

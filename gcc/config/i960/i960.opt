@@ -34,25 +34,13 @@ mprotected
 Target Mask(PROTECTED)
 Enable i960 Protected Extensions (OS Scheduling + String operations)
 
-mtail-call
-Target Mask(TAILCALL)
-
-mleaf-procedures
-Target Mask(LEAFPROC)
-
-
 mcomplex-addr
 Target Mask(COMPLEX_ADDR)
 Enable Complex addressing modes
 
-
 mcode-align
 Target Mask(CODE_ALIGN)
 Enable Code Alignment
-
-mbranch-predict
-Target Mask(BRANCH_PREDICT)
-Enable Branch Prediction Bits
 
 mstrict-alignment
 Target Mask(STRICT_ALIGN)
@@ -85,9 +73,3 @@ Target RejectNegative Mask(S_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS) Mask(PROT
 mmc
 Target RejectNegative Mask(M_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS) Mask(PROTECTED) Mask(TARGET_MC)
 ; i960 MC CPU
-
-mca
-Target RejectNegative Mask(C_SERIES) Mask(COMPLEX_ADDR) Mask(BRANCH_PREDICT) Mask(CODE_ALIGN)
-; i960 CA CPU
-
-; @todo add support for other cpus (Jx, Hx, Rx, Vx)
