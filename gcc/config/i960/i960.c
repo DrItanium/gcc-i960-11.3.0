@@ -1329,31 +1329,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
 
   /* Check stack limit if necessary.  */
     if (crtl->limit_stack) {
-#if 0
-        rtx min_stack = stack_limit_rtx;
-        if (actual_fsize != 0)
-            min_stack = plus_constant (Pmode, stack_limit_rtx, -actual_fsize);
-
-        /* Now, emulate a little bit of reload.  We want to turn 'min_stack'
-       into an arith_operand.  Use register 20 as the temporary.  */
-        if (i960_legitimate_address_p (Pmode, min_stack, 1)
-            && !arith_operand (min_stack, Pmode)) {
-            rtx tmp = gen_rtx_MEM (Pmode, min_stack);
-            fputs ("\tlda\t", file);
-            i960_print_operand (file, tmp, 0);
-            fputs (",r4\n", file);
-            min_stack = gen_rtx_REG (Pmode, 20);
-        }
-        if (arith_operand (min_stack, Pmode)) {
-            fputs ("\tcmpo\tsp,", file);
-            i960_print_operand (file, min_stack, 0);
-            fputs ("\n\tfaultge.f\n", file);
-        } else {
-#endif
             warning (0, "stack limit expression is not supported");
-#if 0
-        }
-#endif
     }
 
   /* Allocate space for register save and locals.  */
