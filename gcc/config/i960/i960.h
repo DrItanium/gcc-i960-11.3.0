@@ -39,7 +39,7 @@ Boston, MA 02111-1307, USA.  */
     }						\
   while (0)
 
-#define MULTILIB_DEFAULTS { "mnumerics", "msoft-float" }
+#define MULTILIB_DEFAULTS { "mnumerics" }
 
 /* Name to predefine in the preprocessor for processor variations.
    -mic* options make characters signed by default.  */
