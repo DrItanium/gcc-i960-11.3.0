@@ -223,14 +223,6 @@ i960_frame_pointer_required(void)
 /* Return true if OP can be used as the source of an fp move insn.  */
 
 /* Return truth value of whether OP can be used as an operands in a three
-   address arithmetic insn (such as add %o1,7,%l2) of mode MODE.  */
-int
-i960_arith_operand (rtx op, enum machine_mode mode)
-{
-  return (register_operand (op, mode) || literal (op, mode));
-}
-
-/* Return truth value of whether OP can be used as an operands in a three
    address logic insn, possibly complementing OP, of mode MODE.  */
 
 int
@@ -321,16 +313,6 @@ i960_symbolic_memory_operand (rtx op, enum machine_mode)
         default:
             return false;
     }
-}
-
-/* OP is an integer register or a constant.  */
-
-int
-i960_arith32_operand (rtx op, enum machine_mode mode)
-{
-  if (register_operand (op, mode))
-    return 1;
-  return (CONSTANT_P (op));
 }
 
 /* Return true if OP is an integer constant which is a power of 2.  */
@@ -477,15 +459,20 @@ i960_gen_compare_reg (enum rtx_code code, rtx x, rtx y)
     = GET_MODE (x) == VOIDmode ? GET_MODE (y) : GET_MODE (x);
 
     if (mode == SImode) {
+        // if x is not an arithmetic operand then force x to be in a
+        // hardware register
         if (! arith_operand (x, mode)) {
             x = force_reg(SImode, x);
         }
+        // if y is not an arithmetic operand then force y to be in a
+        // hardware register
         if (! arith_operand (y, mode)) {
             y = force_reg(SImode, y);
         }
     }
 
   rtx cc_reg = gen_rtx_REG (ccmode, 36);
+  // emit the compare instruction itself
   emit_insn (gen_rtx_SET (cc_reg,
 			  gen_rtx_COMPARE (ccmode, x, y)));
 
@@ -526,7 +513,8 @@ i960_address_cost (rtx x, machine_mode, addr_space_t, bool)
               return 2;
           }
           if (GET_CODE (offset) == CONST_INT) {
-              if ((unsigned)INTVAL(offset) < 2047) {
+              unsigned uOffsetValue = INTVAL(offset);
+              if (uOffsetValue < 2047) {
                   return 2;
               }
               return 4;
@@ -542,7 +530,7 @@ i960_address_cost (rtx x, machine_mode, addr_space_t, bool)
       /* This is an invalid address.  The return value doesn't matter, but
 	 for convenience we make this more expensive than anything else.  */
       return 12;
-    }
+  }
   if (GET_CODE (x) == MULT) {
       return 6;
   }
@@ -1490,7 +1478,7 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
         /* Now, emulate a little bit of reload.  We want to turn 'min_stack'
        into an arith_operand.  Use register 20 as the temporary.  */
         if (i960_legitimate_address_p (Pmode, min_stack, 1)
-            && !i960_arith_operand (min_stack, Pmode)) {
+            && !arith_operand (min_stack, Pmode)) {
             rtx tmp = gen_rtx_MEM (Pmode, min_stack);
             fputs ("\tlda\t", file);
             i960_print_operand (file, tmp, 0);

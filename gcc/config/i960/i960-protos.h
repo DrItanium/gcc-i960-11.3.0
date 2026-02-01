@@ -29,7 +29,7 @@ Boston, MA 02111-1307, USA.  */
 #ifdef RTX_CODE
 //extern struct rtx_def *i960_legitimize_address (rtx, rtx, enum machine_mode);
 /* Define the function that build the compare insn for scc and bcc.  */
-extern struct rtx_def *i960_gen_compare_reg (enum rtx_code, rtx, rtx);
+extern rtx i960_gen_compare_reg (enum rtx_code, rtx, rtx);
 /* Define functions in i960.c and used in insn-output.c.  */
 extern const char *i960_output_ldconst (rtx, rtx);
 extern const char *i960_output_call_insn (rtx, rtx, rtx, rtx_insn*);
@@ -67,6 +67,7 @@ extern int i960_si_di (rtx, rtx);
 constexpr bool isQuadRegisterAligned(unsigned int value) noexcept { return (value & 0b11) == 0; }
 constexpr bool isTripleRegisterAligned(unsigned int value) noexcept { return isQuadRegisterAligned(value); }
 constexpr bool isLongRegisterAligned(unsigned int value) noexcept { return (value & 0b1) == 0; }
+
 #endif
 extern int i960_round_align (int, tree);
 extern void i960_function_name_declare (FILE *, const char *, tree);
