@@ -99,9 +99,6 @@ struct GTY(()) machine_function
 int i960_maxbitalignment;
 int i960_last_maxbitalignment;
 
-/* The leaf-procedure return register.  Set only if this is a leaf routine.  */
-
-static int i960_leaf_ret_reg;
 
 /* A string containing a list of insns to emit in the epilogue so as to
    restore all registers saved by the prologue.  Created by the prologue
@@ -203,18 +200,7 @@ i960_frame_pointer_required(void)
    Zero means the frame pointer need not be set up (and parms
    may be accessed via the stack pointer) in functions that seem suitable.
    This is computed in `reload', in reload1.c.  */
-/* ??? It isn't clear to me why this is here.  Perhaps because of a bug (since
-   fixed) in the definition of INITIAL_FRAME_POINTER_OFFSET which would have
-   caused this to fail.  */
-/* ??? Must check current_function_has_nonlocal_goto, otherwise frame pointer
-  elimination messes up nonlocal goto sequences.  I think this works for other
-  targets because they use indirect jumps for the return which disables fp
-  elimination.  */
-#if 0
-    return (! leaf_function_p () || current_function_has_nonlocal_goto);
-#else
     return true;
-#endif
 }
 /* Return true if OP can be used as the source of an fp move insn.  */
 
@@ -1119,18 +1105,10 @@ i960_bypass (rtx_insn* insn, rtx op1, rtx op2, int cmpbr_flag)
 void
 i960_function_name_declare (FILE* file, const char* name, tree fndecl)
 {
-  int i, j;
-  int leaf_proc_ok;
-  rtx_insn* insn;
-
   /* Increment global return label.  */
 
   ret_label++;
 
-  /* Now choose a leaf return register, if we can find one, and if it is
-     OK for this to be a leaf routine.  */
-
-  i960_leaf_ret_reg = -1;
 
   /* Do this after choosing the leaf return register, so it will be listed
      if one was chosen.  */
@@ -1138,7 +1116,7 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
   fprintf (file, "\t#  Function '%s'\n", (name[0] == '*' ? &name[1] : name));
   fprintf (file, "\t#  Registers used: ");
 
-  for (i = 0, j = 0; i < FIRST_PSEUDO_REGISTER; i++)
+  for (int i = 0, j = 0; i < FIRST_PSEUDO_REGISTER; i++)
   {
       if (df_regs_ever_live_p(i))
       {
@@ -1153,24 +1131,7 @@ i960_function_name_declare (FILE* file, const char* name, tree fndecl)
   }
 
   fprintf (file, "\n");
-    // TODO fix this garbage
-  if (i960_leaf_ret_reg >= 0) {
-      /* Make it a leaf procedure.  */
-
-      if (TREE_PUBLIC (fndecl))
-          fprintf (file,"\t.globl\t%s.lf\n", (name[0] == '*' ? &name[1] : name));
-
-      fprintf (file, "\t.leafproc\t");
-      assemble_name (file, name);
-      fprintf (file, ",%s.lf\n", (name[0] == '*' ? &name[1] : name));
-      ASM_OUTPUT_LABEL (file, name);
-      fprintf (file, "\tlda    .Li960R%d,g14\n", ret_label);
-      fprintf (file, "%s.lf:\n", (name[0] == '*' ? &name[1] : name));
-      fprintf (file, "\tmov    g14,g%d\n", i960_leaf_ret_reg);
-      fprintf (file, "\tmov    0,g14\n");
-  } else {
-      ASM_OUTPUT_LABEL (file, name);
-  }
+  ASM_OUTPUT_LABEL (file, name);
 }
 
 namespace {
@@ -1365,20 +1326,10 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
     }
 
   actual_fsize = i960_compute_frame_size (get_frame_size()) + (4 * n_remaining_saved_regs);
-#if 0
-  /* ??? The 1.2.1 compiler does this also.  This is meant to round the frame
-     size up to the nearest multiple of 16.  I don't know whether this is
-     necessary, or even desirable.
-
-     The frame pointer must be aligned, but the call instruction takes care of
-     that.  If we leave the stack pointer unaligned, we may save a little on
-     dynamic stack allocation.  And we don't lose, at least according to the
-     i960CA manual.  */
-  actual_fsize = (actual_fsize + 15) & ~0xF;
-#endif
 
   /* Check stack limit if necessary.  */
     if (crtl->limit_stack) {
+#if 0
         rtx min_stack = stack_limit_rtx;
         if (actual_fsize != 0)
             min_stack = plus_constant (Pmode, stack_limit_rtx, -actual_fsize);
@@ -1398,12 +1349,16 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
             i960_print_operand (file, min_stack, 0);
             fputs ("\n\tfaultge.f\n", file);
         } else {
+#endif
             warning (0, "stack limit expression is not supported");
+#if 0
         }
+#endif
     }
 
   /* Allocate space for register save and locals.  */
     if (actual_fsize > 0) {
+        printf("%s: actual_fsize = %d\n", __PRETTY_FUNCTION__, actual_fsize);
         if (actual_fsize < 32) {
             fprintf (file, "\taddo	" HOST_WIDE_INT_PRINT_DEC ",sp,sp\n", actual_fsize);
         } else {
@@ -1532,11 +1487,6 @@ i960_output_function_profiler (FILE* file, int labelno)
 static void
 i960_output_function_epilogue (FILE* file/*, HOST_WIDE_INT size*/)
 {
-  if (i960_leaf_ret_reg >= 0)
-    {
-      fprintf (file, ".Li960R%d:	ret\n", ret_label);
-      return;
-    }
 
   if (*epilogue_string == 0)
     {
@@ -1651,11 +1601,6 @@ i960_output_ret_insn (rtx_insn* insn)
   if (VARARGS_STDARG_FUNCTION (current_function_decl))
     output_asm_insn ("mov	0,g14", 0);
 
-  if (i960_leaf_ret_reg >= 0)
-    {
-      sprintf (lbuf, "bx	(%s)", reg_names[i960_leaf_ret_reg]);
-      return lbuf;
-    }
   return "ret";
 }
 
@@ -2218,8 +2163,6 @@ i960_object_bytes_bitalign (int n)
 int
 i960_round_align (int align, tree type)
 {
-  //if (TARGET_OLD_ALIGN || TYPE_PACKED (type))
-  //  return align;
   if (TREE_CODE (type) != RECORD_TYPE)
     return align;
   tree tsize = TYPE_SIZE (type);
@@ -2570,7 +2513,6 @@ i960_rtx_costs (rtx x, machine_mode, int code, int outer_code, int* total, bool)
     case CONST:
     case LABEL_REF:
     case SYMBOL_REF:
-      //*total = (TARGET_C_SERIES ? 6 : 8);
       *total = 8;
       return true;
 
