@@ -198,7 +198,7 @@ extern int i960_last_maxbitalignment;
    instruction pointer (r2), and the argument pointer (g14).  */
 #define FIXED_REGISTERS  \
  {0, 0, 0, 0, 0, 0, 0, 0,	\
-  0, 0, 0, 0, 0, 0, 1, 1,	\
+  0, 0, 0, 0, 1, 1, 1, 1,	\
   1, 1, 1, 0, 0, 0, 0, 0,	\
   0, 0, 0, 0, 0, 0, 0, 0,	\
   0, 0, 0, 0, 1, 1}
