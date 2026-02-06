@@ -251,6 +251,8 @@ extern int i960_last_maxbitalignment;
    a register that can be set before a call or before a jump.  */
 #define STATIC_CHAIN_REGNUM 12
 
+#define I960_STRUCT_VALUE_REGNUM 13
+
 /* Actual top-of-stack address is same as
    the contents of the stack pointer register.  */
 #define STACK_POINTER_OFFSET (-crtl->outgoing_args_size)

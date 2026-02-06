@@ -2783,6 +2783,13 @@ i960_return_in_memory(const_tree type, const_tree fntype) {
   return (TYPE_MODE (type) == BLKmode || int_size_in_bytes (type) > 16);
 }
 
+static rtx
+i960_struct_value_rtx (tree fntype ATTRIBUTE_UNUSED,
+		       int incoming ATTRIBUTE_UNUSED)
+{
+  return gen_rtx_REG (Pmode, I960_STRUCT_VALUE_REGNUM);
+}
+
 #undef  TARGET_OPTION_OVERRIDE
 #define TARGET_OPTION_OVERRIDE i960_option_override
 #undef TARGET_HARD_REGNO_NREGS
@@ -2851,6 +2858,9 @@ i960_return_in_memory(const_tree type, const_tree fntype) {
 
 #undef TARGET_RETURN_IN_MEMORY
 #define TARGET_RETURN_IN_MEMORY i960_return_in_memory
+
+#undef TARGET_STRUCT_VALUE_RTX
+#define TARGET_STRUCT_VALUE_RTX i960_struct_value_rtx
 
 
 struct gcc_target targetm = TARGET_INITIALIZER;
