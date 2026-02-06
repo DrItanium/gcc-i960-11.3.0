@@ -2800,6 +2800,33 @@ i960_get_current_function_args_size(void)
     }
 }
 
+bool
+i960_can_use_g14_for_zero_store(void) 
+{
+    // copilot helped me demystify what the hell the old statement was actually
+    // doing
+    //
+    // I have written this manually based on the recommendations from it
+
+    // the goal of this expression is to actually check and see if we can use
+    // g14 as zero. This saves instructions loading constant zeros and wasting
+    // registers
+    //
+    // We can use g14 as zero when:
+    // 1) The function has no arguments (args.size == 0)
+    // 2) The function is not varargs/stdarg
+    // 3) The RTL expansion phase has already come and gone
+    
+    // VLAs disable the ability to use g14 as zero
+    if (!crtl->args.size.is_constant()) {
+        return false;
+    }
+    // these are the conditions for the three different cases
+    return crtl->args.size.to_constant() == 0
+        && !cfun->stdarg
+        && !currently_expanding_to_rtl;
+}
+
 #undef  TARGET_OPTION_OVERRIDE
 #define TARGET_OPTION_OVERRIDE i960_option_override
 #undef TARGET_HARD_REGNO_NREGS
