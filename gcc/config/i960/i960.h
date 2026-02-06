@@ -85,6 +85,16 @@ Boston, MA 02111-1307, USA.  */
 	%{mmc:-AMC}%{mca:-ACA}%{mcc:-ACC}%{mcf:-ACF}\
         %{mja:-AJX}%{mjd:-AJX}%{mjf:-AJX}%{mrp:-AJX}"
 
+/* Generate DBX debugging information.  */
+#define DBX_DEBUGGING_INFO 1
+
+/* Generate DBX_DEBUGGING_INFO by default.  */
+#define PREFERRED_DEBUGGING_TYPE DBX_DEBUG
+
+/* Redefine this to print in hex.  No value adjustment is necessary
+   anymore.  */
+#define PUT_SDB_TYPE(A) \
+  fprintf (asm_out_file, "\t.type\t0x%x;", A)
 
 /* Handle pragmas for compatibility with Intel's compilers.  */
 
