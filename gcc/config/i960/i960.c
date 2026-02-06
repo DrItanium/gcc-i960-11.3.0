@@ -2771,7 +2771,7 @@ i960_compute_initial_elimination_offset(unsigned int from, unsigned int to) {
 
 static bool
 i960_enable_lra() {
-    return false;
+    return true;
 }
 
 static bool
