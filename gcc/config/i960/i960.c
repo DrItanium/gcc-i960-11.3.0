@@ -67,7 +67,8 @@ Boston, MA 02111-1307, USA.  */
 // include last
 #include "target-def.h"
 
-#define current_function_args_size (crtl->args.size.to_constant())
+static HOST_WIDE_INT i960_get_current_function_args_size(void);
+#define current_function_args_size (i960_get_current_function_args_size())
 #define current_function_args_info (crtl->args.info)
 #define current_function_stdarg (cfun->stdarg)
 #define compat_STARTING_FRAME_OFFSET 64
@@ -113,10 +114,7 @@ static int ret_label = 0;
 /* This is true if FNDECL is either a varargs or a stdarg function.
    This is used to help identify functions that use an argument block.  */
 
-#define VARARGS_STDARG_FUNCTION(FNDECL)	\
-(TYPE_ARG_TYPES (TREE_TYPE (FNDECL)) != 0				\
-  && (TREE_VALUE (tree_last (TYPE_ARG_TYPES (TREE_TYPE (FNDECL)))))	\
-      != void_type_node)
+#define VARARGS_STDARG_FUNCTION(FNDECL)	(stdarg_p(TREE_TYPE(FNDECL)))
 
 /* Initialize the GCC target structure.  */
 
@@ -2415,7 +2413,7 @@ i960_reg_parm_stack_space (tree fndecl)
 
     /* Otherwise, we have an arg block if the current function has more than
        48 bytes of parameters.  */
-    if (current_function_args_size != 0 || VARARGS_STDARG_FUNCTION (fndecl)) {
+    if (current_function_args_size != 0 || stdarg_p(TREE_TYPE(fndecl))) {
         return 48;
     }
     return 0;
@@ -2786,6 +2784,20 @@ i960_struct_value_rtx (tree fntype ATTRIBUTE_UNUSED,
 		       int incoming ATTRIBUTE_UNUSED)
 {
   return gen_rtx_REG (Pmode, I960_STRUCT_VALUE_REGNUM);
+}
+
+static inline HOST_WIDE_INT
+i960_get_current_function_args_size(void) 
+{
+    // this was recommended by Copilot but manually written by the author
+    // I want to understand what it is doing and why this is being selected
+    if (crtl->args.size.is_constant()) {
+        return crtl->args.size.to_constant();
+    } else {
+        // apparently this is a sentinel value meaning "variable"
+        // return a conservative amount of stack space needed
+        return 48;
+    }
 }
 
 #undef  TARGET_OPTION_OVERRIDE
