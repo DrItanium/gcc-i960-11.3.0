@@ -523,13 +523,6 @@ struct i960_cumulative_args_t { int ca_nregparms; int ca_nstackparms; };
 /* Maximum number of registers that can appear in a valid memory address.  */
 #define	MAX_REGS_PER_ADDRESS 2
 
-#if 0
-#define CONSTANT_ADDRESS_P(X)   \
-  (GET_CODE (X) == LABEL_REF || GET_CODE (X) == SYMBOL_REF		\
-   || GET_CODE (X) == CONST_INT || GET_CODE (X) == CONST		\
-   || GET_CODE (X) == HIGH)
-#endif
-
 /* The macros REG_OK_FOR..._P assume that the arg is a REG rtx
    and check its validity for a certain class.
    We have two alternate definitions for each of them.
