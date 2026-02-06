@@ -86,4 +86,5 @@ extern int i960_object_bytes_bitalign (int);
 extern void i960_initialize (void);
 extern HOST_WIDE_INT i960_compute_initial_elimination_offset (unsigned int, unsigned int);
 extern bool i960_can_use_g14_for_zero_store(void);
+extern bool i960_cannot_use_g14_for_zero_store(void);
 #endif /* ! GCC_I960_PROTOS_H  */

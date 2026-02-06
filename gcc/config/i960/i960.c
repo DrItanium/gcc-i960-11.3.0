@@ -2801,7 +2801,7 @@ i960_get_current_function_args_size(void)
 }
 
 bool
-i960_can_use_g14_for_zero_store(void) 
+i960_can_use_g14_for_zero_store() 
 {
     // copilot helped me demystify what the hell the old statement was actually
     // doing
@@ -2825,6 +2825,21 @@ i960_can_use_g14_for_zero_store(void)
     return crtl->args.size.to_constant() == 0
         && !cfun->stdarg
         && !currently_expanding_to_rtl;
+}
+
+bool
+i960_cannot_use_g14_for_zero_store()
+{
+    // if we have VLAs then g14 is already in use
+    if (!crtl->args.size.is_constant()) {
+        return true;
+    }
+
+    // if we are still expanding, have arguments, or varargs then we cannot use
+    // g14 either
+    return currently_expanding_to_rtl 
+        || crtl->args.size.to_constant() != 0
+        || cfun->stdarg;
 }
 
 #undef  TARGET_OPTION_OVERRIDE
