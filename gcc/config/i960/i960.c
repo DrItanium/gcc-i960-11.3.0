@@ -1341,7 +1341,6 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
             warning (0, "stack limit expression is not supported");
     }
 
-    printf("%s: actual_fsize = %d\n", __PRETTY_FUNCTION__, actual_fsize);
   /* Allocate space for register save and locals.  */
     if (actual_fsize > 0) {
         if (actual_fsize < 32) {
@@ -1355,7 +1354,6 @@ i960_output_function_prologue (FILE* file/*, HOST_WIDE_INT size*/)
      into account, but store them before the argument block area.  */
   lvar_size = actual_fsize - i960_compute_frame_size (0) - (n_remaining_saved_regs * 4);
   offset = compat_STARTING_FRAME_OFFSET + lvar_size;
-  printf("%s: lvar_size: %d, offset: %d\n", __PRETTY_FUNCTION__, lvar_size, offset);
   /* Save registers on stack if needed.  */
   /* ??? Is it worth to use the same algorithm as one for saving
      global registers in local registers? */
