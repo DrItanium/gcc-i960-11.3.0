@@ -1680,12 +1680,18 @@ i960_print_operand (FILE* file, rtx x, int code)
 
     case 'I':
       /* Inverted condition.  */
-      rtxcode = reverse_condition (rtxcode);
+      /// TODO: use reversed_comparison_code instead as reverse_condition
+      /// doesn't work with floating point numbers in all cases
+      rtxcode = reverse_condition (rtxcode); // this fails with floating point
+                                             // operations
       goto normal; // gross
 
     case 'X':
       /* Inverted condition w/ reversed operands.  */
-      rtxcode = reverse_condition (rtxcode);
+      /// TODO: use reversed_comparison_code instead as reverse_condition
+      /// doesn't work with floating point numbers in all cases
+      rtxcode = reverse_condition (rtxcode); // this fails with floating point
+                                             // operations
       /* Fallthrough.  */
 
     case 'R':
@@ -1730,6 +1736,11 @@ normal: // this is not good if I am seeing a label...
               return;
           case ORDERED:
               fputs("o", file);
+              return;
+          case UNKNOWN:
+              // this is a fall back to make sure that I can figure out where a
+              // given error is coming from. It will never actually assemble
+              fputs("?", file);
               return;
           default:
               gcc_unreachable();
