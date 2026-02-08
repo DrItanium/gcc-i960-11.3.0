@@ -32,10 +32,6 @@ extern int i960_has_branch_predict;
 
 #define TARGET_HARD_FLOAT (i960_float_abi == FLOAT_ABI_HARD)
 #define TARGET_SOFT_FLOAT (i960_float_abi == FLOAT_ABI_SOFT)
-#define TARGET_NUMERICS (i960_has_numerics)
-#define TARGET_PROTECTED (i960_has_protected)
-#define TARGET_COMPLEX_ADDR (i960_has_complex_addr)
-#define TARGET_BRANCH_PREDICT (i960_has_branch_predict)
 
 #define TARGET_K_SERIES (i960_arch == ARCH_KA || i960_arch == ARCH_KB || i960_arch == ARCH_KC)
 #define TARGET_S_SERIES (i960_arch == ARCH_SA || i960_arch == ARCH_SB || i960_arch == ARCH_SC)

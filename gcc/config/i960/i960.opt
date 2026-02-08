@@ -61,11 +61,11 @@ EnumValue
 Enum(i960_arch) String(sc) Value(ARCH_MC)
 
 mhard-float
-Target RejectNegative Var(i960_float_abi, FLOAT_ABI_HARD) Save
+Target RejectNegative Var(i960_float_abi, FLOAT_ABI_HARD) Init(FLOAT_ABI_HARD) Mask(NUMERICS) Save
 Use hardware floating-point instructions (enables numerics architecture)
 
 msoft-float
-Target RejectNegative Var(i960_float_abi, FLOAT_ABI_SOFT) Save
+Target RejectNegative Var(i960_float_abi, FLOAT_ABI_SOFT) InverseMask(NUMERICS) Save
 Use software floating-point emulation
 
 mnumerics
@@ -73,19 +73,19 @@ Target RejectNegative Alias(mhard-float)
 Enable i960 numerics extensions (-mhard-float)
 
 mprotected
-Target Var(i960_protected_option, 1) Init(-1) Save
+Target Var(i960_protected_option, 1)  Init(-1) Mask(PROTECTED) Save
 Enable i960 protected extensions (implies -mnumerics/-mhard-float)
 
 mno-protected
-Target Var(i960_protected_option, 0) Save
+Target Var(i960_protected_option, 0) InverseMask(PROTECTED) Save
 Disable i960 protected extensions
 
 mcomplex-addr
-Target Var(i960_complex_addr_option, 1) Init(-1) Save
+Target Var(i960_complex_addr_option, 1) Init(-1) Mask(COMPLEX_ADDR) Save
 Allow complex addressing mode instruction forms
 
 mno-complex-addr
-Target Var(i960_complex_addr_option, 0) Save
+Target Var(i960_complex_addr_option, 0) InverseMask(COMPLEX_ADDR) Save
 Disallow complex addressing mode instruction forms
 
 mcode-align
@@ -97,11 +97,11 @@ Target Mask(STRICT_ALIGN)
 Do not allow misaligned data accesses
 
 mbranch-predict
-Target Var(i960_branch_predict_option, 1) Init(-1) Save
+Target Var(i960_branch_predict_option, 1) Init(-1) Mask(BRANCH_PREDICT)  Save
 Enable branch prediction hints
 
 mno-branch-predict
-Target Var(i960_branch_predict_option, 1) Save
+Target Var(i960_branch_predict_option, 1) InverseMask(BRANCH_PREDICT) Save
 Enable branch prediction hints
 
 ;; cpu-specific options
