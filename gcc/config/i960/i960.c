@@ -140,16 +140,16 @@ static const struct i960_processor_info i960_processors[] = {
     { ARCH_MC, "mc", "i960 MC", I960_FEATURE_COMPLEX_ADDRESSING | I960_FEATURE_NUMERICS | I960_FEATURE_PROTECTED },
     { (i960_processor_type) 0, nullptr, nullptr, 0 },
 };
-static const i960_processor_info*
+static const i960_processor_info&
 i960_get_processor_info() 
 {
-    return &i960_processors[i960_arch];
+    return i960_processors[i960_arch];
 }
 static bool
 i960_processor_has_feature(unsigned int feature) 
 {
-    const i960_processor_info* proc = i960_get_processor_info();
-    return (proc->features & feature) != 0;
+    const i960_processor_info& proc = i960_get_processor_info();
+    return (proc.features & feature) != 0;
 }
 
 static bool
@@ -158,12 +158,12 @@ i960_resolve_option(int optionValue, unsigned int cpuFeature, const char* featur
     bool cpuHasFeature = i960_processor_has_feature(cpuFeature);
     if (optionValue == I960_OPTION_ENABLED) {
         if (!cpuHasFeature) {
-            const i960_processor_info* proc = i960_get_processor_info();
-            error ("processor %qs does not support %s", proc->name, featureName);
+            const auto& proc = i960_get_processor_info();
+            error ("processor %qs does not support %s", proc.name, featureName);
             return false;
         }
         return true;
-    } else if (optionValue== I960_OPTION_DISABLED) {
+    } else if (optionValue == I960_OPTION_DISABLED) {
         return false;
     } else {
         return cpuHasFeature && defaultIfCapable;
@@ -175,21 +175,21 @@ i960_resolve_option(int optionValue, unsigned int cpuFeature, const char* featur
 /* Zero initialization is OK for all current fields.  */
 
 static struct machine_function *
-i960_init_machine_status (void)
+i960_init_machine_status ()
 {
   return ggc_cleared_alloc<machine_function> ();
 }
 void
-i960_option_override (void)
+i960_option_override ()
 {
   /* Set the per-function-data initializer.  */
   init_machine_status = i960_init_machine_status;
-  const auto* proc = i960_get_processor_info();
+  const auto& proc = i960_get_processor_info();
   // Protected architecture is a superset of the numerics architecture, if you
   // enable protected then also enable numerics.
   if (i960_protected_option == I960_OPTION_ENABLED) {
       if (!i960_processor_has_feature(I960_FEATURE_PROTECTED)) {
-          error ("processor %qs does not support protected extensions", proc->name);
+          error ("processor %qs does not support protected extensions", proc.name);
           i960_protected_option = I960_OPTION_DISABLED;
       } else {
           if (i960_float_abi == FLOAT_ABI_SOFT) {
@@ -204,7 +204,7 @@ i960_option_override (void)
     // user wants hardware FPU -- check and see if it is legal
     if (!i960_processor_has_feature(I960_FEATURE_NUMERICS)) {
         if (global_options_set.x_i960_float_abi) {
-            error("processor %qs does not support hardware floating-point", proc->name);
+            error("processor %qs does not support hardware floating-point", proc.name);
         }
         // fall back to soft float
         i960_float_abi = FLOAT_ABI_SOFT;
@@ -232,13 +232,6 @@ i960_option_override (void)
           i960_float_abi = FLOAT_ABI_SOFT;
       }
   }
-
-  if (flag_verbose_asm) {
-      fprintf(asm_out_file, "# Target: %s\n", proc->description);
-      fprintf(asm_out_file, "# Float ABI: %s\n", TARGET_HARD_FLOAT ? "hard" : "soft");
-      fprintf(asm_out_file, "# Numerics: %s\n", i960_has_numerics ? "yes" : "no");
-      fprintf(asm_out_file, "# Protected: %s\n", i960_has_protected ? "yes" : "no");
-  }
 }
 /* Override conflicting target switch options.
    Doesn't actually detect if more than one -mARCH option is given, but
@@ -249,43 +242,8 @@ i960_option_override (void)
 void
 i960_initialize ()
 {
-#if 0
-    if (TARGET_K_SERIES && TARGET_C_SERIES) {
-        warning (0, "conflicting architectures defined - using C series");
-        target_flags &= ~TARGET_FLAG_K_SERIES;
-    }
-    if (TARGET_K_SERIES && TARGET_MC) {
-        warning (0, "conflicting architectures defined - using K series");
-        target_flags &= ~TARGET_FLAG_MC;
-    }
-    if (TARGET_C_SERIES && TARGET_MC) {
-        warning (0, "conflicting architectures defined - using C series");
-        target_flags &= ~TARGET_FLAG_MC;
-    }
-    if (TARGET_IC_COMPAT3_0) {
-        flag_short_enums = 1;
-        flag_signed_char = 1;
-        target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
-        if (TARGET_IC_COMPAT2_0) {
-            warning (0, "iC2.0 and iC3.0 are incompatible - using iC3.0");
-            target_flags &= ~TARGET_FLAG_IC_COMPAT2_0;
-        }
-    }
-    if (TARGET_IC_COMPAT2_0) {
-        flag_signed_char = 1;
-        target_flags |= TARGET_FLAG_CLEAN_LINKAGE;
-    }
-
-    if (TARGET_IC_COMPAT2_0) {
-        i960_maxbitalignment = 8;
-        i960_last_maxbitalignment = 128;
-    } else {
-#endif
-        i960_maxbitalignment = 128;
-        i960_last_maxbitalignment = 8;
-#if 0
-    }
-#endif
+    i960_maxbitalignment = 128;
+    i960_last_maxbitalignment = 8;
 }
 
 static void
