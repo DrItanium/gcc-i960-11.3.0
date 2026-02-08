@@ -1743,23 +1743,17 @@ i960_print_operand (FILE* file, rtx x, int code)
 	  || (rtxcode == GE) || (rtxcode == LE))
 	fputs ("i", file);
       else
-	abort();
+          gcc_unreachable();
       break;
 
     case 'I':
       /* Inverted condition.  */
-      /// TODO: use reversed_comparison_code instead as reverse_condition
-      /// doesn't work with floating point numbers in all cases
-      rtxcode = reverse_condition (rtxcode); // this fails with floating point
-                                             // operations
+      rtxcode = reverse_condition_maybe_unordered (rtxcode); 
       goto normal; // gross
 
     case 'X':
       /* Inverted condition w/ reversed operands.  */
-      /// TODO: use reversed_comparison_code instead as reverse_condition
-      /// doesn't work with floating point numbers in all cases
-      rtxcode = reverse_condition (rtxcode); // this fails with floating point
-                                             // operations
+      rtxcode = reverse_condition_maybe_unordered (rtxcode);
       /* Fallthrough.  */
 
     case 'R':
