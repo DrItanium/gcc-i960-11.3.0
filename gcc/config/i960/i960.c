@@ -116,6 +116,64 @@ static int ret_label = 0;
 
 #define VARARGS_STDARG_FUNCTION(FNDECL)	(stdarg_p(TREE_TYPE(FNDECL)))
 
+// new options for looking stuff up
+i960_float_abi_type i960_float_abi = FLOAT_ABI_HARD;
+i960_processor_type i960_arch = ARCH_KB;
+
+
+bool i960_has_numerics = false;
+bool i960_has_protected = false;
+bool i960_has_complex_addr = false;
+bool i960_has_branch_predict = false;
+// C series and later is superscalar but I'm not supporting that right now
+
+struct i960_processor_info {
+    i960_processor_type arch;
+    const char* name;
+    const char* description;
+    unsigned int features;
+};
+
+static const struct i960_processor_info i960_processors[] = {
+    { ARCH_KA, "ka", "i960 KA", I960_FEATURE_COMPLEX_ADDRESSING },
+    { ARCH_KB, "kb", "i960 KB", I960_FEATURE_COMPLEX_ADDRESSING | I960_FEATURE_NUMERICS },
+    { ARCH_KC, "kc", "i960 KC", I960_FEATURE_COMPLEX_ADDRESSING | I960_FEATURE_NUMERICS | I960_FEATURE_PROTECTED },
+    { ARCH_SA, "sa", "i960 SA", I960_FEATURE_COMPLEX_ADDRESSING },
+    { ARCH_SB, "sb", "i960 SB", I960_FEATURE_COMPLEX_ADDRESSING | I960_FEATURE_NUMERICS },
+    { ARCH_SC, "sc", "i960 SC", I960_FEATURE_COMPLEX_ADDRESSING | I960_FEATURE_NUMERICS | I960_FEATURE_PROTECTED },
+    { ARCH_MC, "mc", "i960 MC", I960_FEATURE_COMPLEX_ADDRESSING | I960_FEATURE_NUMERICS | I960_FEATURE_PROTECTED },
+    { (i960_processor_type) 0, nullptr, nullptr, 0 },
+};
+static const i960_processor_info*
+i960_get_processor_info() 
+{
+    return &i960_processors[i960_arch];
+}
+static bool
+i960_processor_has_feature(unsigned int feature) 
+{
+    const i960_processor_info* proc = i960_get_processor_info();
+    return (proc->features & feature) != 0;
+}
+
+static bool
+i960_resolve_option(int optionValue, unsigned int cpuFeature, const char* featureName, bool defaultIfCapable) 
+{
+    bool cpuHasFeature = i960_processor_has_feature(cpu_feature);
+    if (optionValue == I960_OPTION_ENABLED) {
+        if (!cpuHasFeature) {
+            const i960_processor_info* proc = i960_get_processor_info();
+            error ("processor %qs does not support %s", proc->name, feature_name);
+            return false;
+        }
+        return true;
+    } else if (optionValue== I960_OPTION_DISABLED) {
+        return false;
+    } else if {
+        return cpuHasFeature && defaultIfCapable;
+    }
+}
+
 /* Initialize the GCC target structure.  */
 
 /* Zero initialization is OK for all current fields.  */
@@ -130,6 +188,61 @@ i960_option_override (void)
 {
   /* Set the per-function-data initializer.  */
   init_machine_status = i960_init_machine_status;
+  const auto* proc = i960_get_processor_info();
+  // Protected architecture is a superset of the numerics architecture, if you
+  // enable protected then also enable numerics.
+  if (i960_protected_option == I960_OPTION_ENABLED) {
+      if (!i960_processor_has_feature(I960_FEATURE_PROTECTED)) {
+          error ("processor %qs does not support protected extensions", proc->name);
+          i960_protected_option = I960_OPTION_DISABLED;
+      } else {
+          if (i960_float_abi == FLOAT_ABI_SOFT) {
+              // protected implies that we have an FPU
+              error("%<-mprotected%> requires %<-mhard-float%> (numerics extensions)");
+          }
+          i960_float_abi = FLOAT_ABI_HARD;
+      }
+  }
+  // resolve numerics based on floating point ABI
+  if (TARGET_HARD_FLOAT) {
+    // user wants hardware FPU -- check and see if it is legal
+    if (!i960_processor_has_feature(I960_FEATURE_NUMERICS)) {
+        if (global_options_set.x_i960_float_abi) {
+            error("processor %qs does not support hardware floating-point", proc->name);
+        }
+        // fall back to soft float
+        i960_float_abi = FLOAT_ABI_SOFT;
+        i960_has_numerics = false;
+    } else {
+        i960_has_numerics = true;
+    }
+  } else {
+    // target soft_float
+    i960_has_numerics = false;
+  }
+  // resolve protected extensions
+  i960_has_protected = i960_resolve_option( i960_protected_option, I960_FEATURE_PROTECTED, "protected extensions", true);
+  if (i960_has_protected && !i960_has_numerics) {
+      error("protected extensions require numerics extensions (hardware floating-point)");
+      i960_has_protected = false;
+  }
+
+  i960_has_complex_addr = i960_resolve_option( i960_complex_addr_option, I960_FEATURE_COMPLEX_ADDRESSING, "complex addressing modes", true);
+  i960_has_branch_predict = i960_resolve_option( i960_branch_predict_option, I960_FEATURE_BRANCH_PREDICT, "branch prediction", true);
+  if (!global_options_set.x_i960_float_abi) {
+      if (i960_processor_has_feature(I960_FEATURE_NUMERICS)) {
+          i960_float_abi = FLOAT_ABI_HARD;
+      } else {
+          i960_float_abi = FLOAT_ABI_SOFT;
+      }
+  }
+
+  if (flag_verbose_asm) {
+      fprintf(asm_out_file, "# Target: %s\n", proc->description);
+      fprintf(asm_out_file, "# Float ABI: %s\n", TARGET_HARD_FLOAT ? "hard" : "soft");
+      fprintf(asm_out_file, "# Numerics: %s\n", i960_has_numerics ? "yes" : "no");
+      fprintf(asm_out_file, "# Protected: %s\n", i960_has_protected ? "yes" : "no");
+  }
 }
 /* Override conflicting target switch options.
    Doesn't actually detect if more than one -mARCH option is given, but

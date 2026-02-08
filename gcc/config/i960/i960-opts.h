@@ -45,6 +45,7 @@ enum i960_processor_type {
 // support for the protected architecture (MMU + OS and string instructions)
 #define I960_FEATURE_PROTECTED (1 << 1)
 // use complex addressing modes
-#define I960_FEATURE_COMPLEX (1 << 2)
-
+#define I960_FEATURE_COMPLEX_ADDRESSING (1 << 2)
+#define I960_FEATURE_CODE_ALIGN (1 << 3)
+#define I960_FEATURE_BRANCH_PREDICT (1 << 4)
 #endif
