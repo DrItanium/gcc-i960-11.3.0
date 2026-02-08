@@ -38,7 +38,6 @@ enum i960_processor_type {
     ARCH_SB, // S-series, FPU, no MMU, 16-bit data bus (although MMU is in there)
     ARCH_SC, // S-series, FPU, MMU, 16-bit data bus
     ARCH_MC, // M-series, FPU, MMU, 32-bit data bus
-    // @todo newer cpu targets like the C, H, J, R, and V series go here
 };
 
 // support for the numerics architecture (FPU)
