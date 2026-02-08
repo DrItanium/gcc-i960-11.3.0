@@ -1,0 +1,14 @@
+# Multilib configuration for i960
+# Thanks copilot for providing this understanding
+
+# Floating-point ABI
+MULTILIB_OPTIONS = msoft-float
+MULTILIB_DIRNAMES = soft-float
+
+MULTILIB_EXCEPTIONS = 
+
+MULTILIB_MATCHES = 
+
+# Make sure that this makefile fragment is included
+LIBGCC = stmp-multilib
+INSTALL_LIBGCC = install-multilib

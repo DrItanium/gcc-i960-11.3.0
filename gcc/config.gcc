@@ -2265,10 +2265,10 @@ x86_64-*-fuchsia*)
 	;;
 i960*-*-elf*)
 	tm_file="${tm_file} elfos.h newlib-stdint.h i960/elf.h"
-	tmake_file="i960/t-960bare"
+	tmake_file="i960/t-i960"
     c_target_objs="${c_target_objs} i960-c.o"
 	cxx_target_objs="${cxx_target_objs} i960-c.o"
-	target_cpu_default="0"
+    use_fixproto=yes
 	;;
 ia64*-*-elf*)
 	tm_file="${tm_file} dbxelf.h elfos.h newlib-stdint.h ia64/sysv4.h ia64/elf.h"
