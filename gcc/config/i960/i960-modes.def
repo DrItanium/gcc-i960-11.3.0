@@ -22,6 +22,8 @@ the Free Software Foundation, 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.  */
 
 /* long double */
+// 80-bit intel extended format in a 128-bit container so it is safe to use for
+// hardware and software floating point
 FLOAT_MODE (TF, 16, ieee_extended_intel_128_format);
 
 /* Add any extra modes needed to represent the condition code.

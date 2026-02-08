@@ -2557,6 +2557,9 @@ i960_hard_regno_nregs (unsigned int regno, machine_mode mode)
    and the floating point registers hold any size floating point number */
     if (isHardRegister(regno)) {
         return ((GET_MODE_SIZE(mode) + UNITS_PER_WORD - 1) / UNITS_PER_WORD);
+    } else if (isFloatingPointRegister(regno)) {
+        // the fp registers always hold a single 80-bit value
+        return 1;
     } else if (regno < FIRST_PSEUDO_REGISTER) {
         return 1;
     } else {
