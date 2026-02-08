@@ -155,17 +155,17 @@ i960_processor_has_feature(unsigned int feature)
 static bool
 i960_resolve_option(int optionValue, unsigned int cpuFeature, const char* featureName, bool defaultIfCapable) 
 {
-    bool cpuHasFeature = i960_processor_has_feature(cpu_feature);
+    bool cpuHasFeature = i960_processor_has_feature(cpuFeature);
     if (optionValue == I960_OPTION_ENABLED) {
         if (!cpuHasFeature) {
             const i960_processor_info* proc = i960_get_processor_info();
-            error ("processor %qs does not support %s", proc->name, feature_name);
+            error ("processor %qs does not support %s", proc->name, featureName);
             return false;
         }
         return true;
     } else if (optionValue== I960_OPTION_DISABLED) {
         return false;
-    } else if {
+    } else {
         return cpuHasFeature && defaultIfCapable;
     }
 }
