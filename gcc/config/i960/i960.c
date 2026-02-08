@@ -116,10 +116,6 @@ static int ret_label = 0;
 
 #define VARARGS_STDARG_FUNCTION(FNDECL)	(stdarg_p(TREE_TYPE(FNDECL)))
 
-// new options for looking stuff up
-enum i960_float_abi_type i960_float_abi = FLOAT_ABI_HARD;
-enum i960_processor_type i960_arch = ARCH_KB;
-
 
 bool i960_has_numerics = false;
 bool i960_has_protected = false;
@@ -3055,19 +3051,6 @@ i960_cannot_use_g14_for_zero_store()
 
 #undef TARGET_STRUCT_VALUE_RTX
 #define TARGET_STRUCT_VALUE_RTX i960_struct_value_rtx
-
-// based on overhauling the frontend, copilot recommends I include these
-// optimizations
-
-static const default_options i960_options_optimization_table[] = {
-    { OPT_LEVELS_1_PLUS, OPT_falign_functions, nullptr, 16 },
-    { OPT_LEVELS_1_PLUS, OPT_falign_loops, nullptr, 16 },
-    { OPT_LEVELS_NONE, 0, nullptr, 0 },
-};
-
-#undef TARGET_OPTION_OPTIMIZATION_TABLE
-#define TARGET_OPTION_OPTIMIZATION_TABLE i960_options_optimization_table
-
 
 struct gcc_target targetm = TARGET_INITIALIZER;
 #include "gt-i960.h"

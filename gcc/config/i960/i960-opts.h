@@ -25,12 +25,12 @@
 #ifndef I960_OPTS_H
 #define I960_OPTS_H
 // floating point abi types
-enum i960_float_abi_type {
+enum i960_float_abi_type : int {
     FLOAT_ABI_SOFT,
     FLOAT_ABI_HARD
 };
 
-enum i960_processor_type {
+enum i960_processor_type : int {
     ARCH_KA, // K-series, no FPU, no MMU, 32-bit data bus (although FPU and MMU are there)
     ARCH_KB, // K-series, FPU, no MMU, 32-bit data bus (although MMU is there)
     ARCH_KC, // K-series, FPU, MMU, 32-bit data bus (theoretical)
@@ -48,4 +48,8 @@ enum i960_processor_type {
 #define I960_FEATURE_COMPLEX_ADDRESSING (1 << 2)
 #define I960_FEATURE_CODE_ALIGN (1 << 3)
 #define I960_FEATURE_BRANCH_PREDICT (1 << 4)
+
+#define I960_OPTION_UNSET (-1)
+#define I960_OPTION_DISABLED (0)
+#define I960_OPTION_ENABLED (1)
 #endif

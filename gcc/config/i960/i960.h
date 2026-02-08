@@ -25,8 +25,6 @@ Boston, MA 02111-1307, USA.  */
 #ifndef GCC_I960_H
 #define GCC_I960_H
 #include "config/i960/i960-opts.h"
-extern enum i960_float_abi_type i960_float_abi;
-extern enum i960_processor_type i960_arch;
 extern bool i960_has_numerics;
 extern bool i960_has_protected;
 extern bool i960_has_complex_addr;

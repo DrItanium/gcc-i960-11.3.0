@@ -23,6 +23,43 @@
 HeaderInclude
 config/i960/i960-opts.h
 
+; Floating-point ABI 
+Enum
+Name(i960_float_abi) Type(int)
+i960 floating-point ABI:
+
+EnumValue
+Enum(i960_float_abi) String(soft) Value(FLOAT_ABI_SOFT)
+
+EnumValue
+Enum(i960_float_abi) String(hard) Value(FLOAT_ABI_HARD)
+
+; Architecture enum
+Enum
+Name(i960_arch) Type(int)
+Known i960 architectures:
+
+EnumValue
+Enum(i960_arch) String(ka) Value(ARCH_KA)
+
+EnumValue
+Enum(i960_arch) String(kb) Value(ARCH_KB)
+
+EnumValue
+Enum(i960_arch) String(kc) Value(ARCH_KC)
+
+EnumValue
+Enum(i960_arch) String(sa) Value(ARCH_SA)
+
+EnumValue
+Enum(i960_arch) String(sb) Value(ARCH_SB)
+
+EnumValue
+Enum(i960_arch) String(sc) Value(ARCH_SC)
+
+EnumValue
+Enum(i960_arch) String(sc) Value(ARCH_MC)
+
 mhard-float
 Target RejectNegative Var(i960_float_abi, FLOAT_ABI_HARD) Save
 Use hardware floating-point instructions (enables numerics architecture)
@@ -64,63 +101,38 @@ Target Var(i960_branch_predict_option, 1) Init(-1) Save
 Enable branch prediction hints
 
 mno-branch-predict
-Target Var(i960_branch_predict_option, 1) Init(-1) Save
+Target Var(i960_branch_predict_option, 1) Save
 Enable branch prediction hints
 
 ;; cpu-specific options
 mka
-Target RejectNegative Var(i960_arch) Enum(i960_arch) Enum(ARCH_KA)
+Target RejectNegative Var(i960_arch, ARCH_KA) Save
 Target i960 KA processor
 
 mkb
-Target RejectNegative Var(i960_arch) Enum(i960_arch) Enum(ARCH_KB)
+Target RejectNegative Var(i960_arch, ARCH_KB) Save Init(ARCH_KB)
 Target i960 KB processor
 
 mkc
-Target RejectNegative Var(i960_arch) Enum(i960_arch) Enum(ARCH_KC)
+Target RejectNegative Var(i960_arch, ARCH_KC) Save
 Target i960 KC processor (not a real thing)
 
 msa
-Target RejectNegative Var(i960_arch) Enum(i960_arch) Enum(ARCH_SA)
+Target RejectNegative Var(i960_arch, ARCH_SA) Save
 Target i960 SA processor
 
 msb
-Target RejectNegative Var(i960_arch) Enum(i960_arch) Enum(ARCH_SB)
+Target RejectNegative Var(i960_arch, ARCH_SB) Save
 Target i960 SB processor
 
 msc
-Target RejectNegative Var(i960_arch) Enum(i960_arch) Enum(ARCH_SC)
+Target RejectNegative Var(i960_arch, ARCH_SC) Save
 Target i960 SC processor (not a real thing)
 
 mmc
-Target RejectNegative Var(i960_arch) Enum(i960_arch) Enum(ARCH_MC)
+Target RejectNegative Var(i960_arch, ARCH_MC) Save
 Target i960 MC processor 
 
-; Architecture enum
-Enum
-Name(i960_arch) Type(enum i960_processor_type)
-Known i960 architectures:
-
-EnumValue
-Enum(i960_arch) String(ka) Value(ARCH_KA)
-
-EnumValue
-Enum(i960_arch) String(kb) Value(ARCH_KB)
-
-EnumValue
-Enum(i960_arch) String(kc) Value(ARCH_KC)
-
-EnumValue
-Enum(i960_arch) String(sa) Value(ARCH_SA)
-
-EnumValue
-Enum(i960_arch) String(sb) Value(ARCH_SB)
-
-EnumValue
-Enum(i960_arch) String(sc) Value(ARCH_SC)
-
-EnumValue
-Enum(i960_arch) String(sc) Value(ARCH_MC)
 
 
 march=
