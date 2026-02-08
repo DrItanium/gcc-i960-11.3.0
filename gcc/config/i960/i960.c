@@ -232,7 +232,6 @@ i960_option_override ()
           i960_float_abi = FLOAT_ABI_SOFT;
       }
   }
-  printf("target cpu: %s, (%s)\n", proc.name, proc.description);
 }
 /* Override conflicting target switch options.
    Doesn't actually detect if more than one -mARCH option is given, but
