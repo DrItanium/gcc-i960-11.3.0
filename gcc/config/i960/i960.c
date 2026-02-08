@@ -1737,11 +1737,6 @@ normal: // this is not good if I am seeing a label...
           case ORDERED:
               fputs("o", file);
               return;
-          case UNKNOWN:
-              // this is a fall back to make sure that I can figure out where a
-              // given error is coming from. It will never actually assemble
-              fputs("?", file);
-              return;
           default:
               gcc_unreachable();
       }
