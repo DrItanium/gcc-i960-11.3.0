@@ -25,6 +25,25 @@ Boston, MA 02111-1307, USA.  */
 #ifndef GCC_I960_H
 #define GCC_I960_H
 #include "config/i960/i960-opts.h"
+extern enum i960_float_abi_type i960_float_abi;
+extern enum i960_processor_type i960_arch;
+extern bool i960_has_numerics;
+extern bool i960_has_protected;
+extern bool i960_has_complex_addr;
+extern bool i960_has_branch_predict;
+
+#define TARGET_HARD_FLOAT (i960_float_abi == FLOAT_ABI_HARD)
+#define TARGET_SOFT_FLOAT (i960_float_abi == FLOAT_ABI_SOFT)
+#define TARGET_NUMERICS (i960_has_numerics)
+#define TARGET_PROTECTED (i960_has_protected)
+#define TARGET_COMPLEX_ADDR (i960_has_complex_addr)
+#define TARGET_BRANCH_PREDICT (i960_has_branch_predict)
+
+#define TARGET_K_SERIES (i960_arch == ARCH_KA || i960_arch == ARCH_KB || i960_arch == ARCH_KC)
+#define TARGET_S_SERIES (i960_arch == ARCH_SA || i960_arch == ARCH_SB || i960_arch == ARCH_SC)
+#define TARGET_M_SERIES (i960_arch == ARCH_MC)
+            
+
 /* Note that some other tm.h files may include this one and then override
    many of the definitions that relate to assembler syntax.  */
 /* Target CPU builtins.  */
@@ -32,32 +51,44 @@ Boston, MA 02111-1307, USA.  */
   do						\
     {						\
 	builtin_define ("__i960__");		\
-    if (TARGET_NUMERICS) builtin_define("__i960_numerics__"); \
-    if (TARGET_PROTECTED) builtin_define("__i960_protected__"); \
+    if (TARGET_K_SERIES) \
+        builtin_define("__i960Kx__"); \
+    if (TARGET_S_SERIES) \
+        builtin_define("__i960Sx__"); \
+    if (TARGET_M_SERIES) \
+        builtin_define("__i960Mx__"); \
+    switch (i960_arch) { \
+        case ARCH_KA: builtin_define("__i960KA__"); break; \
+        case ARCH_KB: builtin_define("__i960KB__"); break; \
+        case ARCH_KC: builtin_define("__i960KC__"); break; \
+        case ARCH_SA: builtin_define("__i960SA__"); break; \
+        case ARCH_SB: builtin_define("__i960SB__"); break; \
+        case ARCH_SC: builtin_define("__i960SC__"); break; \
+        case ARCH_MC: builtin_define("__i960MC__"); break; \
+    } \
+    if (TARGET_NUMERICS) \
+        builtin_define("__i960_numerics__"); \
+    if (TARGET_PROTECTED) \
+        builtin_define("__i960_protected__"); \
+    if (TARGET_COMPLEX_ADDR) \
+        builtin_define("__i960_complex_addr__"); \
+    if (TARGET_BRANCH_PREDICT) \
+        builtin_define("__i960_branch_predict__"); \
+    if (TARGET_HARD_FLOAT) \
+        builtin_define("__HARD_FLOAT__"); \
+    else \
+        builtin_define("__SOFT_FLOAT__"); \
 	builtin_assert ("cpu=i960");		\
 	builtin_assert ("machine=i960");	\
     }						\
   while (0)
 
-#define MULTILIB_DEFAULTS { "mnumerics" }
+#define MULTILIB_DEFAULTS { }
 
 /* Name to predefine in the preprocessor for processor variations.
    -mic* options make characters signed by default.  */
 #undef CPP_SPEC
-#define	CPP_SPEC "%{msoft-float:-D_SOFT_FLOAT}\
-	%{mka:-D__i960KA__ -D__i960Kx__ -mcomplex-addr}\
-	%{mkb:-D__i960KB__ -D__i960Kx__ -mcomplex-addr -mnumerics}\
-	%{msa:-D__i960SA__ -D__i960Sx__ -mcomplex-addr}\
-	%{msb:-D__i960SB__ -D__i960Sx__ -mcomplex-addr -mnumerics}\
-	%{mmc:-D__i960MC__ -D__i960Mx__ -mcomplex-addr -mnumerics -mprotected}\
-	%{mca:-D__i960CA__ -D__i960Cx__ -mcomplex-addr -mbranch-predict -mcode-align}\
-	%{mcc:-D__i960CC__ -D__i960Cx__ -mcomplex-addr -mbranch-predict -mcode-align}\
-	%{mcf:-D__i960CF__ -D__i960Cx__ -mcomplex-addr -mbranch-predict -mcode-align}\
-    %{mja:-D__i960JA__ -D__i960Jx__ -mcomplex-addr -mcode-align}\
-    %{mjd:-D__i960JD__ -D__i960Jx__ -mcomplex-addr -mcode-align}\
-    %{mjf:-D__i960JF__ -D__i960Jx__ -mcomplex-addr -mcode-align}\
-	%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:\
-		%{!mcc:%{!mcf:-D__i960_KA -D__i960KA__}}}}}}}}"
+#define	CPP_SPEC "%{msoft-float:-D_SOFT_FLOAT}"
 
 /* Specs for the compiler, to handle processor variations. 
    If the user gives an explicit -gstabs or -gcoff option, then do not

@@ -117,8 +117,8 @@ static int ret_label = 0;
 #define VARARGS_STDARG_FUNCTION(FNDECL)	(stdarg_p(TREE_TYPE(FNDECL)))
 
 // new options for looking stuff up
-i960_float_abi_type i960_float_abi = FLOAT_ABI_HARD;
-i960_processor_type i960_arch = ARCH_KB;
+enum i960_float_abi_type i960_float_abi = FLOAT_ABI_HARD;
+enum i960_processor_type i960_arch = ARCH_KB;
 
 
 bool i960_has_numerics = false;
