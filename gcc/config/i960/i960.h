@@ -25,10 +25,10 @@ Boston, MA 02111-1307, USA.  */
 #ifndef GCC_I960_H
 #define GCC_I960_H
 #include "config/i960/i960-opts.h"
-extern bool i960_has_numerics;
-extern bool i960_has_protected;
-extern bool i960_has_complex_addr;
-extern bool i960_has_branch_predict;
+extern int i960_has_numerics;
+extern int i960_has_protected;
+extern int i960_has_complex_addr;
+extern int i960_has_branch_predict;
 
 #define TARGET_HARD_FLOAT (i960_float_abi == FLOAT_ABI_HARD)
 #define TARGET_SOFT_FLOAT (i960_float_abi == FLOAT_ABI_SOFT)
@@ -81,38 +81,25 @@ extern bool i960_has_branch_predict;
     }						\
   while (0)
 
-#define MULTILIB_DEFAULTS { }
+#define MULTILIB_DEFAULTS { "mhard-float" }
 
-/* Name to predefine in the preprocessor for processor variations.
-   -mic* options make characters signed by default.  */
 #undef CPP_SPEC
 #define	CPP_SPEC "%{msoft-float:-D_SOFT_FLOAT}"
 
-/* Specs for the compiler, to handle processor variations. 
-   If the user gives an explicit -gstabs or -gcoff option, then do not
-   try to add an implicit one, as this will fail. 
-   -mic* options make characters signed by default.  */
 #undef CC1_SPEC
-#define CC1_SPEC "%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:%{!mcc:%{!mcf:%{!mja:%{!mjd:%{!mjf:%{!mrp:-mka}}}}}}}}}}}}"
+#define CC1_SPEC ""
 
-/* Specs for the assembler, to handle processor variations.
-   For compatibility with Intel's gnu960 tool chain, pass -A options to
-   the assembler.  */
 #undef ASM_SPEC
-#define ASM_SPEC \
-	"%{mka:-AKA}%{mkb:-AKB}%{msa:-ASA}%{msb:-ASB}\
-	%{mmc:-AMC}%{mca:-ACA}%{mcc:-ACC}%{mcf:-ACF}\
-        %{mja:-AJX}%{mjd:-AJX}%{mjf:-AJX}%{mrp:-AJX}\
-	%{!mka:%{!mkb:%{!msa:%{!msb:%{!mmc:%{!mca:%{!mcc:%{!mcf:%{!mja:%{!mjd:%{!mjf:%{!mrp:-AKB}}}}}}}}}}}}"
+#define ASM_SPEC "\
+	%{mka:-AKA} %{mkb:-AKB} %{mkc:-AKC}\
+	%{msa:-ASA} %{msb:-ASB} %{msc:-ASC}\
+    %{mmc:-AMC}"
 
 /* Specs for the linker, to handle processor variations.
    For compatibility with Intel's gnu960 tool chain, pass -F and -A options
    to the linker.  */
 #undef LINK_SPEC
-#define LINK_SPEC \
-	"%{mka:-AKA}%{mkb:-AKB}%{msa:-ASA}%{msb:-ASB}\
-	%{mmc:-AMC}%{mca:-ACA}%{mcc:-ACC}%{mcf:-ACF}\
-        %{mja:-AJX}%{mjd:-AJX}%{mjf:-AJX}%{mrp:-AJX}"
+#define LINK_SPEC "%{msoft-float:-L%R/lib/soft-float} %{!msoft-float:-L%R/lib}"
 
 /* Generate DBX debugging information.  */
 #define DBX_DEBUGGING_INFO 1

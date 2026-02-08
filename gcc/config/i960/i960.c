@@ -117,10 +117,10 @@ static int ret_label = 0;
 #define VARARGS_STDARG_FUNCTION(FNDECL)	(stdarg_p(TREE_TYPE(FNDECL)))
 
 
-bool i960_has_numerics = false;
-bool i960_has_protected = false;
-bool i960_has_complex_addr = false;
-bool i960_has_branch_predict = false;
+int i960_has_numerics = false;
+int i960_has_protected = false;
+int i960_has_complex_addr = false;
+int i960_has_branch_predict = false;
 // C series and later is superscalar but I'm not supporting that right now
 
 struct i960_processor_info {
