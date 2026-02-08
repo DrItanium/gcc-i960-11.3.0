@@ -24,4 +24,28 @@
 
 #ifndef I960_OPTS_H
 #define I960_OPTS_H
+// floating point abi types
+enum i960_float_abi_type {
+    FLOAT_ABI_SOFT,
+    FLOAT_ABI_HARD
+};
+
+enum i960_processor_type {
+    ARCH_KA, // K-series, no FPU, no MMU, 32-bit data bus (although FPU and MMU are there)
+    ARCH_KB, // K-series, FPU, no MMU, 32-bit data bus (although MMU is there)
+    ARCH_KC, // K-series, FPU, MMU, 32-bit data bus (theoretical)
+    ARCH_SA, // S-series, no FPU, no MMU, 16-bit data bus
+    ARCH_SB, // S-series, FPU, no MMU, 16-bit data bus (although MMU is in there)
+    ARCH_SC, // S-series, FPU, MMU, 16-bit data bus
+    ARCH_MC, // M-series, FPU, MMU, 32-bit data bus
+    // @todo newer cpu targets like the C, H, J, R, and V series go here
+};
+
+// support for the numerics architecture (FPU)
+#define I960_FEATURE_NUMERICS (1 << 0) 
+// support for the protected architecture (MMU + OS and string instructions)
+#define I960_FEATURE_PROTECTED (1 << 1)
+// use complex addressing modes
+#define I960_FEATURE_COMPLEX (1 << 2)
+
 #endif
