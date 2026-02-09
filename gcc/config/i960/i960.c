@@ -2936,10 +2936,8 @@ i960_cannot_use_g14_for_zero_store()
         || crtl->args.size.to_constant() != 0
         || cfun->stdarg;
 }
-bool
-isFloatingPointRegister(rtx x) {
-    return isFloatingPointRegister(REGNO(x));
-}
+bool isFloatingPointRegister(rtx x) { return isFloatingPointRegister(REGNO(x)); }
+bool isGPR(rtx x) { return isGPR(REGNO(x)); }
 
 #undef  TARGET_OPTION_OVERRIDE
 #define TARGET_OPTION_OVERRIDE i960_option_override

@@ -89,4 +89,5 @@ extern HOST_WIDE_INT i960_compute_initial_elimination_offset (unsigned int, unsi
 extern bool i960_can_use_g14_for_zero_store(void);
 extern bool i960_cannot_use_g14_for_zero_store(void);
 extern bool isFloatingPointRegister(rtx value);
+extern bool isGPR(rtx value);
 #endif /* ! GCC_I960_PROTOS_H  */
