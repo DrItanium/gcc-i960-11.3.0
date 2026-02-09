@@ -87,8 +87,8 @@ extern int i960_has_branch_predict;
 
 #undef ASM_SPEC
 #define ASM_SPEC "\
-	%{mka:-AKA} %{mkb:-AKB} %{mkc:-AKC}\
-	%{msa:-ASA} %{msb:-ASB} %{msc:-ASC}\
+	%{mka:-AKA} %{mkb:-AKB} %{mkc:-AMC}\
+	%{msa:-ASA} %{msb:-ASB} %{msc:-AMC}\
     %{mmc:-AMC}"
 
 /* Specs for the linker, to handle processor variations.
