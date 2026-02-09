@@ -624,6 +624,20 @@ constexpr bool isMultiWordSequence(machine_mode mode) noexcept {
 bool
 i960_emit_move_sequence (rtx* operands, machine_mode mode)
 {
+  // we cannot directly load into floating point registers from memory and thus
+  // we must do a multiple instruction setup
+  if (isRegisterOperand(operands[0]) && 
+      isNonPseudoRegister(operands[0]) &&
+      FP_REG_P(operands[0]) &&
+      isMemoryOperand(operands[1])) {
+      // we a gpr(s) to act as temporary register(s)
+      rtx tempRegister = gen_reg_rtx(mode); 
+      // we load into our temporaries from main memory
+      emit_move_insn(tempRegister, operands[1]); 
+      // then we move from the temporary into the floating point register
+      emit_move_insn(operands[0], tempRegister);
+      return true;
+  }
   /* We can only store registers to memory.  */
   
     if (isMemoryOperand(operands[0]) && !isRegisterOperand(operands[1]) &&
@@ -661,6 +675,7 @@ i960_emit_move_sequence (rtx* operands, machine_mode mode)
                          gen_rtx_SCRATCH (Pmode)))));
         return true;
     }
+
 
   return false;
 }
