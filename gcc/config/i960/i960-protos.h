@@ -67,7 +67,8 @@ extern int i960_si_di (rtx, rtx);
 constexpr bool isQuadRegisterAligned(unsigned int value) noexcept { return (value & 0b11) == 0; }
 constexpr bool isTripleRegisterAligned(unsigned int value) noexcept { return isQuadRegisterAligned(value); }
 constexpr bool isLongRegisterAligned(unsigned int value) noexcept { return (value & 0b1) == 0; }
-
+constexpr bool isFloatingPointRegister(unsigned int value) noexcept { return value >= 32 && value < 36; }
+constexpr bool isGPR(unsigned int index) noexcept { return index < 32; }
 #endif
 extern int i960_round_align (int, tree);
 extern void i960_function_name_declare (FILE *, const char *, tree);
@@ -87,4 +88,5 @@ extern void i960_initialize (void);
 extern HOST_WIDE_INT i960_compute_initial_elimination_offset (unsigned int, unsigned int);
 extern bool i960_can_use_g14_for_zero_store(void);
 extern bool i960_cannot_use_g14_for_zero_store(void);
+extern bool isFloatingPointRegister(rtx value);
 #endif /* ! GCC_I960_PROTOS_H  */

@@ -2610,14 +2610,6 @@ i960_rtx_costs (rtx x, machine_mode, int code, int outer_code, int* total, bool)
       return false;
     }
 }
-namespace {
-    constexpr bool isHardRegister(unsigned int index) noexcept {
-        return index < 32;
-    }
-    constexpr bool isFloatingPointRegister(unsigned int index) noexcept {
-        return index >= 32 && index < 36;
-    }
-}
 static unsigned int
 i960_hard_regno_nregs (unsigned int regno, machine_mode mode)
 {
@@ -2629,7 +2621,7 @@ i960_hard_regno_nregs (unsigned int regno, machine_mode mode)
    On 80960, ordinary registers hold 32 bits worth, but can be ganged
    together to hold double or extended precision floating point numbers,
    and the floating point registers hold any size floating point number */
-    if (isHardRegister(regno)) {
+    if (isGPR(regno)) {
         return ((GET_MODE_SIZE(mode) + UNITS_PER_WORD - 1) / UNITS_PER_WORD);
     } else if (isFloatingPointRegister(regno)) {
         // the fp registers always hold a single 80-bit value
@@ -2653,7 +2645,7 @@ i960_hard_regno_mode_ok (unsigned int regno, machine_mode mode) {
 /* Value is 1 if hard register REGNO can hold a value of machine-mode MODE.
    On 80960, the cpu registers can hold any mode but the float registers
    can only hold SFmode, DFmode, or TFmode.  */
-    if (isHardRegister(regno)) {
+    if (isGPR(regno)) {
         switch (mode) {
             case CCmode:
             case CC_UNSmode:
@@ -2943,6 +2935,10 @@ i960_cannot_use_g14_for_zero_store()
     return currently_expanding_to_rtl 
         || crtl->args.size.to_constant() != 0
         || cfun->stdarg;
+}
+bool
+isFloatingPointRegister(rtx x) {
+    return isFloatingPointRegister(REGNO(x));
 }
 
 #undef  TARGET_OPTION_OVERRIDE

@@ -12,3 +12,6 @@ MULTILIB_MATCHES =
 # Make sure that this makefile fragment is included
 LIBGCC = stmp-multilib
 INSTALL_LIBGCC = install-multilib
+
+i960-c.o: $(srcdir)/config/i960/i960-c.c $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) $(CPPLIB_H) $(TREE_H) c-family/c-pragma.h toplev.h $(GGC_H) $(TM_P_H)
+	$(COMPILER) -c $(ALL_COMPILERFLAGS) $(ALL_CPPFLAGS) $(INCLUDES) $< 
