@@ -1654,7 +1654,20 @@ i960_output_ret_insn (rtx_insn* insn)
 }
 
 /* Print the operand represented by rtx X formatted by code CODE.  */
-
+rtx_code
+i960_reverse_condition(rtx_code code) 
+{
+    switch (code) {
+        // these are not mapped by reverse_condition_maybe_unordered
+        case GTU:
+        case GEU:
+        case LTU:
+        case LEU:
+            return reverse_condition(code);
+        default:
+            return reverse_condition_maybe_unordered(code);
+    }
+}
 void
 i960_print_operand (FILE* file, rtx x, int code)
 {
@@ -1747,14 +1760,13 @@ i960_print_operand (FILE* file, rtx x, int code)
 
     case 'I':
       /* Inverted condition.  */
-      rtxcode = reverse_condition_maybe_unordered (rtxcode); 
-      goto normal; // gross
+      rtxcode = i960_reverse_condition(rtxcode);
+      goto normal; 
 
     case 'X':
       /* Inverted condition w/ reversed operands.  */
-      rtxcode = reverse_condition_maybe_unordered (rtxcode);
+      rtxcode = i960_reverse_condition(rtxcode);
       /* Fallthrough.  */
-
     case 'R':
       /* Reversed operand condition.  */
       rtxcode = swap_condition (rtxcode);
