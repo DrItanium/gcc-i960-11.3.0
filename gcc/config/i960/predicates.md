@@ -65,33 +65,3 @@
 (define_predicate "arith32_operand"
      (match_code "subreg,reg,label_ref,symbol_ref,const_int,const_double,const"))
 
-;; predicates for fprs only
-(define_predicate "fpr_operand"
- (match_operand 0 "register_operand")
- {
-    if (!REG_P(op)) return false;
-
-    unsigned int regno = REGNO (op);
-
-    // allow pseudo registers as they will be allocated to the appropriate class
-    if (regno >= FIRST_PSEUDO_REGISTER)
-        return !reload_completed;
-    
-    // only allow actual FP registers (fp0-fp3 are registers # 32-35)
-    return regno >= 32 && regno < 36;
- })
-
-;; predicate for GPRs only
-(define_predicate "gpr_operand"
- (match_operand 0 "register_operand")
- {
-    if (!REG_P(op)) return false;
-    auto regno = REGNO(op);
-
-    // allow pseudos 
-    if (regno >= FIRST_PSEUDO_REGISTER)
-        return !reload_completed;
-    // only allow GPRs
-    return regno < 32;
- })
-
