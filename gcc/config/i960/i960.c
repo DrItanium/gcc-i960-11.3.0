@@ -1658,15 +1658,12 @@ i960_output_ret_insn (rtx_insn* insn)
 rtx_code
 i960_reverse_condition(rtx_code code) 
 {
-    switch (code) {
-        // these are not mapped by reverse_condition_maybe_unordered
-        case GTU:
-        case GEU:
-        case LTU:
-        case LEU:
-            return reverse_condition(code);
-        default:
+    auto result = reverse_condition(code);
+    switch (result) {
+        case UNKNOWN:
             return reverse_condition_maybe_unordered(code);
+        default:
+            return result;
     }
 }
 void
