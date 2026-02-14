@@ -1587,7 +1587,48 @@ i960_output_ret_insn (rtx_insn* insn)
 
   return "ret";
 }
-
+static 
+void outputConditionalBranchKind(FILE* file, rtx_code rtxcode) {
+    switch (rtxcode) {
+        case EQ:
+            fputs("e", file);
+            break;
+        case NE:
+        case UNEQ:
+        case LTGT:
+            fputs("ne", file);
+            break;
+        case GT:
+        case GTU:
+        case UNGT:
+            fputs("g", file);
+            break;
+        case LT:
+        case LTU:
+        case UNLT:
+            fputs("l", file);
+            break;
+        case GE:
+        case GEU:
+        case UNGE:
+            fputs("ge", file);
+            break;
+        case LE:
+        case LEU:
+        case UNLE:
+            fputs("le", file);
+            break;
+        case UNORDERED:
+            fputs("no", file);
+            break;
+        case ORDERED:
+            fputs("o", file);
+            break;
+        default:
+            gcc_unreachable();
+            break;
+    }
+}
 /* Print the operand represented by rtx X formatted by code CODE.  */
 
 void
@@ -1669,53 +1710,50 @@ i960_print_operand (FILE* file, rtx x, int code)
         break;
 
     case 'S':
-      /* Sign of condition.  */
-      if ((rtxcode == EQ) || (rtxcode == NE) || (rtxcode == GTU)
-	  || (rtxcode == LTU) || (rtxcode == GEU) || (rtxcode == LEU))
-	fputs ("o", file);
-      else if ((rtxcode == GT) || (rtxcode == LT)
-	  || (rtxcode == GE) || (rtxcode == LE))
-	fputs ("i", file);
-      else
-	abort();
-      break;
+        /* Sign of condition.  */
+        switch (rtxcode) {
+            case EQ:
+            case NE:
+            case GTU:
+            case LTU:
+            case GEU:
+            case LEU:
+                fputs("o", file);
+                break;
+            case GT:
+            case LT:
+            case GE:
+            case LE:
+                fputs("i", file);
+                break;
+            default:
+                gcc_unreachable();
+                break;
+        }
+        break;
 
     case 'I':
       /* Inverted condition.  */
       rtxcode = reverse_condition (rtxcode);
-      goto normal; // gross
+      outputConditionalBranchKind(file, rtxcode);
+      break;
 
     case 'X':
       /* Inverted condition w/ reversed operands.  */
       rtxcode = reverse_condition (rtxcode);
-      /* Fallthrough.  */
+      rtxcode = swap_condition (rtxcode);
+      outputConditionalBranchKind(file, rtxcode);
+      break;
 
     case 'R':
       /* Reversed operand condition.  */
       rtxcode = swap_condition (rtxcode);
-      /* Fallthrough.  */
+      outputConditionalBranchKind(file, rtxcode);
+      break;
 
     case 'C':
       /* Normal condition.  */
-normal: // this is not good if I am seeing a label...
-      if (rtxcode == EQ)  { fputs ("e", file); return; }
-      else if (rtxcode == UNEQ) { fputs("e", file); return; }
-      else if (rtxcode == NE)  { fputs ("ne", file); return; }
-      else if (rtxcode == GT)  { fputs ("g", file); return; }
-      else if (rtxcode == GTU) { fputs ("g", file); return; }
-      else if (rtxcode == UNGT)  { fputs ("g", file); return; }
-      else if (rtxcode == LT)  { fputs ("l", file); return; }
-      else if (rtxcode == LTU) { fputs ("l", file); return; }
-      else if (rtxcode == UNLT)  { fputs ("l", file); return; }
-      else if (rtxcode == GE)  { fputs ("ge", file); return; }
-      else if (rtxcode == GEU) { fputs ("ge", file); return; }
-      else if (rtxcode == UNGE) { fputs ("ge", file); return; }
-      else if (rtxcode == LE)  { fputs ("le", file); return; }
-      else if (rtxcode == LEU) { fputs ("le", file); return; }
-      else if (rtxcode == UNLE) { fputs ("le", file); return; }
-      else if (rtxcode == UNORDERED) { fputs ("no", file); return; }
-      else if (rtxcode == ORDERED) { fputs ("o", file); return; }
-      else gcc_unreachable();
+      outputConditionalBranchKind(file, rtxcode);
       break;
 
       // We do not support branch prediction hints
@@ -1724,10 +1762,9 @@ normal: // this is not good if I am seeing a label...
       break;
 
     default:
-      abort ();
+      gcc_unreachable();
+      break;
     }
-
-  return;
 }
 
 /* Print a memory address as an operand to reference that memory location.
