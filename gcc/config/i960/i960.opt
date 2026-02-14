@@ -24,7 +24,7 @@ HeaderInclude
 config/i960/i960-opts.h
 
 mnumerics
-Target RejectNegative Mask(NUMERICS)
+Target RejectNegative Mask(NUMERICS) Init(-1)
 Enable i960 Numerics Extensions (hardware floating point + BCD)
 
 msoft-float
@@ -35,7 +35,7 @@ Target Mask(PROTECTED)
 Enable i960 Protected Extensions (OS Scheduling + String operations)
 
 mcomplex-addr
-Target Mask(COMPLEX_ADDR)
+Target Mask(COMPLEX_ADDR) Init(-1)
 Enable Complex addressing modes
 
 mcode-align
