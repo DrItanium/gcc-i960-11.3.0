@@ -34,6 +34,10 @@ mprotected
 Target Mask(PROTECTED)
 Enable i960 Protected Extensions (OS Scheduling + String operations)
 
+mextended
+Target Mask(EXTENDED)
+Enable i960 Extended Extensions (Tagged Memory and ADA Features) [Unsupported]
+
 mcomplex-addr
 Target Mask(COMPLEX_ADDR) Init(-1)
 Enable Complex addressing modes

@@ -87,8 +87,17 @@ enum i960_processor_type {
 #define I960_FEATURE_NUMERICS (1 << 0) 
 // support for the protected architecture (MMU + OS and string instructions)
 #define I960_FEATURE_PROTECTED (1 << 1)
+// support tagged memory and ADA features (only here for completeness, no way to test this out)
+#define I960_FEATURE_EXTENDED (1 << 2)
 // use complex addressing modes
-#define I960_FEATURE_COMPLEX (1 << 2)
-
+#define I960_FEATURE_COMPLEX (1 << 3)
+// use code alignment
+#define I960_FEATURE_CODE_ALIGNMENT (1 << 4)
+// use strict alignment
+#define I960_FEATURE_STRICT_ALIGNMENT (1 << 5)
+// new core instructions
+#define I960_FEATURE_NEW_CORE (1 << 6)
+// allow branch prediction hints to be specified (unsupported but here for completeness)
+#define I960_FEATURE_BRANCH_PREDICTION_HINTS (1 << 7)
 
 #endif
