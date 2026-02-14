@@ -23,57 +23,122 @@
 HeaderInclude
 config/i960/i960-opts.h
 
-mnumerics
-Target RejectNegative Mask(NUMERICS) Init(-1)
-Enable i960 Numerics Extensions (hardware floating point + BCD)
+; Floating-point ABI 
+Enum
+Name(i960_float_abi) Type(int)
+i960 floating-point ABI:
+
+EnumValue
+Enum(i960_float_abi) String(soft) Value(FLOAT_ABI_SOFT)
+
+EnumValue
+Enum(i960_float_abi) String(hard) Value(FLOAT_ABI_HARD)
+
+; Architecture enum
+Enum
+Name(i960_arch) Type(int)
+Known i960 architectures:
+
+EnumValue
+Enum(i960_arch) String(ka) Value(ARCH_KA)
+
+EnumValue
+Enum(i960_arch) String(kb) Value(ARCH_KB)
+
+EnumValue
+Enum(i960_arch) String(kc) Value(ARCH_KC)
+
+EnumValue
+Enum(i960_arch) String(sa) Value(ARCH_SA)
+
+EnumValue
+Enum(i960_arch) String(sb) Value(ARCH_SB)
+
+EnumValue
+Enum(i960_arch) String(sc) Value(ARCH_SC)
+
+EnumValue
+Enum(i960_arch) String(sc) Value(ARCH_MC)
+
+mhard-float
+Target RejectNegative Var(i960_float_abi, FLOAT_ABI_HARD) Init(FLOAT_ABI_HARD) Mask(NUMERICS) Save
+Use hardware floating-point instructions (enables numerics architecture)
 
 msoft-float
-Target RejectNegative InverseMask(NUMERICS)
+Target RejectNegative Var(i960_float_abi, FLOAT_ABI_SOFT) InverseMask(NUMERICS) Save
+Use software floating-point emulation
+
+mnumerics
+Target RejectNegative Alias(mhard-float)
+Enable i960 numerics extensions (-mhard-float)
 
 mprotected
-Target Mask(PROTECTED)
-Enable i960 Protected Extensions (OS Scheduling + String operations)
+Target Var(i960_protected_option, 1)  Init(-1) Mask(PROTECTED) Save
+Enable i960 protected extensions (implies -mnumerics/-mhard-float)
+
+mno-protected
+Target Var(i960_protected_option, 0) InverseMask(PROTECTED) Save
+Disable i960 protected extensions
+
+mcomplex-addr
+Target Var(i960_complex_addr_option, 1) Init(-1) Mask(COMPLEX_ADDR) Save
+Allow complex addressing mode instruction forms
+
+mno-complex-addr
+Target Var(i960_complex_addr_option, 0) InverseMask(COMPLEX_ADDR) Save
+Disallow complex addressing mode instruction forms
 
 mextended
 Target Mask(EXTENDED)
 Enable i960 Extended Extensions (Tagged Memory and ADA Features) [Unsupported]
 
-mcomplex-addr
-Target Mask(COMPLEX_ADDR) Init(-1)
-Enable Complex addressing modes
-
 mcode-align
 Target Mask(CODE_ALIGN)
-Enable Code Alignment
+Enable code alignment optimizations
 
 mstrict-alignment
 Target Mask(STRICT_ALIGN)
 Do not allow misaligned data accesses
 
+mbranch-predict
+Target Var(i960_branch_predict_option, 1) Init(-1) Mask(BRANCH_PREDICT)  Save
+Enable branch prediction hints
+
+mno-branch-predict
+Target Var(i960_branch_predict_option, 1) InverseMask(BRANCH_PREDICT) Save
+Enable branch prediction hints
+
+;; cpu-specific options
 mka
-Target RejectNegative Mask(K_SERIES) Mask(COMPLEX_ADDR)
-; i960 KA CPU Target
+Target RejectNegative Var(i960_arch, ARCH_KA) Save
+Target i960 KA processor
 
 mkb
-Target RejectNegative Mask(K_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS)
-; i960 KB CPU Target
+Target RejectNegative Var(i960_arch, ARCH_KB) Save Init(ARCH_KB)
+Target i960 KB processor
 
 mkc
-Target RejectNegative Mask(K_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS) Mask(PROTECTED)
-; i960 KC CPU (Not real) Target
+Target RejectNegative Var(i960_arch, ARCH_KC) Save
+Target i960 KC processor (not a real thing)
 
 msa
-Target RejectNegative Mask(S_SERIES) Mask(COMPLEX_ADDR)
-; i960 SA CPU
+Target RejectNegative Var(i960_arch, ARCH_SA) Save
+Target i960 SA processor
 
 msb
-Target RejectNegative Mask(S_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS)
-; i960 SB CPU
+Target RejectNegative Var(i960_arch, ARCH_SB) Save
+Target i960 SB processor
 
 msc
-Target RejectNegative Mask(S_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS) Mask(PROTECTED)
-; i960 SC CPU
+Target RejectNegative Var(i960_arch, ARCH_SC) Save
+Target i960 SC processor (not a real thing)
 
 mmc
-Target RejectNegative Mask(M_SERIES) Mask(COMPLEX_ADDR) Mask(NUMERICS) Mask(PROTECTED) Mask(TARGET_MC)
-; i960 MC CPU
+Target RejectNegative Var(i960_arch, ARCH_MC) Save
+Target i960 MC processor 
+
+
+
+march=
+Target RejectNegative Joined Enum(i960_arch) Var(i960_arch)
+-march=ARCH Generate code for the specified architecture variant
