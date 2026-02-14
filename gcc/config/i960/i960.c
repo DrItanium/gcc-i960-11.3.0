@@ -1629,6 +1629,19 @@ void outputConditionalBranchKind(FILE* file, rtx_code rtxcode) {
             break;
     }
 }
+rtx_code
+tryReverseCondition(rtx_code code) {
+    // so we need to be a little more clever and try two different reverses,
+    // first as normal, if we get unknown back then try maybe_unordered since
+    // it could be a floating point operation
+    auto reversedCondition = reverse_condition(code);
+    switch(reversedCondition) {
+        case UNKNOWN:
+            return reverse_condition_maybe_unordered(code);
+        default:
+            return reversedCondition;
+    }
+}
 /* Print the operand represented by rtx X formatted by code CODE.  */
 
 void
@@ -1734,13 +1747,13 @@ i960_print_operand (FILE* file, rtx x, int code)
 
     case 'I':
       /* Inverted condition.  */
-      rtxcode = reverse_condition (rtxcode);
+      rtxcode = tryReverseCondition (rtxcode);
       outputConditionalBranchKind(file, rtxcode);
       break;
 
     case 'X':
       /* Inverted condition w/ reversed operands.  */
-      rtxcode = reverse_condition (rtxcode);
+      rtxcode = tryReverseCondition (rtxcode);
       rtxcode = swap_condition (rtxcode);
       outputConditionalBranchKind(file, rtxcode);
       break;
