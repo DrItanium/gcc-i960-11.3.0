@@ -100,4 +100,7 @@ enum i960_processor_type {
 // allow branch prediction hints to be specified (unsupported but here for completeness)
 #define I960_FEATURE_BRANCH_PREDICTION_HINTS (1 << 7)
 
+#define I960_OPTION_UNSET (-1)
+#define I960_OPTION_DISABLED (0)
+#define I960_OPTION_ENABLED (1)
 #endif
