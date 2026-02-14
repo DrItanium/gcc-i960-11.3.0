@@ -2457,12 +2457,6 @@ i960_reg_parm_stack_space (tree fndecl)
         return 0;
     }
 
-    /* In this case, we are called from locate_and_pad_parms when we're
-       not IN_REGS, so we have an arg block.  */
-    if (fndecl != current_function_decl) {
-        return 48;
-    }
-
     /* Otherwise, we have an arg block if the current function has more than
        48 bytes of parameters.  */
     if (current_function_args_size != 0 || VARARGS_STDARG_FUNCTION (fndecl)) {
