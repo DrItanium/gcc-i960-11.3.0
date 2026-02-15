@@ -108,6 +108,10 @@ mno-branch-predict
 Target Var(i960_branch_predict_option, 1) InverseMask(BRANCH_PREDICT) Save
 Enable branch prediction hints
 
+muse-cobr
+Target Mask(COBR_INSTRUCTIONS)
+Use COBR instructions for integer/ordinal operations
+
 ;; cpu-specific options
 mka
 Target RejectNegative Var(i960_arch, ARCH_KA) Save
