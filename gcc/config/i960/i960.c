@@ -85,6 +85,25 @@ static void i960_function_arg_advance (cumulative_args_t, const class function_a
 static void i960_setup_incoming_varargs (cumulative_args_t, const class function_arg_info&, int *, int);
 static void i960_conditional_register_usage(void);
 static bool i960_frame_pointer_required(void);
+struct CPUConfiguration {
+    enum i960_processor_type targetCPU;
+    const char* macroDefinition;
+    const char* name;
+    const char* description;
+    unsigned int flags;
+    constexpr bool numericsEnabled() const noexcept { return (flags | I960_FEATURE_NUMERICS); }
+    constexpr bool protectedEnabled() const noexcept { return (flags | I960_FEATURE_PROTECTED); }
+    constexpr bool extendedEnabled() const noexcept { return (flags | I960_FEATURE_EXTENDED); }
+    constexpr bool compexAddressingEnabled() const noexcept { return (flags | I960_FEATURE_COMPLEX); }
+    constexpr bool codeAlignmentEnabled() const noexcept { return (flags | I960_FEATURE_CODE_ALIGNMENT); }
+    constexpr bool strictAlignmentEnabled() const noexcept { return (flags | I960_FEATURE_STRICT_ALIGNMENT); }
+    constexpr bool newCoreInstructionsEnabled() const noexcept { return (flags | I960_FEATURE_NEW_CORE); }
+    constexpr bool branchPredicitionEnabled() const noexcept { return (flags | I960_FEATURE_BRANCH_PREDICTION_HINTS); }
+
+    
+};
+
+extern CPUConfiguration AvailableCPUs[];
 /* Per-function machine data.  */
 struct GTY(()) machine_function
 {

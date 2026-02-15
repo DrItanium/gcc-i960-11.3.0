@@ -48,6 +48,8 @@ enum i960_processor_type {
     ARCH_SC, // S-series, FPU, MMU, 16-bit data bus (theoretical and never
              // released)
     ARCH_MC, // M-series, FPU, MMU, 32-bit data bus
+// @TODO reactivate
+#if 0
     ARCH_XA, // X-series, FPU, MMU, Extended ISA 32-bit data bus (not supported but referenced here)
     // C-series processors. These processors are superscalar i960s with a new
     // core that does not support FPU or MMU operations. Does introduce a DMA
@@ -81,6 +83,7 @@ enum i960_processor_type {
     // risc. 
     ARCH_VH,
     // @todo newer cpu targets like the H, J, R, and V series go here
+#endif
 };
 
 // support for the numerics architecture (FPU)
@@ -103,4 +106,5 @@ enum i960_processor_type {
 #define I960_OPTION_UNSET (-1)
 #define I960_OPTION_DISABLED (0)
 #define I960_OPTION_ENABLED (1)
+
 #endif
